@@ -58,11 +58,12 @@
                             <form action="{{ isset($exam) ? route('admin.academic.exams.update', $exam->id) : route('admin.academic.exams.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 @if(isset($exam))
-                                    @method('PUT')
+                                @method('PUT')
                                 @endif
                                 @php
-                                    $isActive = old('is_active', isset($exam) ? $exam->is_active : 1);
+                                $isActive = old('is_active', isset($exam) ? $exam->is_active : 1);
                                 @endphp
+
                                 {{-- Course ID --}}
                                 <div class="row align-items-baseline mb-2">
                                     <label for="course_id" class="col-sm-3 col-form-label fw-bold"><small>Course Code & Title</small> <small class="text-danger">*</small></label>
@@ -72,9 +73,9 @@
                                             <select class="form-select @error('course_id') is-invalid @elseif(old('course_id', $exam->course_id ?? false)) is-valid @enderror" name="course_id" id="course_id" class="form-control">
                                                 <option selected disabled>Select Course</option>
                                                 @foreach($courseList as $course)
-                                                    <option value="{{ $course->id }}" {{ old('course_id', $exam->course_id ?? '') == $course->id ? 'selected' : '' }}>
-                                                        [{{ $course->course_code }}] - {{ $course->course_title }}
-                                                    </option>
+                                                <option value="{{ $course->id }}" {{ old('course_id', $exam->course_id ?? '') == $course->id ? 'selected' : '' }}>
+                                                    [{{ $course->course_code }}] - {{ $course->course_title }}
+                                                </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -85,11 +86,13 @@
                                                 <i class="bi bi-exclamation-circle"></i>
                                                 {{ $message }}
                                             </div>
-                                            @elseif(old('course_id', $exam->course_id ?? false))
-                                            <div class="valid-feedback d-block">
-                                                <i class="bi bi-check-circle"></i>
-                                                Looks good!
-                                            </div>
+                                            @else
+                                                @if(old('course_id', $exam->course_id ?? false))
+                                                <div class="valid-feedback d-block">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Looks good!
+                                                </div>
+                                                @endif
                                             @enderror
                                         </div>
                                     </div>
@@ -101,11 +104,11 @@
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Type of the exam. (e.g., Quiz, Class Test, Assignment, etc.)"><i class="bi bi-info-circle"></i></span>
-                                            <select class="form-select" id="exam_type" name="exam_type" >
+                                            <select class="form-select" id="exam_type" name="exam_type">
                                                 <option value="" disabled {{ old('exam_type', $exam->exam_type ?? '') == '' ? 'selected' : '' }}>Select Exam Type</option>
                                                 <option value="Quiz" {{ old('exam_type', $exam->exam_type ?? '') == 'Quiz' ? 'selected' : '' }}>Quiz</option>
                                                 <option value="Class Test" {{ old('exam_type', $exam->exam_type ?? '') == 'Class Test' ? 'selected' : '' }}>Class Test</option>
-                                                <option value="Assignment" {{ old('exam_type', $exam->exam_type ?? '') == 'Assignment' ? 'selected' : '' }}>Assignment</option>
+                                                <option value="Term" {{ old('exam_type', $exam->exam_type ?? '') == 'Term' ? 'selected' : '' }}>Term</option>
                                             </select>
                                         </div>
                                     </div>
@@ -130,7 +133,7 @@
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                            <input type="date" class="form-control" id="exam_date" name="exam_date" placeholder="Exam Date" value="{{ old('exam_date', $exam->exam_date ?? '') }}">
+                                            <input type="date" class="form-control" id="exam_date" name="exam_date" placeholder="Exam Date" value="{{ old('exam_date', isset($exam) ? ($exam->exam_date ? $exam->exam_date->format('Y-m-d') : '') : '') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -141,9 +144,9 @@
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                            <input type="time" class="form-control" id="start_time" name="start_time" placeholder="Start Time" value="{{ old('start_time', $exam->start_time ?? '') }}">
+                                            <input type="time" class="form-control" id="start_time" name="start_time" placeholder="Start Time" value="{{ old('start_time', isset($exam) ? ($exam->start_time ? $exam->start_time->format('H:i') : '') : '') }}">
 
-                                            <input type="time" class="form-control" id="end_time" name="end_time" placeholder="End Time" value="{{ old('end_time', $exam->end_time ?? '') }}">
+                                            <input type="time" class="form-control" id="end_time" name="end_time" placeholder="End Time" value="{{ old('end_time', isset($exam) ? ($exam->end_time ? $exam->end_time->format('H:i') : '') : '') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -154,7 +157,7 @@
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                            <input type="number" class="form-control" id="exam_duration_min" name="exam_duration_min" placeholder="Duration (Minutes)" value="{{ old('exam_duration_min', $exam->exam_duration_min ?? '') }}">
+                                            <input type="number" class="form-control" id="exam_duration_min" name="exam_duration_min" placeholder="Duration (Minutes)" value="{{ old('exam_duration_min', isset($exam) ? $exam->exam_duration_min : '') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -282,19 +285,36 @@
             updateLabelText(checkbox);
         }
     });
+
 </script>
 
 <script>
     $(document).ready(function() {
         // $("#course_id").select2({});
     });
+
 </script>
 
 
-            <script>
-                // Replace the <textarea id="editor1"> with a CKEditor 4
-                // instance, using default configuration.
-                CKEDITOR.replace( 'basic_rules' );
-            </script>
+<script>
+    function calculateDuration() {
+        const start = document.getElementById('start_time').value;
+        const end   = document.getElementById('end_time').value;
+
+        if (start && end) {
+            const [startH, startM] = start.split(':').map(Number);
+            const [endH,   endM  ] = end.split(':').map(Number);
+
+            const startTotal = startH * 60 + startM;
+            const endTotal   = endH   * 60 + endM;
+            const diff       = endTotal - startTotal;
+
+            document.getElementById('exam_duration_min').value = diff > 0 ? diff : 0;
+        }
+    }
+
+    document.getElementById('start_time').addEventListener('change', calculateDuration);
+    document.getElementById('end_time').addEventListener('change', calculateDuration);
+</script>
 
 @endsection

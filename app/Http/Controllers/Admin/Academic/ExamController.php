@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\ExamFormRequest;
 use App\Models\Academic\Course;
 use App\Models\Academic\Exam;
+use App\Models\Academic\Question;
 use Illuminate\Http\Request;
 
 class ExamController extends Controller
@@ -90,5 +91,10 @@ class ExamController extends Controller
         return redirect()
             ->route('admin.academic.exams.index')
             ->with('status', 'Exam has been deleted successfully!');
+    }
+
+    public function question_paper(Exam $exam)
+    {
+        return view('admin.academic.exams.question_paper', compact('exam'));
     }
 }

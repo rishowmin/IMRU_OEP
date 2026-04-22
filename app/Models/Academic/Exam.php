@@ -38,10 +38,13 @@ class Exam extends Model
     ];
 
     protected $casts = [
-        'exam_date' => 'date',
+        'exam_date' => 'date:d-M-Y',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
         'total_marks' => 'decimal:2',
         'passing_marks' => 'decimal:2',
         'is_active' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     public function createdBy()
@@ -57,5 +60,10 @@ class Exam extends Model
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class, 'exam_id');
     }
 }

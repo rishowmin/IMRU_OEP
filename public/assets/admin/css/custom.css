@@ -25,7 +25,7 @@ a:hover {
     --bs-btn-hover-color: #fff;
     --bs-btn-hover-bg: #127bbd;
     --bs-btn-hover-border-color: rgb(20, 96, 211);
-    --bs-btn-focus-shadow-rgb: 49,132,253;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #13415e;
     --bs-btn-active-border-color: #0879be;
@@ -41,7 +41,7 @@ a:hover {
     --bs-btn-hover-color: #fff;
     --bs-btn-hover-bg: #13415e;
     --bs-btn-hover-border-color: #13415e;
-    --bs-btn-focus-shadow-rgb: 13,110,253;
+    --bs-btn-focus-shadow-rgb: 13, 110, 253;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #13415e;
     --bs-btn-active-border-color: #13415e;
@@ -52,7 +52,8 @@ a:hover {
     --bs-gradient: none;
 }
 
-.form-control {
+.form-control,
+.form-select {
     font-size: 14px;
     border-color: #13415e;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -73,4 +74,65 @@ a:hover {
 .form-check-input:checked {
     background-color: #13415e;
     border-color: #13415e;
+}
+
+.col-form-label {
+    text-align: end;
+}
+
+p {
+    font-size: 14px;
+}
+
+.question-item .question {
+    text-align: justify;
+}
+
+.exam_paper_instructions,
+.exam_paper_basic_rules,
+.exam_paper_marks,
+.exam_paper_difficulty_level,
+.exam_paper_question_type,
+.exam_paper_evaluation_type,
+.exam_paper_correct_answer {
+    overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    max-height: 200px;
+    opacity: 1;
+    text-align: justify;
+}
+
+
+
+#exam_paper_instructions.hidden,
+#exam_paper_basic_rules.hidden,
+#exam_paper_marks.hidden,
+#exam_paper_difficulty_level.hidden,
+#exam_paper_question_type.hidden,
+#exam_paper_evaluation_type.hidden,
+#exam_paper_correct_answer.hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #question_paper_card,
+    #question_paper_card * {
+        visibility: visible;
+    }
+
+    #question_paper_card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    .question-info {
+        display: none !important;
+    }
 }

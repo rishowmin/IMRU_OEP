@@ -77,11 +77,13 @@
                                                 <i class="bi bi-exclamation-circle"></i>
                                                 {{ $message }}
                                             </div>
-                                            @elseif(old('course_title', $course->course_title ?? false))
-                                            <div class="valid-feedback d-block">
-                                                <i class="bi bi-check-circle"></i>
-                                                Looks good!
-                                            </div>
+                                            @else
+                                                @if(old('course_title', $course->course_title ?? false))
+                                                <div class="valid-feedback d-block">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Looks good!
+                                                </div>
+                                                @endif
                                             @enderror
                                         </div>
                                     </div>
