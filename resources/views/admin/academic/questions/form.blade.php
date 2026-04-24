@@ -23,7 +23,7 @@
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
                                 <li class="breadcrumb-item "><a href="{{ route('admin.academic.questions.index') }}">@yield('title')</a></li>
-                                <li class="breadcrumb-item active">{{ isset($exam) ? 'Edit' : 'Create' }} @yield('title2')</li>
+                                <li class="breadcrumb-item active">{{ isset($question) ? 'Edit' : 'Create' }} @yield('title2')</li>
                             </ol>
                         </nav>
                     </div>

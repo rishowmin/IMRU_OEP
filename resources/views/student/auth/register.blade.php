@@ -20,7 +20,7 @@
                         <div class="card-body">
 
                             <div class="pb-2">
-                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Admin Register</h5>
+                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Create an Account</h5>
                                 <p class="text-center small">Enter your personal details to create account</p>
                             </div>
 

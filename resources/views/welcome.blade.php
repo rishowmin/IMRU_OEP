@@ -281,7 +281,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
                 <img src="{{ asset('assets/admin/img/brand/logo_wh.png') }}" alt="IMRU icon" onerror="this.style.display='none'">
                 {{-- <span>IMRU</span> --}}
             </a>
@@ -300,7 +300,7 @@
                         @auth
                         <a href="{{ url('/dashboard') }}" class="btn btn-imru btn-sm px-3 rounded-2">Dashboard</a>
                         @else
-                        <a href="{{ route('login') }}" class="btn btn-outline-info btn-sm px-3 rounded-2 ">Login</a>
+                        <a href="{{ url('/academic/login') }}" class="btn btn-outline-info btn-sm px-3 rounded-2 ">Academic Login</a>
 
                         @if (Route::has('register'))
                         <a href="{{ route('register') }}" class="ml-4 btn btn-info btn-sm px-3 rounded-2">Register</a>
@@ -320,8 +320,8 @@
             <h1 class="mb-3">Smarter exams for <span>universities</span><br>and <span>recruiters</span></h1>
             <p class="mb-4 mx-auto">A secure, scalable online examination portal for admission and recruitment assessments — with automated grading, live proctoring, and real-time analytics.</p>
             <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <button class="btn btn-imru px-4 py-2 rounded-2" onclick="sendPrompt('How do I register as an admin on IMRU?')">Academic Login</button>
-                <button class="btn btn-imru-outline px-4 py-2 rounded-2" onclick="sendPrompt('Show me a demo of IMRU exam portal')">Recruitment Login</button>
+                <a href="{{ url('/academic/login') }}" class="btn btn-imru px-4 py-2 rounded-2">Academic Login</a>
+                <a href="#" class="btn btn-imru-outline px-4 py-2 rounded-2">Recruitment Login</a>
             </div>
         </div>
     </section>

@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Academic\CourseController;
+use App\Http\Controllers\Admin\Academic\EnrollmentController;
 use App\Http\Controllers\Admin\Academic\ExamController;
 use App\Http\Controllers\Admin\Academic\QuestionController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Academic\StudentController;;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Student\MyExamController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +23,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/academic/login', function () {
+    return view('auth_view.academic.login');
 });
 
 Route::get('/dashboard', function () {
@@ -51,7 +58,7 @@ Route::middleware('auth:admin')->group(function () {
 Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Dashboard
-    Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
+    Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
         Route::get('/', 'dashboard')->name('admin.dashboard');
     });
 
@@ -59,7 +66,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::prefix('academic')->group(function () {
 
         // Academic Dashboard
-        Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
+        Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
             Route::get('/', 'academicDashboard')->name('admin.academic.dashboard');
         });
 
@@ -104,13 +111,22 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::delete('/id={student}', 'destroy')->name('admin.academic.students.destroy');
         });
 
+        // Enrollments
+        Route::prefix('enrollments')->controller(EnrollmentController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.enrollments.index');
+            Route::post('/', 'store')->name('admin.academic.enrollments.store');
+            Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
+            Route::put('/id={enroll}', 'update')->name('admin.academic.enrollments.update');
+            Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
+        });
+
     });
 
     // Corporate Routes
     Route::prefix('corporate')->group(function () {
 
         // Corporate Dashboard
-        Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
+        Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
             Route::get('/', 'corporateDashboard')->name('admin.corporate.dashboard');
         });
 
@@ -119,3 +135,40 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 });
 
 require __DIR__.'/adminauth.php';
+
+
+
+// Student
+Route::prefix('student')->middleware('auth:student')->group(function () {
+
+    // Dashboard
+    Route::prefix('dashboard')->controller(App\Http\Controllers\Student\DashboardController::class)->group(function () {
+        Route::get('/', 'dashboard')->name('student.dashboard');
+    });
+
+    // My Exams
+    Route::prefix('myExams')->controller(MyExamController::class)->group(function () {
+        Route::get('/', 'index')->name('student.myExams');
+        Route::get('/details/id={exam}', 'show')->name('student.myExams.show');
+        Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
+        Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
+        Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
+    });
+
+});
+
+require __DIR__.'/studentauth.php';
+
+
+
+// Teacher
+Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
+
+    // Dashboard
+    // Route::prefix('dashboard')->controller(App\Http\Controllers\Teacher\DashboardController::class)->group(function () {
+    //     Route::get('/', 'dashboard')->name('teacher.dashboard');
+    // });
+
+});
+
+require __DIR__.'/teacherauth.php';

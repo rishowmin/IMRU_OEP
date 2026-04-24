@@ -13,17 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('aca_enrollments', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('username')->unique();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->foreignId('course_id')->constrained('aca_courses')->cascadeOnDelete();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
 
-            $table->boolean('is_active')->default(true)->comment('0=Inactive, 1=Active');
+            $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
@@ -39,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('aca_enrollments');
     }
 };

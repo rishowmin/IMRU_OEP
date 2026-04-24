@@ -20,7 +20,7 @@
                         <div class="card-body">
 
                             <div class="pb-2">
-                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Login to Your Account</h5>
+                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Admin Login</h5>
                                 <p class="text-center small">Enter your email & password to login</p>
                             </div>
 

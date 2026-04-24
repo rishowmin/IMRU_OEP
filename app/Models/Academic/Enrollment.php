@@ -8,17 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Course extends Model
+class Enrollment extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'aca_courses';
+    protected $table = 'aca_enrollments';
 
     protected $fillable = [
-        'course_title',
-        'course_code',
-        'credits',
-        'description',
+        'course_id',
+        'student_id',
         'is_active',
         'created_by',
         'updated_by',
@@ -42,13 +40,13 @@ class Course extends Model
         return $this->belongsTo(Admin::class, 'updated_by');
     }
 
-    public function students()
+    public function course()
     {
-        return $this->hasMany(Student::class, 'student_id');
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
-    public function enrollments()
+    public function student()
     {
-        return $this->hasMany(Enrollment::class, 'course_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

@@ -56,8 +56,9 @@
                                 <thead>
                                     <tr>
                                         <th width="7%">#</th>
-                                        <th width="25%">Exam</th>
-                                        <th width="28%">Question</th>
+                                        <th width="25%">Question</th>
+                                        <th width="8%">Type</th>
+                                        <th width="20%">Exam</th>
                                         <th width="10%">Difficulty</th>
                                         <th width="7%">Marks</th>
                                         <th width="10%">Status</th>
@@ -74,8 +75,22 @@
                                             </a>
                                             {{ $serialNo++ }}
                                         </th>
-                                        <td>{{ $question->exam->exam_title ?? 'N/A' }} [{{ $question->exam->exam_code ?? 'N/A' }}]</td>
                                         <td>{{ $question->question_text ?? 'N/A' }}</td>
+                                        <td>
+                                            @if($question->question_type == 'mcq_2')
+                                            MCQ (2)
+                                            @elseif($question->question_type == 'mcq_4')
+                                            MCQ (4)
+                                            @elseif ($question->question_type == 'short_question')
+                                            Short Q.
+                                            @elseif ($question->question_type == 'long_question')
+                                            Long Q.
+                                            @else
+                                            N/A
+                                            @endif
+                                        </td>
+
+                                        <td>{{ $question->exam->exam_title ?? 'N/A' }} [{{ $question->exam->exam_code ?? 'N/A' }}]</td>
                                         <td>
                                             @if($question->difficulty_level == 'easy')
                                             <h6 class="mb-0"><span class="badge rounded-pill bg-success">Easy</span></h6>
@@ -113,24 +128,6 @@
                                         <template class="child-template">
                                             <table class="table table-sm mb-0 w-100 small">
                                                 <tbody>
-                                                    <tr>
-                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
-                                                        <th width="22%">Question Type</th>
-                                                        <td width="70%">
-                                                            @if($question->question_type == 'mcq_2')
-                                                            MCQ (2 Options)
-                                                            @elseif($question->question_type == 'mcq_4')
-                                                            MCQ (4 Options)
-                                                            @elseif ($question->question_type == 'short_question')
-                                                            Short Question
-                                                            @elseif ($question->question_type == 'long_question')
-                                                            Long Question
-                                                            @else
-                                                            N/A
-                                                            @endif
-                                                        </td>
-
-                                                    </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Evaluation Type</th>
