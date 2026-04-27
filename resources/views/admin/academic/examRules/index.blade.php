@@ -120,6 +120,30 @@
                                             </div>
                                         </div>
 
+                                        {{-- Key --}}
+                                        <div class="row align-items-baseline mb-2">
+                                            <div class="col-sm-12">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control form-control-sm @error('key') is-invalid @elseif(old('key', $examRule->key ?? false)) is-valid @enderror" id="key" name="key" placeholder="Key (e.g. browser_minimized)" value="{{ old('key', $examRule->key ?? '') }}">
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    @error('key')
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                        {{ $message }}
+                                                    </div>
+                                                    @else
+                                                    @if(old('key', $examRule->key ?? false))
+                                                    <div class="valid-feedback d-block">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Looks good!
+                                                    </div>
+                                                    @endif
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {{-- Description --}}
                                         <div class="row align-items-baseline mb-2">
                                             <div class="col-sm-12">
@@ -250,25 +274,18 @@
                                                 <tbody>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
+                                                        <th width="22%">Key</th>
+                                                        <td width="70%">{{ $rule->key ?? 'N/A' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Description</th>
-                                                        <td width="70%">
-                                                            @if ($rule->description == null)
-                                                            N/A
-                                                            @else
-                                                            {{ $rule->description }}
-                                                            @endif
-                                                        </td>
+                                                        <td width="70%">{{ $rule->description ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Order</th>
-                                                        <td width="70%">
-                                                            @if ($rule->order == null)
-                                                            N/A
-                                                            @else
-                                                            {{ $rule->order }}
-                                                            @endif
-                                                        </td>
+                                                        <td width="70%">{{ $rule->order ?? 'N/A' }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -381,6 +398,37 @@
         let examRule = $(this).data("id");
         let deleteRoute = "{{ route('admin.academic.examRules.destroy', ['examRule' => ':id']) }}";
         $("#deleteForm").attr("action", deleteRoute.replace(':id', examRule));
+    });
+</script>
+
+{{-- Auto-generate key from title --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const titleInput = document.getElementById('title');
+        const keyInput   = document.getElementById('key');
+
+        titleInput.addEventListener('input', function () {
+            // Only auto-fill if key is empty or was previously auto-generated
+            if (keyInput.dataset.manuallyEdited !== 'true') {
+                keyInput.value = titleInput.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s_]/g, '')
+                    .replace(/\s+/g, '_');
+            }
+        });
+
+        // Mark as manually edited if user types in key field
+        keyInput.addEventListener('input', function () {
+            keyInput.dataset.manuallyEdited = 'true';
+        });
+
+        // If key is cleared, allow auto-generation again
+        keyInput.addEventListener('blur', function () {
+            if (keyInput.value === '') {
+                keyInput.dataset.manuallyEdited = 'false';
+            }
+        });
     });
 </script>
 

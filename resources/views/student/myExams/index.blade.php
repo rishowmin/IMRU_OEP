@@ -298,9 +298,6 @@
                                                 <i class="bi bi-bar-chart"></i>
                                             </a>
                                             @elseif($canStart)
-                                            {{-- <a href="javascript:void(0)" class="btn btn-sm btn-success startExamBtn" data-id="{{ $exam->id }}" title="Start Exam" data-bs-toggle="modal" data-bs-target="#start_exam_confirm_modal">
-                                                <i class="bi bi-play-fill"></i>
-                                            </a> --}}
                                             <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-sm btn-success" title="Start Exam">
                                                 <i class="bi bi-play-fill"></i>
                                             </a>

@@ -46,38 +46,39 @@
     </div>
 
     @php
-        $now = now();
-        $startDT = \Carbon\Carbon::parse(
-            $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
-        );
-        $endDT = \Carbon\Carbon::parse(
-            $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
-        );
+    $now = now();
+    $startDT = \Carbon\Carbon::parse(
+    $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
+    );
+    $endDT = \Carbon\Carbon::parse(
+    $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
+    );
 
-        if ($now->lt($startDT)) {
-            $status = 'Upcoming';
-            $statusClass = 'bg-primary';
-            $statusIconClass = 'bi-hourglass-split';
-            $canStart = false;
-        } elseif ($now->between($startDT, $endDT)) {
-            $status = 'Ongoing';
-            $statusClass = 'bg-success';
-            $statusIconClass = 'bi-play-circle';
-            $canStart = true;
-        } else {
-            $status = 'Completed';
-            $statusClass = 'bg-secondary';
-            $statusIconClass = 'bi-check-circle';
-            $canStart = false;
-        }
+    if ($now->lt($startDT)) {
+    $status = 'Upcoming';
+    $statusClass = 'bg-primary';
+    $statusIconClass = 'bi-hourglass-split';
+    $canStart = false;
+    } elseif ($now->between($startDT, $endDT)) {
+    $status = 'Ongoing';
+    $statusClass = 'bg-success';
+    $statusIconClass = 'bi-play-circle';
+    $canStart = true;
+    } else {
+    $status = 'Completed';
+    $statusClass = 'bg-secondary';
+    $statusIconClass = 'bi-check-circle';
+    $canStart = false;
+    }
 
-        $noQuestions = !$exam->total_questions || $exam->total_questions == 0;
+    $noQuestions = !$exam->total_questions || $exam->total_questions == 0;
     @endphp
 
     <form method="POST" action="{{ route('student.myExams.store', $exam->id) }}" id="examAnswerForm">
         @csrf
 
         <input type="hidden" name="stopped" id="stoppedFlag" value="0">
+        <input type="hidden" name="stop_reason" id="stopReasonFlag" value="">
 
         <div class="row">
 
@@ -300,7 +301,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a href="javascript:void(0)" class="btn btn-outline-danger btn-sm stopExamBtn"  data-bs-toggle="modal"data-bs-target="#stop_exam_confirm_modal">
+                            <a href="javascript:void(0)" class="btn btn-outline-danger btn-sm stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
                                 <i class="bi bi-stop-circle me-1"></i>Stop Exam
                             </a>
                         </div>
@@ -322,149 +323,196 @@
 @endsection
 
 @section('scripts')
+{{-- Global exam state --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // ======= Timer =======
-        const totalQuestions = {{ $exam->questions->count() }};
-        let timeLeft = {{ $remainingSeconds ?? 0 }}; // server-calculated remaining seconds
-        const timerSpan = document.querySelector('#exam_timer .badge');
-        const examAnswerForm = document.getElementById('examAnswerForm');
-        const answeredBadge = document.querySelector('.answered-question small');
+    var formSubmitting = false;
 
-        function updateTimer() {
-            if (timeLeft <= 0) {
-                timerSpan.innerHTML = '<i class="bi bi-stopwatch me-2"></i>00h:00m:00s';
-                timerSpan.classList.remove('bg-theme');
-                timerSpan.classList.add('bg-danger');
-                examAnswerForm.submit();
-                return;
-            }
-
-            const hours = Math.floor(timeLeft / 3600);
-            const mins  = Math.floor((timeLeft % 3600) / 60);
-            const secs  = timeLeft % 60;
-
-            timerSpan.innerHTML = `<i class="bi bi-stopwatch me-2"></i>${String(hours).padStart(2, '0')}h:${String(mins).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
-
-            if (timeLeft <= 300) {
-                timerSpan.classList.remove('bg-theme');
-                timerSpan.classList.add('bg-danger');
-            }
-
-            timeLeft--;
-        }
-
-        updateTimer();
-        setInterval(updateTimer, 1000);
-
-        // ======= Answered Questions Counter =======
-        function updateAnsweredCount() {
-            let answered = 0;
-
-            document.querySelectorAll('.question-item').forEach(function (item) {
-                const radios = item.querySelectorAll('input[type="radio"]');
-                const textarea = item.querySelector('textarea');
-
-                if (radios.length > 0) {
-                    const checked = item.querySelector('input[type="radio"]:checked');
-                    if (checked) answered++;
-                } else if (textarea) {
-                    if (textarea.value.trim() !== '') answered++;
-                }
-            });
-
-            answeredBadge.textContent = `${answered}/${totalQuestions} Questions Answered`;
-        }
-
-        // Listen for MCQ selection
-        document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
-            radio.addEventListener('change', updateAnsweredCount);
-        });
-
-        // Listen for textarea input
-        document.querySelectorAll('textarea').forEach(function (textarea) {
-            textarea.addEventListener('input', updateAnsweredCount);
-        });
-
-        // Initial count
-        updateAnsweredCount();
-    });
+    function submitExam(stopped, reason) {
+        if (formSubmitting) return;
+        formSubmitting = true;
+        document.getElementById('stoppedFlag').value = stopped ? '1' : '0';
+        document.getElementById('stopReasonFlag').value = reason ?? '';
+        document.getElementById('examAnswerForm').submit();
+    }
 </script>
 
-{{-- Submit / Stop Exam Modal Scripts --}}
+{{-- Timer & Counter --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-        // Confirm Submit Exam
-        document.getElementById('confirmSubmitExam').addEventListener('click', function () {
-            document.getElementById('stoppedFlag').value = '0';
-            document.getElementById('examAnswerForm').submit();
+    const totalQuestions = {{ $exam->questions->count() }};
+    let timeLeft = {{ $remainingSeconds ?? 0 }};
+    const timerSpan = document.querySelector('#exam_timer .badge');
+    const examAnswerForm = document.getElementById('examAnswerForm');
+    const answeredBadge = document.querySelector('.answered-question small');
+
+    function updateTimer() {
+        if (timeLeft <= 0) {
+            timerSpan.innerHTML = '<i class="bi bi-stopwatch me-2"></i>00h:00m:00s';
+            timerSpan.classList.remove('bg-theme');
+            timerSpan.classList.add('bg-danger');
+            submitExam(false, 'timer_expired');
+            return;
+        }
+
+        const hours = Math.floor(timeLeft / 3600);
+        const mins  = Math.floor((timeLeft % 3600) / 60);
+        const secs  = timeLeft % 60;
+
+        timerSpan.innerHTML = `<i class="bi bi-stopwatch me-2"></i>${String(hours).padStart(2, '0')}h:${String(mins).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
+
+        if (timeLeft <= 300) {
+            timerSpan.classList.remove('bg-theme');
+            timerSpan.classList.add('bg-danger');
+        }
+
+        timeLeft--;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+    function updateAnsweredCount() {
+        let answered = 0;
+        document.querySelectorAll('.question-item').forEach(function (item) {
+            const radios = item.querySelectorAll('input[type="radio"]');
+            const textarea = item.querySelector('textarea');
+            if (radios.length > 0) {
+                if (item.querySelector('input[type="radio"]:checked')) answered++;
+            } else if (textarea) {
+                if (textarea.value.trim() !== '') answered++;
+            }
         });
+        answeredBadge.textContent = `${answered}/${totalQuestions} Questions Answered`;
+    }
 
-        // Confirm Stop Exam
-        document.getElementById('confirmStopExam').addEventListener('click', function () {
-            document.getElementById('stoppedFlag').value = '1';
-            document.getElementById('examAnswerForm').submit();
-        });
+    document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+        radio.addEventListener('change', updateAnsweredCount);
+    });
 
-        //  Confirm Stop Exam for Browser Back Button
+    document.querySelectorAll('textarea').forEach(function (textarea) {
+        textarea.addEventListener('input', updateAnsweredCount);
+    });
+
+    updateAnsweredCount();
+
+});
+</script>
+
+{{-- Submit / Stop Modal --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.getElementById('confirmSubmitExam').addEventListener('click', function () {
+        submitExam(false, '');
+    });
+
+    document.getElementById('confirmStopExam').addEventListener('click', function () {
+        submitExam(true, document.getElementById('stopReasonFlag').value || 'manual_stop');
+    });
+
+});
+</script>
+
+{{-- Dynamic Rule Protection --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    @foreach($mappedRules as $map)
+    @php $ruleKey = $map->rule->key ?? ''; @endphp
+
+    @if($ruleKey === 'back_button')
+    (function () {
         history.pushState(null, null, location.href);
 
-        window.addEventListener('popstate', function (e) {
-            // Push state again to prevent actual navigation
+        window.addEventListener('popstate', function () {
             history.pushState(null, null, location.href);
-
-            // Show stop exam modal
-            const stopModal = new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal'));
-            stopModal.show();
+            document.getElementById('stopReasonFlag').value = 'back_button';
+            new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
         });
 
-
-        // Submit Exam on Browser's Tab Visibility Change
-        let tabSwitchCount = 0;
-        const maxTabSwitches = 1; // allow 1 warning, then auto-submit
-
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) {
-                tabSwitchCount++;
-
-                if (tabSwitchCount >= maxTabSwitches) {
-                    // Auto submit as stopped
-                    document.getElementById('stoppedFlag').value = '1';
-                    document.getElementById('examAnswerForm').submit();
-                }
-            } else {
-                // Returned to tab — show warning modal
-                if (tabSwitchCount < maxTabSwitches) {
-                    const stopModal = new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal'));
-                    stopModal.show();
-                }
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            if (
+                link &&
+                link.href &&
+                !link.href.startsWith('javascript') &&
+                !link.getAttribute('data-bs-toggle') &&
+                !formSubmitting
+            ) {
+                e.preventDefault();
+                document.getElementById('stopReasonFlag').value = 'url_change';
+                new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
             }
         });
 
+        window.addEventListener('beforeunload', function () {
+            if (!formSubmitting) {
+                navigator.sendBeacon(
+                    '{{ route("student.myExams.store", $exam->id) }}',
+                    new URLSearchParams({
+                        _token: '{{ csrf_token() }}',
+                        stopped: '1',
+                        stop_reason: 'url_change',
+                    })
+                );
+            }
+        });
+    })();
+    @endif
 
-        // Browser Restore Down Detection
-        const screenWidth = window.screen.width;
+    @if($ruleKey === 'tab_switching')
+    (function () {
+        let tabSwitchCount = 0;
+        const maxTabSwitches = 1;
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden && window.outerHeight > 0) {
+                tabSwitchCount++;
+                if (tabSwitchCount >= maxTabSwitches) {
+                    submitExam(true, 'tab_switching');
+                }
+            } else if (!document.hidden && tabSwitchCount < maxTabSwitches) {
+                document.getElementById('stopReasonFlag').value = 'tab_switching';
+                new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
+            }
+        });
+    })();
+    @endif
+
+    @if($ruleKey === 'browser_maximized')
+    (function () {
+        const screenWidth  = window.screen.width;
         const screenHeight = window.screen.height;
 
         function checkMaximized() {
             return (
-                window.outerWidth >= screenWidth * 0.95 &&
+                window.outerWidth  >= screenWidth  * 0.95 &&
                 window.outerHeight >= screenHeight * 0.95
             );
         }
 
-        // Detect restore down — auto submit immediately
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden && window.outerHeight === 0) {
+                submitExam(true, 'browser_maximized');
+            }
+        });
+
         let resizeTimeout;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function () {
                 if (!checkMaximized()) {
-                    document.getElementById('stoppedFlag').value = '1';
-                    document.getElementById('examAnswerForm').submit();
+                    submitExam(true, 'browser_maximized');
                 }
             }, 300);
         });
-    });
+    })();
+    @endif
+
+    @endforeach
+
+});
 </script>
+
 @endsection
+

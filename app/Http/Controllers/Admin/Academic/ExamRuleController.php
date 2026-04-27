@@ -21,12 +21,13 @@ class ExamRuleController extends Controller
     {
         try {
             ExamRule::create([
-                'type'  => $request->type,
-                'title' => $request->title,
-                'description'  => $request->description ?? null,
-                'order' => $request->order ?? 0,
-                'is_active'  => $request->boolean('is_active'),
-                'created_by' => auth()->id(),
+                'type'        => $request->type,
+                'key'         => $request->key,
+                'title'       => $request->title,
+                'description' => $request->description ?? null,
+                'order'       => $request->order ?? 0,
+                'is_active'   => $request->boolean('is_active'),
+                'created_by'  => auth()->id(),
             ]);
 
             return redirect()->route('admin.academic.examRules.index')
@@ -48,12 +49,13 @@ class ExamRuleController extends Controller
     {
         try {
             $examRule->update([
-                'type'  => $request->type,
-                'title' => $request->title,
-                'description'  => $request->description ?? null,
-                'order' => $request->order ?? 0,
-                'is_active'  => $request->boolean('is_active'),
-                'updated_by' => auth()->id(),
+                'type'        => $request->type,
+                'key'         => $request->key,
+                'title'       => $request->title,
+                'description' => $request->description ?? null,
+                'order'       => $request->order ?? 0,
+                'is_active'   => $request->boolean('is_active'),
+                'updated_by'  => auth()->id(),
             ]);
 
             return redirect()->route('admin.academic.examRules.index')

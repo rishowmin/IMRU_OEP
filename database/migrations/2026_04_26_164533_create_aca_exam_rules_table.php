@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('aca_exam_rules', function (Blueprint $table) {
             $table->id();
             $table->string('type')->default('instruction')->comment('rule, instruction');
+            $table->string('key')->nullable()->unique();
             $table->string('title');
             $table->longText('description')->nullable();
             $table->unsignedInteger('order')->default(0);

@@ -87,7 +87,7 @@
                             </ul>
                             @else
                             <div class="px-3 py-3 text-center">
-                                <small class="text-muted">No rules assigned.</small>
+                                <small class="text-muted">No rules assigned. Enjoy your exam!</small>
                             </div>
                             @endif
                         </div>

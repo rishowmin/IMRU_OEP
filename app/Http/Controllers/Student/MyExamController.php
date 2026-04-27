@@ -112,15 +112,8 @@ class MyExamController extends Controller
 
         // Calculate remaining time
         $now = now();
-        $examEndDT = $endDT; // already calculated above
-
-        // Time remaining until exam ends
-        $secondsUntilEnd = $now->diffInSeconds($examEndDT, false);
-
-        // Max allowed duration in seconds
+        $secondsUntilEnd = $now->diffInSeconds($endDT, false);
         $durationSeconds = ($exam->exam_duration_min ?? 0) * 60;
-
-        // Use whichever is smaller — remaining exam window or full duration
         $remainingSeconds = min($secondsUntilEnd, $durationSeconds);
 
         // Load limited questions in random order
@@ -129,10 +122,18 @@ class MyExamController extends Controller
                 ->limit($exam->total_questions);
         }]);
 
-        return view('student.myExams.answer_sheet', compact('exam', 'remainingSeconds'));
+        // Load mapped active rules for this exam
+        $mappedRules = ExamRuleMap::where('exam_id', $exam->id)
+            ->where('is_active', true)
+            ->with(['rule' => fn($q) => $q->where('is_active', true)])
+            ->get()
+            ->filter(fn($map) => $map->rule)
+            ->values();
+
+        return view('student.myExams.answer_sheet', compact('exam', 'remainingSeconds', 'mappedRules'));
     }
 
-    public function storeAnswer(Request $request, Exam $exam)
+    public function storeAnswer2(Request $request, Exam $exam)
     {
         $examId = $exam->id;
         $student = auth()->id();
@@ -222,6 +223,109 @@ class MyExamController extends Controller
 
         return redirect()->route('student.myExams')
             ->with('success', 'Exam has been submitted successfully!');
+    }
+
+    public function storeAnswer(Request $request, Exam $exam)
+    {
+        $examId = $exam->id;
+        $student = auth()->id();
+        $isStopped = $request->input('stopped', '0') === '1';
+        $stopReason = $request->input('stop_reason', null); // new field
+
+        // Ensure student is enrolled
+        $isEnrolled = Enrollment::where('student_id', $student)
+            ->where('course_id', $exam->course_id)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You are not enrolled in this course.');
+        }
+
+        // Validate exam is still ongoing
+        $now = now();
+        $startDT = Carbon::parse(
+            $exam->exam_date->toDateString() . ' ' . Carbon::parse($exam->start_time)->format('H:i:s')
+        );
+        $endDT = Carbon::parse(
+            $exam->exam_date->toDateString() . ' ' . Carbon::parse($exam->end_time)->format('H:i:s')
+        );
+
+        if (!$now->between($startDT, $endDT)) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'Exam is not available for submission.');
+        }
+
+        // Prevent re-submission
+        $alreadySubmitted = ExamAnswer::where('student_id', $student)
+            ->where('exam_id', $examId)
+            ->exists();
+
+        if ($alreadySubmitted) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You have already submitted this exam.');
+        }
+
+        // Validate answers
+        $request->validate([
+            'answers'     => ['nullable', 'array'],
+            'answers.*'   => ['nullable', 'string'],
+            'stop_reason' => ['nullable', 'string'],
+        ]);
+
+        $answers = $request->input('answers', []);
+
+        // Load limited questions for saving
+        $exam->load(['questions' => function($query) use ($exam) {
+            $query->orderBy('question_order', 'ASC')
+                ->limit($exam->total_questions);
+        }]);
+
+        // Save answers
+        $records = [];
+        $now = now();
+
+        foreach ($exam->questions as $question) {
+            $records[] = [
+                'student_id'  => $student,
+                'exam_id'     => $examId,
+                'question_id' => $question->id,
+                'answer'      => $answers[$question->id] ?? null,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ];
+        }
+
+        ExamAnswer::insert($records);
+
+        ExamAttempt::updateOrCreate(
+            [
+                'student_id' => $student,
+                'exam_id'    => $examId,
+            ],
+            [
+                'submitted_at' => $now,
+                'status'       => 'Old',
+                'is_active'    => true,
+            ]
+        );
+
+        if ($isStopped) {
+            $message = match($stopReason) {
+                'back_button'      => 'Exam stopped: You pressed the browser back button.',
+                'tab_switching'    => 'Exam stopped: You minimized or switched browser tabs during the exam.',
+                'browser_maximized'=> 'Exam stopped: You restored the browser window.',
+                'manual_stop'      => 'Exam stopped: You manually stopped the exam.',
+                'url_change'       => 'Exam stopped: You attempted to navigate away from the exam.',
+                'timer_expired'    => 'Exam auto-submitted: Your exam time has expired.',
+                default            => 'Exam stopped. Your answers have been recorded.',
+            };
+
+            return redirect()->route('student.myExams')->with('error', $message);
+        }
+
+        return redirect()->route('student.myExams')
+            ->with('success', 'Exam submitted successfully!');
     }
 
     public function viewResult(Exam $exam)

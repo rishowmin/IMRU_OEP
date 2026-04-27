@@ -30,6 +30,7 @@
                                 <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
                                 <li class="breadcrumb-item"><a href="{{ route('admin.academic.exams.index') }}">@yield('title')</a></li>
                                 <li class="breadcrumb-item active">@yield('title2')</li>
+                                <li class="breadcrumb-item active">{{ $exam->exam_title ?? '' }} <small>[{{ $exam->exam_code ?? '' }}]</small></li>
                             </ol>
                         </nav>
                     </div>
@@ -49,7 +50,7 @@
         @method('PUT')
 
         <div class="row">
-
+            
             {{-- Instructions --}}
             <div class="col-lg-6 mb-3">
                 @if(isset($allRules['instruction']) && $allRules['instruction']->count())

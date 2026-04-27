@@ -17,6 +17,7 @@ class ExamRule extends Model
 
     protected $fillable = [
         'type',
+        'key',
         'title',
         'description',
         'order',
