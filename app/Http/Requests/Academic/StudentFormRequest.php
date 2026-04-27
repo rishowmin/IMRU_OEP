@@ -48,6 +48,8 @@ class StudentFormRequest extends FormRequest
             'password' => $this->isMethod('PUT')
                 ? ['sometimes', 'nullable', 'string', Password::defaults()]
                 : ['required', 'string', Password::defaults()],
+
+            'is_active'   => 'nullable|boolean',
         ];
     }
 
@@ -64,6 +66,15 @@ class StudentFormRequest extends FormRequest
             'password.required' => 'Password is required.',
             'password.min' => 'Password must be at least 8 characters long.',
             // 'password.confirmed' => 'Password confirmation does not match.',
+            'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // $this->boolean() correctly handles "0","1","true","false"
+            'is_active' => $this->boolean('is_active'),
+        ]);
     }
 }

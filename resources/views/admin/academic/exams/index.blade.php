@@ -56,13 +56,13 @@
                                 <thead>
                                     <tr>
                                         <th width="7%">#</th>
-                                        <th width="20%">Exam</th>
-                                        <th width="18%">Course</th>
+                                        <th width="18%">Exam</th>
+                                        <th width="15%">Course</th>
                                         <th width="13%">Exam Date</th>
                                         <th width="10%">Duration <small>(Mins)</small></th>
                                         <th width="7%">Marks</th>
                                         <th width="10%">Status</th>
-                                        <th width="15%">Actions</th>
+                                        <th width="20%">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,9 +75,14 @@
                                             </a>
                                             {{ $serialNo++ }}
                                         </th>
-                                        <td>{{ $exam->exam_title ?? 'N/A' }} [{{ $exam->exam_code ?? 'N/A' }}]</td>
-                                        <td>{{ $exam->course->course_title ?? 'N/A' }} [{{ $exam->course->course_code ?? 'N/A' }}]</td>
-                                        {{-- <td>{{ $exam->exam_date->format('d-M-Y') ?? 'N/A' }}</td> --}}
+                                        <td>
+                                            <div>{{ $exam->exam_title ?? 'N/A' }}</div>
+                                            <small class="text-muted">{{ $exam->exam_code ?? 'N/A' }}</small>
+                                        </td>
+                                        <td>
+                                            <div>{{ $exam->course->course_title ?? 'N/A' }}</div>
+                                            <small class="text-muted">{{ $exam->course->course_code ?? 'N/A' }}</small>
+                                        </td>
                                         <td>{{ $exam->exam_date ? $exam->exam_date->format('d-M-Y') : 'N/A' }}</td>
                                         <td>{{ $exam->exam_duration_min ?? 'N/A' }}</td>
                                         <td>{{ $exam->total_marks ?? 'N/A' }}</td>
@@ -89,8 +94,14 @@
                                             @endif
                                         </td>
                                         <td>
+                                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Settings">
+                                                <a href="{{ route('admin.academic.exams.settings', $exam->id) }}" class="btn btn-sm btn-outline-dark">
+                                                    <i class="bi bi-gear"></i>
+                                                </a>
+                                            </span>
+
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Question Paper">
-                                                <a href="{{ route('admin.academic.exams.question_paper', $exam->id) }}" class="btn btn-sm btn-outline-info">
+                                                <a href="{{ route('admin.academic.exams.questionPaper', $exam->id) }}" class="btn btn-sm btn-outline-info">
                                                     <i class="bi bi-file-earmark-text"></i>
                                                 </a>
                                             </span>

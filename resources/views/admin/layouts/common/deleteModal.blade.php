@@ -4,28 +4,25 @@
                 <form id="deleteForm" method="POST">
                 @csrf
                 @method('DELETE')
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title"><i class="bi bi-trash me-1"></i> Delete A @yield('title')</h5>
-                        <button type="button" class="btn-close btn-close-white btn-close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-5">
                         <div class="modal-icon">
-                            <i class="bi bi-trash3"></i>
+                            <i class="bi bi-trash3 text-danger"></i>
                         </div>
                         <div class="modal-query">
-                            <h5>Are you sure you want to delete this @yield('title') record?</h5>
+                            <h3 class="text-danger fw-bold">Are You Sure?</h3>
                             <p>Once deleted, it cannot be restored. If you need to recover the data, please contact the Administrator.</p>
                         </div>
-                    </div>
-                    <div class="modal-footer justify-content-center">
-                        <button type="reset" class="btn btn-dark btn-sm w-25 me-1" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square"></i>
-                            <span class="ms-1">Cancel</span>
-                        </button>
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-25 ms-1">
-                            <i class="bi bi-trash"></i>
-                            <span class="ms-1">Delete</span>
-                        </button>
+
+                        <div class="modal-button text-center mt-4">
+                            <button type="reset" class="btn btn-outline-dark btn-sm me-1" data-bs-dismiss="modal">
+                                <i class="bi bi-x-square"></i>
+                                <span class="ms-1">Cancel</span>
+                            </button>
+                            <button type="submit" class="btn btn-danger btn-sm ms-1">
+                                <i class="bi bi-trash"></i>
+                                <span class="ms-1">Yex, Delete!</span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

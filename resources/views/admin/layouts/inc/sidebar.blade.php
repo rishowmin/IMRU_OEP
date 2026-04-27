@@ -50,12 +50,12 @@
 
         {{-- Start Exams Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.exams*') ? '' : 'collapsed' }}" data-bs-target="#courses-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-book"></i>
+            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-clipboard"></i>
                 <span>Exams</span>
                 <i class="bi bi-chevron-down ms-auto"></i>
             </a>
-            <ul id="courses-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.exams.create') ? 'active' : '' }}" href="{{ route('admin.academic.exams.create') }}">
                         <i class="bi bi-circle"></i><span>Add Exam</span>
@@ -66,9 +66,14 @@
                         <i class="bi bi-circle"></i><span>Manage Exams</span>
                     </a>
                 </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.examRules*') ? 'active' : '' }}" href="{{ route('admin.academic.examRules.index') }}">
+                        <i class="bi bi-circle"></i><span>Exam Rules</span>
+                    </a>
+                </li>
             </ul>
         </li>
-        {{-- End Courses Nav --}}
+        {{-- End Exams Nav --}}
 
         {{-- Start Questions Nav --}}
         <li class="nav-item">
@@ -118,6 +123,15 @@
             </a>
         </li>
         {{-- End Enrollments Nav --}}
+
+        {{-- Start Review Answer Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.reviewAnswer.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.reviewAnswer.index') }}">
+                <i class="bi bi-bookmark-plus"></i>
+                <span>Review Answer</span>
+            </a>
+        </li>
+        {{-- End Review Answer Nav --}}
 
         <li class="nav-heading">
             <span>Corporate</span>

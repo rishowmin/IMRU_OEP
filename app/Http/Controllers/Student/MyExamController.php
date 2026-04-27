@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\Enrollment;
 use App\Models\Academic\Exam;
 use App\Models\Academic\ExamAnswer;
+use App\Models\Academic\ExamAttempt;
+use App\Models\Academic\ExamRuleMap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -95,16 +97,46 @@ class MyExamController extends Controller
                 ->with('error', 'You have already submitted this exam.');
         }
 
-        // Eager load questions
-        $exam->load('questions');
+        // Record exam start attempt
+        ExamAttempt::updateOrCreate(
+            [
+                'student_id' => $student,
+                'exam_id'    => $exam->id,
+            ],
+            [
+                'started_at' => $now,
+                'status'     => 'New',
+                'is_active'  => true,
+            ]
+        );
 
-        return view('student.myExams.answer_sheet', compact('exam'));
+        // Calculate remaining time
+        $now = now();
+        $examEndDT = $endDT; // already calculated above
+
+        // Time remaining until exam ends
+        $secondsUntilEnd = $now->diffInSeconds($examEndDT, false);
+
+        // Max allowed duration in seconds
+        $durationSeconds = ($exam->exam_duration_min ?? 0) * 60;
+
+        // Use whichever is smaller — remaining exam window or full duration
+        $remainingSeconds = min($secondsUntilEnd, $durationSeconds);
+
+        // Load limited questions in random order
+        $exam->load(['questions' => function($query) use ($exam) {
+            $query->inRandomOrder()
+                ->limit($exam->total_questions);
+        }]);
+
+        return view('student.myExams.answer_sheet', compact('exam', 'remainingSeconds'));
     }
 
     public function storeAnswer(Request $request, Exam $exam)
     {
         $examId = $exam->id;
         $student = auth()->id();
+        $isStopped = $request->input('stopped', '0') === '1';
 
         // Ensure student is enrolled
         $isEnrolled = Enrollment::where('student_id', $student)
@@ -148,7 +180,13 @@ class MyExamController extends Controller
 
         $answers = $request->input('answers', []);
 
-        // Save each answer using insert for performance
+        // Load limited questions for saving
+        $exam->load(['questions' => function($query) use ($exam) {
+            $query->orderBy('question_order', 'ASC')
+                ->limit($exam->total_questions);
+        }]);
+
+        // Save answers
         $records = [];
         $now = now();
 
@@ -165,18 +203,77 @@ class MyExamController extends Controller
 
         ExamAnswer::insert($records);
 
+        ExamAttempt::updateOrCreate(
+            [
+                'student_id' => $student,
+                'exam_id'    => $examId,
+            ],
+            [
+                'submitted_at' => $now,
+                'status'       => 'Old',
+                'is_active'    => true,
+            ]
+        );
+
+        if ($isStopped) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You stopped the exam. Your answers have been recorded.');
+        }
+
         return redirect()->route('student.myExams')
             ->with('success', 'Exam has been submitted successfully!');
     }
 
     public function viewResult(Exam $exam)
     {
-        $student = auth('student')->user();
+        $student = auth()->id();
 
-        $answers = ExamAnswer::where('student_id', $student->id)
-                    ->where('exam_id', $exam->id)
-                    ->get();
+        // Ensure student is enrolled
+        $isEnrolled = Enrollment::where('student_id', $student)
+            ->where('course_id', $exam->course_id)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You are not enrolled in this course.');
+        }
+
+        // Ensure student has submitted this exam
+        $isSubmitted = ExamAnswer::where('student_id', $student)
+            ->where('exam_id', $exam->id)
+            ->exists();
+
+        if (!$isSubmitted) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You have not submitted this exam yet.');
+        }
+
+        // Load questions with student's answers
+        $exam->load(['questions' => function($query) use ($exam) {
+            $query->orderBy('question_order', 'ASC')
+                ->limit($exam->total_questions);
+        }]);
+
+        $answers = ExamAnswer::where('student_id', $student)
+            ->where('exam_id', $exam->id)
+            ->get()
+            ->keyBy('question_id'); // key by question_id for easy lookup in blade
 
         return view('student.myExams.view_result', compact('exam', 'answers'));
+    }
+
+    public function examRules(Exam $exam)
+    {
+        $mappedRules = ExamRuleMap::with('rule')
+            ->where('exam_id', $exam->id)
+            ->where('is_active', true)
+            ->whereHas('rule', fn($q) => $q->where('is_active', true))
+            ->get()
+            ->groupBy(fn($map) => $map->rule->type);
+
+        $instructions = $mappedRules->get('instruction', collect());
+        $rules        = $mappedRules->get('rule', collect());
+
+        return view('student.myExams.exam_rules', compact('exam', 'instructions', 'rules'));
     }
 }

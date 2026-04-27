@@ -4,7 +4,9 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Academic\CourseController;
 use App\Http\Controllers\Admin\Academic\EnrollmentController;
 use App\Http\Controllers\Admin\Academic\ExamController;
+use App\Http\Controllers\Admin\Academic\ExamRuleController;
 use App\Http\Controllers\Admin\Academic\QuestionController;
+use App\Http\Controllers\Admin\Academic\ReviewAnswerController;
 use App\Http\Controllers\Admin\Academic\StudentController;;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\MyExamController;
@@ -88,7 +90,20 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={exam}', 'edit')->name('admin.academic.exams.edit');
             Route::put('/id={exam}', 'update')->name('admin.academic.exams.update');
             Route::delete('/id={exam}', 'destroy')->name('admin.academic.exams.destroy');
-            Route::get('/question_paper/id={exam}', 'question_paper')->name('admin.academic.exams.question_paper');
+            Route::get('/question-paper/id={exam}', 'questionPaper')->name('admin.academic.exams.questionPaper');
+
+            Route::get('/settings/id={exam}', 'examSettings')->name('admin.academic.exams.settings');
+            Route::put('/settings/id={exam}', 'updateExamSettings')->name('admin.academic.exams.settings.update');
+        });
+
+        // Exams Rules
+        Route::prefix('exam-rules')->controller(ExamRuleController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.examRules.index');
+            Route::get('/create', 'create')->name('admin.academic.examRules.create');
+            Route::post('/store', 'store')->name('admin.academic.examRules.store');
+            Route::get('/edit/id={examRule}', 'edit')->name('admin.academic.examRules.edit');
+            Route::put('/id={examRule}', 'update')->name('admin.academic.examRules.update');
+            Route::delete('/id={examRule}', 'destroy')->name('admin.academic.examRules.destroy');
         });
 
         // Questions
@@ -118,6 +133,15 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
             Route::put('/id={enroll}', 'update')->name('admin.academic.enrollments.update');
             Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
+        });
+
+        // Review Answer
+        Route::prefix('review-answer')->controller(ReviewAnswerController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.reviewAnswer.index');
+            // Route::post('/', 'store')->name('admin.academic.enrollments.store');
+            // Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
+            // Route::put('/id={enroll}', 'update')->name('admin.academic.enrollments.update');
+            // Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
         });
 
     });
@@ -153,6 +177,7 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
         Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
         Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
         Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
+        Route::get('/rules/id={exam}', 'examRules')->name('student.myExams.rule');
     });
 
 });

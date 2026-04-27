@@ -2,6 +2,8 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Academic\ExamAnswer;
+use App\Models\Academic\ExamAttempt;
 use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,5 +67,15 @@ class Exam extends Model
     public function questions()
     {
         return $this->hasMany(Question::class, 'exam_id');
+    }
+
+    public function attempts()
+{
+    return $this->hasMany(ExamAttempt::class, 'exam_id');
+}
+
+    public function examAnswers()
+    {
+        return $this->hasMany(ExamAnswer::class, 'exam_id');
     }
 }

@@ -17,6 +17,9 @@ a:hover {
     color: var(--theme-color-secondary-hover);
 }
 
+.bg-theme {
+    background-color: #13415e;
+}
 
 .btn-theme {
     --bs-btn-color: #fff;
@@ -177,23 +180,6 @@ p {
     background-color: #13415e;
 }
 
-.fixed-timer {
-    position: fixed; /* changed from absolute */
-    bottom: 40px;
-    left: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100px;
-    height: 100px;
-    border: 1px solid #13415e;
-    border-radius: 50px;
-    background: #13415e;
-    color: #ffffff;
-    box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
-    z-index: 999;
-}
 
 .sidebar-nav .nav-link {
     color: #15A6FF;
@@ -228,4 +214,121 @@ p {
 
 .sidebar-nav .nav-content a.active i {
     background-color: #15A6FF;
+}
+
+
+
+
+
+
+
+
+.option-item {
+    border: 1px solid #dee2e6;
+}
+
+.option-item.option-correct {
+    background-color: rgba(25, 135, 84, 0.1);
+    border: 1px solid #198754;
+}
+
+.option-item.option-wrong {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+}
+
+
+
+
+
+
+
+
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.modal .modal-header .btn-close-modal {
+    background-size: 35%;
+}
+
+.modal .modal-body .modal-icon,
+.modal .modal-body .modal-icon,
+.modal .modal-body .modal-icon {
+    margin: 0 0 15px;
+    text-align: center;
+    line-height: 1;
+}
+
+.modal .modal-body .modal-icon i {
+    display: inline-block;
+    animation: shake 0.5s ease-in-out infinite;
+    font-size: 60px;
+}
+
+.modal .modal-body .modal-query {
+    text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+/* Fixed Timer Container */
+.fixed-timer {
+    position: fixed;
+    top: 92px;
+    right: 44px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.fixed-timer .timer .badge {
+    width: 180px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    letter-spacing: 1px;
+}
+
+.fixed-timer .answered-question small {
+    width: 180px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+@keyframes pulse-red {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.fixed-timer .timer .badge.bg-danger {
+    animation: pulse-red 1s infinite;
+}
+
+@media (max-width: 768px) {
+    .fixed-timer {
+        top: auto;
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.95);
+        padding: 8px 12px;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
 }

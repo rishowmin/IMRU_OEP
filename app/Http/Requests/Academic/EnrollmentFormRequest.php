@@ -40,7 +40,7 @@ class EnrollmentFormRequest extends FormRequest
                     ->where(fn($query) => $query->where('course_id', $courseId))
                     ->ignore($enrollId),
             ],
-            'is_active' => ['sometimes', 'boolean'],
+            'is_active'   => 'nullable|boolean',
         ];
     }
 
@@ -52,6 +52,15 @@ class EnrollmentFormRequest extends FormRequest
             'student_id.required' => 'The student field is required.',
             'student_id.exists' => 'The selected student is invalid.',
             'student_id.unique' => 'This student is already enrolled in the selected course.',
+            'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // $this->boolean() correctly handles "0","1","true","false"
+            'is_active' => $this->boolean('is_active'),
+        ]);
     }
 }

@@ -29,7 +29,7 @@ class CourseController extends Controller
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
                 'description' => $request->description,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
 
@@ -52,7 +52,7 @@ class CourseController extends Controller
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
                 'description' => $request->description,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ]);
 

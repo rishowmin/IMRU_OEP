@@ -37,6 +37,7 @@ class ExamFormRequest extends FormRequest
             'total_questions' => 'nullable|integer|min:0',
             'instructions' => 'nullable|string',
             'basic_rules' => 'nullable|string',
+            'is_active'   => 'nullable|boolean',
         ];
     }
 
@@ -67,6 +68,15 @@ class ExamFormRequest extends FormRequest
             'total_questions.min' => 'The total questions must be at least 0.',
             'instructions.string' => 'The instructions must be a string.',
             'basic_rules.string' => 'The basic rules must be a string.',
+            'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // $this->boolean() correctly handles "0","1","true","false"
+            'is_active' => $this->boolean('is_active'),
+        ]);
     }
 }

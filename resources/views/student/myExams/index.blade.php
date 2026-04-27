@@ -148,23 +148,26 @@
 
                                 {{-- Action Buttons --}}
                                 <div class="d-flex gap-2 mt-auto">
-                                    <a href="{{ route('student.myExams.show', $exam->id) }}" class="btn btn-sm btn-outline-theme flex-fill">
+                                    <a href="{{ route('student.myExams.show', $exam->id) }}" class="btn btn-sm btn-outline-theme flex-fill w-50">
                                         <i class="bi bi-eye me-1"></i>Details
                                     </a>
                                     @if($isSubmitted)
-                                    <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
+                                    <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary flex-fill w-50">
                                         <i class="bi bi-bar-chart me-1"></i>View Result
                                     </a>
                                     @elseif($canStart)
-                                    <a href="{{ route('student.myExams.start', $exam->id) }}" class="btn btn-sm btn-success flex-fill">
+                                    {{-- <a href="javascript:void(0)" class="btn btn-sm btn-success flex-fill w-50 startExamBtn" data-id="{{ $exam->id }}" data-bs-toggle="modal" data-bs-target="#start_exam_confirm_modal">
+                                        <i class="bi bi-play-fill me-1"></i>Start Exam
+                                    </a> --}}
+                                    <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-sm btn-success flex-fill w-50">
                                         <i class="bi bi-play-fill me-1"></i>Start Exam
                                     </a>
                                     @elseif($status === 'Upcoming')
-                                    <button class="btn btn-sm btn-outline-warning flex-fill" disabled>
+                                    <button class="btn btn-sm btn-outline-warning flex-fill w-50" disabled>
                                         <i class="bi bi-hourglass-split me-1"></i>Not yet open
                                     </button>
                                     @else
-                                    <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary flex-fill">
+                                    <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary flex-fill w-50">
                                         <i class="bi bi-bar-chart me-1"></i>View Result
                                     </a>
                                     @endif
@@ -199,7 +202,7 @@
                                     <th>Date & Time</th>
                                     <th>Marks</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th width="10%">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="small">
@@ -295,7 +298,10 @@
                                                 <i class="bi bi-bar-chart"></i>
                                             </a>
                                             @elseif($canStart)
-                                            <a href="{{ route('student.myExams.start', $exam->id) }}" class="btn btn-sm btn-success" title="Start Exam">
+                                            {{-- <a href="javascript:void(0)" class="btn btn-sm btn-success startExamBtn" data-id="{{ $exam->id }}" title="Start Exam" data-bs-toggle="modal" data-bs-target="#start_exam_confirm_modal">
+                                                <i class="bi bi-play-fill"></i>
+                                            </a> --}}
+                                            <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-sm btn-success" title="Start Exam">
                                                 <i class="bi bi-play-fill"></i>
                                             </a>
                                             @elseif($status === 'Upcoming')
@@ -389,6 +395,21 @@
         });
     });
 
+</script>
+
+{{-- Start Exam Modal Script --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startExamBtns = document.querySelectorAll('.startExamBtn');
+
+        startExamBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const examId = this.dataset.id;
+                const startRoute = "{{ route('student.myExams.start', ['exam' => ':id']) }}";
+                document.getElementById('startExamForm').action = startRoute.replace(':id', examId);
+            });
+        });
+    });
 </script>
 
 @endsection

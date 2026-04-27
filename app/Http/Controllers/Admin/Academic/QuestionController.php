@@ -41,7 +41,7 @@ class QuestionController extends Controller
 
                 $questionFigurePath = $fileName;
             }
-            
+
             Question::create([
                 'exam_id' => $request->exam_id,
                 'question_type' => $request->question_type,
@@ -55,8 +55,8 @@ class QuestionController extends Controller
                 'option_d' => $request->option_d,
                 'correct_answer' => $request->correct_answer,
                 'question_figure' => $questionFigurePath,
-                'question_order' => $request->question_order,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'question_order' => $request->question_order ?? 0,
+                'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
 
@@ -105,8 +105,8 @@ class QuestionController extends Controller
                 'option_c' => $request->option_c,
                 'option_d' => $request->option_d,
                 'correct_answer' => $request->correct_answer,
-                'question_order' => $request->question_order,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'question_order' => $request->question_order ?? 0,
+                'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
 
 

@@ -39,6 +39,7 @@ class CourseFormRequest extends FormRequest
             ],
             'credits' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'is_active'   => 'nullable|boolean',
         ];
     }
 
@@ -54,6 +55,15 @@ class CourseFormRequest extends FormRequest
             'credits.string' => 'The credits must be a string.',
             'credits.max' => 'The credits may not be greater than 255 characters.',
             'description.string' => 'The description must be a string.',
+            'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // $this->boolean() correctly handles "0","1","true","false"
+            'is_active' => $this->boolean('is_active'),
+        ]);
     }
 }

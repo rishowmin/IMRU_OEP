@@ -26,7 +26,7 @@ class EnrollmentController extends Controller
             Enrollment::create([
                 'course_id'  => $request->course_id,
                 'student_id' => $request->student_id,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
 

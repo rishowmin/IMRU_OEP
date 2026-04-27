@@ -9,18 +9,13 @@
 
 <section class="section">
 
-    <div class="fixed-timer">
-        <small style="font-size: 10px; opacity: 0.7;">Time Left</small>
-        <h5 class="mb-0" id="exam_timer">00:00</h5>
-    </div>
-
     <div class="row">
         <div class="col-lg-12">
             <div class="card mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="card-header-left">
                         <h5>
-                            <i class="bi bi-person-badge"></i>
+                            <i class="bi bi-file-text"></i>
                             <span class="ms-1">@yield('title')</span>
                         </h5>
                         <nav style="--bs-breadcrumb-divider: '•';">
@@ -32,10 +27,18 @@
                         </nav>
                     </div>
                     <div class="card-header-right">
-                        <a href="{{ route('student.myExams') }}" class="btn btn-outline-theme btn-sm">
-                            <i class="bi bi-arrow-left-square"></i>
-                            <span class="ms-1">Back to My Exams</span>
-                        </a>
+                        <div class="fixed-timer">
+                            <div class="timer">
+                                <h4 class="mb-0" id="exam_timer">
+                                    <span class="badge bg-theme">
+                                        <i class="bi bi-stopwatch me-2"></i>00h:00m:00s
+                                    </span>
+                                </h4>
+                            </div>
+                            <div class="answered-question">
+                                <small class="badge bg-light text-dark border fw-semibold">0/10 Questions Answered</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,15 +77,18 @@
     <form method="POST" action="{{ route('student.myExams.store', $exam->id) }}" id="examAnswerForm">
         @csrf
 
+        <input type="hidden" name="stopped" id="stoppedFlag" value="0">
+
         <div class="row">
 
-            {{-- Left: Exam Details --}}
+            {{-- Left: Answer Sheet --}}
             <div class="col-lg-8 mb-3">
                 <div class="rounded-top {{ $statusClass }}" style="height: 5px;"></div>
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm">
                     <div class="card-header">
                         <div class="d-flex align-items-center justify-content-between">
-                            <h5 class="card-title fw-semibold mb-0 p-0">
+                            <h5 class="card-title fw-semibold text-success mb-0 p-0">
+                                <i class="bi bi-clipboard-check me-1"></i>
                                 {{ $exam->exam_title }}
                                 <small class="text-muted">[{{ $exam->exam_code }}]</small>
                             </h5>
@@ -102,8 +108,6 @@
                                 @if ($exam->questions->count() > 0)
                                 @foreach ($exam->questions as $index => $question)
                                 <div class="question-item mb-3 p-3 border rounded">
-
-
 
                                     <div class="question-info d-flex align-items-center gap-1 mb-2">
                                         <p class="exam_paper_difficulty_level mb-0 fw-bold">
@@ -131,7 +135,7 @@
 
                                     <div class="d-flex align-items-baseline justify-content-between mb-2">
                                         <p class="question mb-0" style="width: 95%;">
-                                            <strong>Q{{ $question->question_order }}:</strong> {{ $question->question_text }}
+                                            <strong>Q{{ $index + 1 }}:</strong> {{ $question->question_text }}
                                         </p>
                                         <p class="exam_paper_marks fw-bold text-end mb-0" style="width: 5%;">
                                             {{ intval($question->marks) }}
@@ -146,7 +150,7 @@
 
                                     {{-- MCQ Options --}}
                                     @if(in_array($question->question_type, ['mcq_2', 'mcq_4']))
-                                    <div class="options mb-2">
+                                    <div class="options small mb-2">
                                         @if($question->option_a)
                                         <div class="form-check mb-2">
                                             <input class="form-check-input" type="radio" name="answers[{{ $question->id }}]" id="q{{ $question->id }}_option_a" value="{{ $question->option_a }}">
@@ -203,32 +207,40 @@
 
                     </div>
 
-                    <div class="card-footer">
+                    <div class="card-footer p-4">
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-outline-success">
-                                <i class="bi bi-play-fill me-1"></i>Submit
+                        <div class="d-flex flex-row gap-2">
+                            <a href="javascript:void(0)" class="btn btn-outline-danger flex-fill w-50 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
+                                <i class="bi bi-stop-circle me-1"></i>Stop Exam
+                            </a>
+                            {{-- <button type="submit" class="btn btn-success flex-fill w-50">
+                                <i class="bi bi-send me-1"></i>Submit Answers
+                            </button> --}}
+                            <button type="button" class="btn btn-success flex-fill w-50" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
+                                <i class="bi bi-send me-1"></i>Submit Answers
                             </button>
                         </div>
-
 
                     </div>
                 </div>
             </div>
 
-            {{-- Right: Action Panel --}}
+            {{-- Right: Exam Summary --}}
             <div class="col-lg-4 mb-3">
 
                 <div class="rounded-top {{ $statusClass }}" style="height: 5px;"></div>
 
                 <div class="card border-0 shadow-sm">
                     <div class="card-header">
-                        <h6 class="card-title fw-semibold mb-0 p-0">Exam Summary</h6>
+                        <h6 class="card-title fw-semibold text-success mb-0 p-0">
+                            <i class="bi bi-file-earmark-text me-1"></i>
+                            Exam Summary
+                        </h6>
                     </div>
 
                     <div class="card-body d-flex flex-column justify-content-between">
 
-                        <ul class="list-group small">
+                        <ul class="list-group small mb-4">
                             <li class="list-group-item d-flex justify-content-between small">
                                 <span class="text-muted"><i class="bi bi-book text-muted mt-1 me-1"></i> Course</span>
                                 <strong>
@@ -278,10 +290,19 @@
                             </li>
                         </ul>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-outline-success">
-                                <i class="bi bi-play-fill me-1"></i>Submit
+                        <div class="d-grid gap-2 mb-2">
+                            {{-- <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bi bi-send me-1"></i>Submit Answers
+                            </button> --}}
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
+                                <i class="bi bi-send me-1"></i>Submit Answers
                             </button>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="javascript:void(0)" class="btn btn-outline-danger btn-sm stopExamBtn"  data-bs-toggle="modal"data-bs-target="#stop_exam_confirm_modal">
+                                <i class="bi bi-stop-circle me-1"></i>Stop Exam
+                            </a>
                         </div>
 
                     </div>
@@ -295,33 +316,39 @@
 
 </section>
 
+@include('student.layouts.common.submitExamConfirmModal')
+@include('student.layouts.common.stopExamConfirmModal')
+
 @endsection
 
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const durationMinutes = {{ $exam->exam_duration_min ?? 0 }};
-        let timeLeft = durationMinutes * 60;
-        const timerEl = document.getElementById('exam_timer');
-        const timerBox = document.querySelector('.fixed-timer');
+        // ======= Timer =======
+        const totalQuestions = {{ $exam->questions->count() }};
+        let timeLeft = {{ $remainingSeconds ?? 0 }}; // server-calculated remaining seconds
+        const timerSpan = document.querySelector('#exam_timer .badge');
         const examAnswerForm = document.getElementById('examAnswerForm');
+        const answeredBadge = document.querySelector('.answered-question small');
 
         function updateTimer() {
             if (timeLeft <= 0) {
-                timerEl.textContent = '00:00';
-                // Auto submit
+                timerSpan.innerHTML = '<i class="bi bi-stopwatch me-2"></i>00h:00m:00s';
+                timerSpan.classList.remove('bg-theme');
+                timerSpan.classList.add('bg-danger');
                 examAnswerForm.submit();
                 return;
             }
 
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            const hours = Math.floor(timeLeft / 3600);
+            const mins  = Math.floor((timeLeft % 3600) / 60);
+            const secs  = timeLeft % 60;
 
-            // Turn red under 5 minutes
+            timerSpan.innerHTML = `<i class="bi bi-stopwatch me-2"></i>${String(hours).padStart(2, '0')}h:${String(mins).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
+
             if (timeLeft <= 300) {
-                timerBox.style.background = '#dc3545';
-                timerBox.style.borderColor = '#dc3545';
+                timerSpan.classList.remove('bg-theme');
+                timerSpan.classList.add('bg-danger');
             }
 
             timeLeft--;
@@ -329,6 +356,115 @@
 
         updateTimer();
         setInterval(updateTimer, 1000);
+
+        // ======= Answered Questions Counter =======
+        function updateAnsweredCount() {
+            let answered = 0;
+
+            document.querySelectorAll('.question-item').forEach(function (item) {
+                const radios = item.querySelectorAll('input[type="radio"]');
+                const textarea = item.querySelector('textarea');
+
+                if (radios.length > 0) {
+                    const checked = item.querySelector('input[type="radio"]:checked');
+                    if (checked) answered++;
+                } else if (textarea) {
+                    if (textarea.value.trim() !== '') answered++;
+                }
+            });
+
+            answeredBadge.textContent = `${answered}/${totalQuestions} Questions Answered`;
+        }
+
+        // Listen for MCQ selection
+        document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+            radio.addEventListener('change', updateAnsweredCount);
+        });
+
+        // Listen for textarea input
+        document.querySelectorAll('textarea').forEach(function (textarea) {
+            textarea.addEventListener('input', updateAnsweredCount);
+        });
+
+        // Initial count
+        updateAnsweredCount();
+    });
+</script>
+
+{{-- Submit / Stop Exam Modal Scripts --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // Confirm Submit Exam
+        document.getElementById('confirmSubmitExam').addEventListener('click', function () {
+            document.getElementById('stoppedFlag').value = '0';
+            document.getElementById('examAnswerForm').submit();
+        });
+
+        // Confirm Stop Exam
+        document.getElementById('confirmStopExam').addEventListener('click', function () {
+            document.getElementById('stoppedFlag').value = '1';
+            document.getElementById('examAnswerForm').submit();
+        });
+
+        //  Confirm Stop Exam for Browser Back Button
+        history.pushState(null, null, location.href);
+
+        window.addEventListener('popstate', function (e) {
+            // Push state again to prevent actual navigation
+            history.pushState(null, null, location.href);
+
+            // Show stop exam modal
+            const stopModal = new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal'));
+            stopModal.show();
+        });
+
+
+        // Submit Exam on Browser's Tab Visibility Change
+        let tabSwitchCount = 0;
+        const maxTabSwitches = 1; // allow 1 warning, then auto-submit
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                tabSwitchCount++;
+
+                if (tabSwitchCount >= maxTabSwitches) {
+                    // Auto submit as stopped
+                    document.getElementById('stoppedFlag').value = '1';
+                    document.getElementById('examAnswerForm').submit();
+                }
+            } else {
+                // Returned to tab — show warning modal
+                if (tabSwitchCount < maxTabSwitches) {
+                    const stopModal = new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal'));
+                    stopModal.show();
+                }
+            }
+        });
+
+
+        // Browser Restore Down Detection
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+
+        function checkMaximized() {
+            return (
+                window.outerWidth >= screenWidth * 0.95 &&
+                window.outerHeight >= screenHeight * 0.95
+            );
+        }
+
+        // Detect restore down — auto submit immediately
+        let resizeTimeout;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                if (!checkMaximized()) {
+                    document.getElementById('stoppedFlag').value = '1';
+                    document.getElementById('examAnswerForm').submit();
+                }
+            }, 300);
+        });
     });
 </script>
 @endsection

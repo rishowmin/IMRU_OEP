@@ -37,6 +37,7 @@ class QuestionFormRequest extends FormRequest
             'correct_answer' => 'nullable|string',
             'question_figure' => 'nullable|image|max:2048',
             'question_order' => 'nullable|integer|min:0',
+            'is_active'   => 'nullable|boolean',
         ];
     }
 
@@ -66,6 +67,17 @@ class QuestionFormRequest extends FormRequest
             'question_figure.max' => 'Question figure may not be greater than 2MB.',
             'question_order.integer' => 'Question order must be an integer.',
             'question_order.min' => 'Question order must be at least 0.',
+            'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // Convert empty string to null so nullable|integer passes
+            'question_order'     => $this->input('question_order') !== '' ? $this->input('question_order') : null,
+            // $this->boolean() correctly handles "0","1","true","false"
+            'is_active' => $this->boolean('is_active'),
+        ]);
     }
 }

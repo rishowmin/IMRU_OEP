@@ -229,7 +229,7 @@
 
                     <div class="d-grid gap-2">
                         @if($isSubmitted)
-                        <a href="#" class="btn btn-outline-primary">
+                        <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-outline-primary">
                             <i class="bi bi-bar-chart me-1"></i>View Result
                         </a>
                         @elseif($canStart)
@@ -241,7 +241,7 @@
                             <i class="bi bi-hourglass-split me-1"></i>Not Yet Open
                         </button>
                         @else
-                        <a href="#" class="btn btn-outline-primary">
+                        <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-outline-primary">
                             <i class="bi bi-bar-chart me-1"></i>View Result
                         </a>
                         @endif

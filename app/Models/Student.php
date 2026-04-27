@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Academic\Course;
 use App\Models\Academic\Enrollment;
+use App\Models\Academic\ExamAnswer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -71,5 +72,10 @@ class Student extends Authenticatable
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    public function examAnswers()
+    {
+        return $this->hasMany(ExamAnswer::class, 'exam_id');
     }
 }

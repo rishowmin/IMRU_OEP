@@ -12,8 +12,8 @@
     <link href="{{ asset('assets/admin/img/brand/icon_wh.png') }}" rel="icon">
     <link href="{{ asset('assets/admin/img/branding/favicons/apple-icon.png') }}" rel="apple-touch-icon">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ asset('assets/admin/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/admin/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
     <style>
         :root {
             --imru-blue: #29abe2;
@@ -303,7 +303,7 @@
                         <a href="{{ url('/academic/login') }}" class="btn btn-outline-info btn-sm px-3 rounded-2 ">Academic Login</a>
 
                         @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="ml-4 btn btn-info btn-sm px-3 rounded-2">Register</a>
+                        <a href="#" class="ml-4 btn btn-info btn-sm px-3 rounded-2">Corporate Login</a>
                         @endif
                         @endauth
                     </div>
@@ -317,11 +317,11 @@
     <section class="hero-section text-center">
         <div class="container">
             <img class="hero-logo mb-4" src="{{ asset('assets/admin/img/brand/logo_wh.png') }}" alt="IMRU Online Examination Portal" onerror="this.style.display='none'">
-            <h1 class="mb-3">Smarter exams for <span>universities</span><br>and <span>recruiters</span></h1>
+            <h1 class="mb-3">Smarter examination system for <br><span>academic</span> and <span>corporate</span></h1>
             <p class="mb-4 mx-auto">A secure, scalable online examination portal for admission and recruitment assessments — with automated grading, live proctoring, and real-time analytics.</p>
             <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a href="{{ url('/academic/login') }}" class="btn btn-imru px-4 py-2 rounded-2">Academic Login</a>
-                <a href="#" class="btn btn-imru-outline px-4 py-2 rounded-2">Recruitment Login</a>
+                <a href="{{ url('/academic/login') }}" class="btn btn-imru-outline px-4 py-2 rounded-2">Academic Login</a>
+                <a href="#" class="btn btn-imru px-4 py-2 rounded-2">Corporate Login</a>
             </div>
         </div>
     </section>
@@ -543,7 +543,7 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('assets/admin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
 

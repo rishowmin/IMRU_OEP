@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\ExamFormRequest;
 use App\Models\Academic\Course;
 use App\Models\Academic\Exam;
+use App\Models\Academic\ExamRule;
+use App\Models\Academic\ExamRuleMap;
 use App\Models\Academic\Question;
 use Illuminate\Http\Request;
 
@@ -41,7 +43,7 @@ class ExamController extends Controller
                 'total_questions' => $request->total_questions,
                 'instructions' => $request->instructions,
                 'basic_rules' => $request->basic_rules,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
 
@@ -74,7 +76,7 @@ class ExamController extends Controller
                 'total_questions' => $request->total_questions,
                 'instructions' => $request->instructions,
                 'basic_rules' => $request->basic_rules,
-                'is_active' => $request->has('is_active') ? 1 : 0,
+                'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ]);
 
@@ -93,8 +95,57 @@ class ExamController extends Controller
             ->with('status', 'Exam has been deleted successfully!');
     }
 
-    public function question_paper(Exam $exam)
+    public function questionPaper(Exam $exam)
     {
         return view('admin.academic.exams.question_paper', compact('exam'));
+    }
+
+    public function examSettings(Exam $exam)
+    {
+        $allRules = ExamRule::whereNull('deleted_at')
+            ->orderBy('type')
+            ->orderBy('order')
+            ->get()
+            ->groupBy('type');
+
+        $mappedRuleIds = ExamRuleMap::where('exam_id', $exam->id)
+            ->where('is_active', true)
+            ->pluck('rule_id')
+            ->toArray();
+
+        return view('admin.academic.exams.exam_settings', compact('exam', 'allRules', 'mappedRuleIds'));
+    }
+
+    public function updateExamSettings(Request $request, Exam $exam)
+    {
+        $selectedRuleIds = $request->input('rules', []);
+
+        // Get all existing maps for this exam
+        $existingMaps = ExamRuleMap::where('exam_id', $exam->id)->get();
+
+        foreach ($existingMaps as $map) {
+            if (in_array($map->rule_id, $selectedRuleIds)) {
+                // Rule is checked — ensure active
+                $map->update(['is_active' => true]);
+            } else {
+                // Rule is unchecked — set inactive
+                $map->update(['is_active' => false]);
+            }
+        }
+
+        // Create new maps for newly checked rules
+        $existingRuleIds = $existingMaps->pluck('rule_id')->toArray();
+        foreach ($selectedRuleIds as $ruleId) {
+            if (!in_array($ruleId, $existingRuleIds)) {
+                ExamRuleMap::create([
+                    'exam_id'    => $exam->id,
+                    'rule_id'    => $ruleId,
+                    'is_active'  => true,
+                    'order'      => 0,
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Exam settings updated successfully.');
     }
 }
