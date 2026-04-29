@@ -74,9 +74,7 @@ class QuestionFormRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            // Convert empty string to null so nullable|integer passes
             'question_order'     => $this->input('question_order') !== '' ? $this->input('question_order') : null,
-            // $this->boolean() correctly handles "0","1","true","false"
             'is_active' => $this->boolean('is_active'),
         ]);
     }

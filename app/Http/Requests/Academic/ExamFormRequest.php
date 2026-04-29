@@ -75,7 +75,6 @@ class ExamFormRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            // $this->boolean() correctly handles "0","1","true","false"
             'is_active' => $this->boolean('is_active'),
         ]);
     }

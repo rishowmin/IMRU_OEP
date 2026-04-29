@@ -178,8 +178,8 @@
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
-                        <h6>{{ Auth::guard('student')->user()->first_name }} {{ Auth::guard('student')->user()->last_name }}</h6>
-                        <span>Student</span>
+                        <h6>{{ Auth::guard('teacher')->user()->first_name }} {{ Auth::guard('teacher')->user()->last_name }}</h6>
+                        <span>Teacher</span>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
@@ -216,9 +216,9 @@
                     </li>
 
                     <li>
-                        <form method="POST" action="{{ route('student.logout') }}">
+                        <form method="POST" action="{{ route('teacher.logout') }}">
                             @csrf
-                            <a class="dropdown-item d-flex align-items-center" href="{{ route('student.logout') }}" onclick="event.preventDefault();
+                            <a class="dropdown-item d-flex align-items-center" href="{{ route('teacher.logout') }}" onclick="event.preventDefault();
                                         this.closest('form').submit();">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign Out</span>

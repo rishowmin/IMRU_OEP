@@ -145,6 +145,12 @@ p {
     margin-right: 0;
 }
 
+.login-toggle-btn.active {
+    background-color: var(--theme-color) !important;
+    color: #fff !important;
+    border-color: var(--theme-color) !important;
+}
+
 .divider {
     content: '';
     border: 1px solid #13415e;;

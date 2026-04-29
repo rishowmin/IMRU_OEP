@@ -60,19 +60,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- Username --}}
-                                <div class="col-12">
-                                    <div class="input-group">
-                                        <span class="input-group-text brr-0" id="inputGroupPrepend"><i class="bi bi-at auth-icon"></i></span>
-                                        <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" placeholder="Username">
-                                    </div>
-                                    @error('username')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
-                                </div>
-
                                 {{-- Password --}}
                                 <div class="col-12">
                                     <div class="input-group">
@@ -96,7 +83,7 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-outline-theme w-100">
+                                    <button type="submit" class="btn btn-theme w-100">
                                         <i class="bi bi-person-plus me-1"></i>
                                         {{ __('Register') }}
                                     </button>

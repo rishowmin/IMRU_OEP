@@ -17,8 +17,8 @@ class DashboardController extends Controller
         return view('admin.academic.dashboard');
     }
 
-    public function corporateDashboard()
+    public function professionalDashboard()
     {
-        return view('admin.corporate.dashboard');
+        return view('admin.professional.dashboard');
     }
 }

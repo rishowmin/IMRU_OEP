@@ -30,7 +30,6 @@ class StudentController extends Controller
             Student::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'is_active'  => $request->boolean('is_active'),
@@ -54,7 +53,6 @@ class StudentController extends Controller
             $data = [
                 'first_name' => $request->first_name,
                 'last_name'  => $request->last_name,
-                'username'   => $request->username,
                 'email'      => $request->email,
                 'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),

@@ -20,11 +20,11 @@
                         <div class="card-body">
 
                             <div class="pb-2">
-                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Create an Account</h5>
+                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Create a Teacher Account</h5>
                                 <p class="text-center small">Enter your personal details to create account</p>
                             </div>
 
-                            <form method="POST" action="{{ route('admin.register') }}" class="row g-3 needs-validation" novalidate>
+                            <form method="POST" action="{{ route('teacher.register') }}" class="row g-3 needs-validation" novalidate>
                                 @csrf
 
                                 {{-- First Name --}}
@@ -54,19 +54,6 @@
                                         <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Email Address">
                                     </div>
                                     @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
-                                </div>
-
-                                {{-- Username --}}
-                                <div class="col-12">
-                                    <div class="input-group">
-                                        <span class="input-group-text brr-0" id="inputGroupPrepend"><i class="bi bi-at auth-icon"></i></span>
-                                        <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" placeholder="Username">
-                                    </div>
-                                    @error('username')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -105,7 +92,7 @@
                                 <div class="col-12">
                                     <p class="small mb-0 w-100 text-center">
                                         <span>Do you have an account?</span>
-                                        <a href="{{ route('admin.login') }}">Go to login <i class="bi bi-box-arrow-in-right"></i></a>
+                                        <a href="{{ url('/academic/login') }}">Go to login <i class="bi bi-box-arrow-in-right"></i></a>
                                     </p>
                                 </div>
 

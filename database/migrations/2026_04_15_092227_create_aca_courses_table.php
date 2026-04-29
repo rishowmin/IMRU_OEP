@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');
 
+            $table->string('aca_created_by')->nullable();
+            $table->string('aca_updated_by')->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

@@ -151,14 +151,15 @@
                                     <a href="{{ route('student.myExams.show', $exam->id) }}" class="btn btn-sm btn-outline-theme flex-fill w-50">
                                         <i class="bi bi-eye me-1"></i>Details
                                     </a>
-                                    @if($isSubmitted)
+                                    @if($noQuestions)
+                                    <button class="btn btn-sm btn-outline-danger flex-fill w-50" disabled>
+                                        <i class="bi bi-slash-circle me-1"></i>Not Available
+                                    </button>
+                                    @elseif($isSubmitted)
                                     <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary flex-fill w-50">
                                         <i class="bi bi-bar-chart me-1"></i>View Result
                                     </a>
                                     @elseif($canStart)
-                                    {{-- <a href="javascript:void(0)" class="btn btn-sm btn-success flex-fill w-50 startExamBtn" data-id="{{ $exam->id }}" data-bs-toggle="modal" data-bs-target="#start_exam_confirm_modal">
-                                        <i class="bi bi-play-fill me-1"></i>Start Exam
-                                    </a> --}}
                                     <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-sm btn-success flex-fill w-50">
                                         <i class="bi bi-play-fill me-1"></i>Start Exam
                                     </a>
@@ -293,7 +294,11 @@
                                             <a href="{{ route('student.myExams.show', $exam->id) }}" class="btn btn-sm btn-outline-theme" title="Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            @if($isSubmitted)
+                                            @if($noQuestions)
+                                            <button class="btn btn-sm btn-outline-danger" disabled title="Not Available">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                            @elseif($isSubmitted)
                                             <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-sm btn-outline-primary" title="View Result">
                                                 <i class="bi bi-bar-chart"></i>
                                             </a>

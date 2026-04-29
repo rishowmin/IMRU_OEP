@@ -107,7 +107,7 @@
                                                         <option selected disabled>Select Student</option>
                                                         @foreach($students as $student)
                                                         <option value="{{ $student->id }}" {{ old('student_id', $enroll->student_id ?? '') == $student->id ? 'selected' : '' }}>
-                                                            {{ $student->first_name }} {{ $student->last_name }} - [{{ $student->username }}]
+                                                            {{ $student->first_name }} {{ $student->last_name }} - [{{ $student->email }}]
                                                         </option>
                                                         @endforeach
                                                     </select>

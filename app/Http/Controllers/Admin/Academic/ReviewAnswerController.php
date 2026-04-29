@@ -4,27 +4,29 @@ namespace App\Http\Controllers\Admin\Academic;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Exam;
+use App\Models\Academic\ExamAnswer;
 use App\Models\Academic\ReviewAnswer;
+use App\Models\Student;
 use Illuminate\Http\Request;
 
 class ReviewAnswerController extends Controller
 {
+    // List all exams that have subjective answers
     public function index()
     {
-        $exams = Exam::whereHas('questions', function($q) {
+        $exams = Exam::whereHas('questions', function ($q) {
             $q->whereIn('question_type', ['short_question', 'long_question']);
         })
         ->whereHas('examAnswers')
         ->with(['course'])
         ->withCount([
-            'examAnswers as total_submissions' => function($q) {
+            'examAnswers as total_submissions' => function ($q) {
                 $q->distinct('student_id');
             },
         ])
         ->get();
 
-        // Add reviewed count to each exam
-        $exams->each(function($exam) {
+        $exams->each(function ($exam) {
             $exam->reviewed_count = ReviewAnswer::whereHas('examAnswer', fn($q) =>
                 $q->where('exam_id', $exam->id)
             )->distinct('exam_answers_id')->count();
@@ -33,40 +35,73 @@ class ReviewAnswerController extends Controller
         return view('admin.academic.reviewAnswer.index', compact('exams'));
     }
 
-    // public function show(Exam $exam)
-    // {
-    //     // Get all students who submitted this exam with subjective answers
-    //     $submissions = ExamAnswer::where('exam_id', $exam->id)
-    //         ->whereHas('question', fn($q) => $q->whereIn('question_type', ['short_question', 'long_question']))
-    //         ->with(['student', 'question', 'reviewAnswer'])
-    //         ->get()
-    //         ->groupBy('student_id');
+    // List all students who submitted this exam
+    public function show(Exam $exam)
+    {
+        $submissions = ExamAnswer::where('exam_id', $exam->id)
+            ->distinct('student_id')
+            ->with('student')
+            ->get()
+            ->groupBy('student_id');
 
-    //     return view('admin.academic.reviewAnswer.show', compact('exam', 'submissions'));
-    // }
+        $students = $submissions->map(function ($answers, $studentId) use ($exam) {
+            $student = $answers->first()->student;
 
-    // public function storeReview(Request $request, Exam $exam)
-    // {
-    //     $request->validate([
-    //         'reviews'                  => ['required', 'array'],
-    //         'reviews.*.exam_answer_id' => ['required', 'exists:aca_exam_answers,id'],
-    //         'reviews.*.review'         => ['required', 'in:0,1'],
-    //         'reviews.*.marks_awarded'  => ['required', 'numeric', 'min:0'],
-    //     ]);
+            $totalSubjective = $answers->filter(fn($a) =>
+                in_array($a->question?->question_type ?? '', ['short_question', 'long_question'])
+            )->count();
 
-    //     foreach ($request->reviews as $item) {
-    //         ReviewAnswer::updateOrCreate(
-    //             ['exam_answers_id' => $item['exam_answer_id']],
-    //             [
-    //                 'review'        => $item['review'],
-    //                 'marks_awarded' => $item['marks_awarded'],
-    //                 'is_active'     => true,
-    //                 'aca_created_by' => auth()->id(),
-    //                 'aca_updated_by' => auth()->id(),
-    //             ]
-    //         );
-    //     }
+            $reviewed = ReviewAnswer::whereHas('examAnswer', fn($q) =>
+                $q->where('exam_id', $exam->id)->where('student_id', $studentId)
+            )->count();
 
-    //     return redirect()->back()->with('success', 'Reviews submitted successfully.');
-    // }
+            return [
+                'student'         => $student,
+                'total_answers'   => $answers->count(),
+                'total_subjective'=> $totalSubjective,
+                'reviewed'        => $reviewed,
+                'is_fully_reviewed' => $reviewed >= $totalSubjective && $totalSubjective > 0,
+            ];
+        });
+
+        return view('admin.academic.reviewAnswer.show', compact('exam', 'students'));
+    }
+
+    // Show one student's answers for review
+    public function studentAnswers(Exam $exam, Student $student)
+    {
+        $answers = ExamAnswer::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->with(['question', 'reviewAnswer'])
+            ->get();
+
+        return view('admin.academic.reviewAnswer.student_answers', compact('exam', 'student', 'answers'));
+    }
+
+    // Store review
+    public function storeReview(Request $request, Exam $exam, Student $student)
+    {
+        $request->validate([
+            'reviews'                   => ['required', 'array'],
+            'reviews.*.exam_answer_id'  => ['required', 'exists:aca_exam_answers,id'],
+            'reviews.*.review'          => ['required', 'in:0,1'],
+            'reviews.*.marks_awarded'   => ['required', 'numeric', 'min:0'],
+        ]);
+
+        foreach ($request->reviews as $item) {
+            ReviewAnswer::updateOrCreate(
+                ['exam_answers_id' => $item['exam_answer_id']],
+                [
+                    'review'        => $item['review'],
+                    'marks_awarded' => $item['marks_awarded'],
+                    'is_active'     => true,
+                    'aca_created_by' => auth()->id(),
+                    'aca_updated_by' => auth()->id(),
+                ]
+            );
+        }
+
+        return redirect()->route('admin.academic.reviewAnswer.show', $exam->id)
+            ->with('success', 'Review submitted successfully.');
+    }
 }

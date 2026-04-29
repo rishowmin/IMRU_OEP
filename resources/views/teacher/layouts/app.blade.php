@@ -40,12 +40,12 @@
 
 <body>
 
-    @include('student.layouts.inc.header')
-    @include('student.layouts.inc.sidebar')
+    @include('teacher.layouts.inc.header')
+    @include('teacher.layouts.inc.sidebar')
     <main id="main" class="main">
         @yield('content')
     </main>
-    @include('student.layouts.inc.footer')
+    @include('teacher.layouts.inc.footer')
 
 
     <!-- Vendor JS Files -->

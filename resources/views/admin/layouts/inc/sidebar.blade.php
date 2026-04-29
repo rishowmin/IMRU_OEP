@@ -12,12 +12,12 @@
         </li>
         {{-- End Dashboard Nav --}}
 
-        <li class="nav-heading">
+        <li class="nav-heading d-none">
             <span>Academic</span>
         </li>
 
         {{-- Start Academic Dashboard Nav --}}
-        <li class="nav-item">
+        <li class="nav-item d-none">
             <a class="nav-link {{ request()->routeIs('admin.academic.dashboard') ? '' : 'collapsed' }}" href="{{ route('admin.academic.dashboard') }}">
                 <i class="bi bi-speedometer2"></i>
                 <span>Academic Dashboard</span>
@@ -50,12 +50,12 @@
 
         {{-- Start Exams Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
+            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-clipboard"></i>
                 <span>Exams</span>
                 <i class="bi bi-chevron-down ms-auto"></i>
             </a>
-            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.exams.create') ? 'active' : '' }}" href="{{ route('admin.academic.exams.create') }}">
                         <i class="bi bi-circle"></i><span>Add Exam</span>
@@ -69,6 +69,11 @@
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.examRules*') ? 'active' : '' }}" href="{{ route('admin.academic.examRules.index') }}">
                         <i class="bi bi-circle"></i><span>Exam Rules</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.examAttempts*') ? 'active' : '' }}" href="{{ route('admin.academic.examAttempts.index') }}">
+                        <i class="bi bi-circle"></i><span>Exam Attempts</span>
                     </a>
                 </li>
             </ul>
@@ -127,24 +132,24 @@
         {{-- Start Review Answer Nav --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('admin.academic.reviewAnswer.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.reviewAnswer.index') }}">
-                <i class="bi bi-bookmark-plus"></i>
+                <i class="bi bi-chat-left-text"></i>
                 <span>Review Answer</span>
             </a>
         </li>
         {{-- End Review Answer Nav --}}
 
-        <li class="nav-heading">
+        <li class="nav-heading d-none">
             <span>Corporate</span>
         </li>
 
-        {{-- Start Corporate Dashboard Nav --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.corporate.dashboard') ? '' : 'collapsed' }}" href="{{ route('admin.corporate.dashboard') }}">
+        {{-- Start Professional Dashboard Nav --}}
+        <li class="nav-item d-none">
+            <a class="nav-link {{ request()->routeIs('admin.professional.dashboard') ? '' : 'collapsed' }}" href="{{ route('admin.professional.dashboard') }}">
                 <i class="bi bi-speedometer2"></i>
-                <span>Corporate Dashboard</span>
+                <span>Professional Dashboard</span>
             </a>
         </li>
-        {{-- End Academic Dashboard Nav --}}
+        {{-- End Professional Dashboard Nav --}}
 
     </ul>
 

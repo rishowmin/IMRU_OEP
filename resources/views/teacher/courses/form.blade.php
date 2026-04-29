@@ -1,11 +1,11 @@
-@extends('admin.layouts.app')
+@extends('teacher.layouts.app')
 @section('title', 'Courses')
 @section('title2', 'Course')
 
 @section('content')
 
 @if(session('success') || session('status') || session('error'))
-@include('admin.layouts.common.status')
+@include('teacher.layouts.common.status')
 @endif
 
 <section class="section">
@@ -21,14 +21,14 @@
                         </h5>
                         <nav style="--bs-breadcrumb-divider: '•';">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item "><a href="{{ route('admin.academic.courses.index') }}">@yield('title')</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                <li class="breadcrumb-item "><a href="{{ route('teacher.courses.index') }}">@yield('title')</a></li>
                                 <li class="breadcrumb-item active">{{ isset($course) ? 'Edit' : 'Create' }} @yield('title2')</li>
                             </ol>
                         </nav>
                     </div>
                     <div class="card-header-right">
-                        <a href="{{ route('admin.academic.courses.index') }}" class="btn btn-outline-theme btn-sm">
+                        <a href="{{ route('teacher.courses.index') }}" class="btn btn-outline-theme btn-sm">
                             <i class="bi bi-arrow-left-square"></i>
                             <span class="ms-1">Back to List</span>
                         </a>
@@ -55,7 +55,7 @@
                         <div class="accordion-body">
 
 
-                            <form action="{{ isset($course) ? route('admin.academic.courses.update', $course->id) : route('admin.academic.courses.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ isset($course) ? route('teacher.courses.update', $course->id) : route('teacher.courses.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 @if(isset($course))
                                     @method('PUT')

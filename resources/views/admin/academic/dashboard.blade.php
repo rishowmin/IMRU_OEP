@@ -1,5 +1,5 @@
-@extends('teacher.layouts.app')
-@section('title', 'Dashboard')
+@extends('admin.layouts.app')
+@section('title', 'Academic Dashboard')
 
 @section('content')
 
@@ -16,7 +16,7 @@
                         <h1>@yield('title')</h1>
                         <nav style="--bs-breadcrumb-divider: '•';">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item active"><i class="bi bi-house"></i> Dashboard</li>
+                                <li class="breadcrumb-item active"><i class="bi bi-house"></i> Academic Dashboard</li>
                             </ol>
                         </nav>
                     </div>

@@ -3,7 +3,6 @@
 
 @section('content')
 
-
 <div class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
     <div class="container">
         <div class="card">
@@ -11,7 +10,6 @@
                 <div class="back-to-home">
                     <a href="{{ url('/') }}"><i class="bi bi-arrow-left"></i></a>
                 </div>
-
                 <div class="row justify-content-center">
                     <a href="{{ url('/') }}" class="logo login-logo d-flex align-items-center w-auto">
                         <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="IMRU OEP Logo" width="100%">
@@ -20,19 +18,35 @@
             </div>
 
             <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="d-flex align-items-center justify-content-between">
-                            @include('teacher.auth.login')
-                            <div class="divider"></div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-9 col-sm-12">
+
+                        {{-- Toggle Buttons --}}
+                        <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                            <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showStudentLogin">
+                                <i class="bi bi-person me-1"></i>Student Login
+                            </button>
+                            <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showTeacherLogin">
+                                <i class="bi bi-person-badge me-1"></i>Teacher Login
+                            </button>
+                        </div>
+
+                        {{-- Student Login Form --}}
+                        <div id="studentLoginForm">
                             @include('student.auth.login')
                         </div>
+
+                        {{-- Teacher Login Form --}}
+                        <div id="teacherLoginForm" style="display: none;">
+                            @include('teacher.auth.login')
+                        </div>
+
                     </div>
                 </div>
             </div>
 
         </div>
-        <div class="row justify-content-center text-center">
+        <div class="row justify-content-center text-center mt-2">
             <div class="credits small">
                 Developed by <a href="https://github.com/rishowmin" target="_blank">Muhammad Raisul Islam, IIT, JU</a>
             </div>
@@ -43,75 +57,75 @@
 @endsection
 
 @section('scripts')
-
-// Teacher Login Password Toggle
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const rows = document.querySelectorAll(".credential-row");
+document.addEventListener('DOMContentLoaded', function () {
 
-        rows.forEach(row => {
-            row.addEventListener("click", function() {
-                const email = this.dataset.email;
-                const password = this.dataset.password;
+    const studentBtn      = document.getElementById('showStudentLogin');
+    const teacherBtn      = document.getElementById('showTeacherLogin');
+    const studentForm     = document.getElementById('studentLoginForm');
+    const teacherForm     = document.getElementById('teacherLoginForm');
 
-                document.getElementById("student_email").value = email;
-                document.getElementById("student_password").value = password;
-            });
-        });
+    function showStudent() {
+        studentForm.style.display = 'block';
+        teacherForm.style.display = 'none';
+        studentBtn.classList.add('active');
+        teacherBtn.classList.remove('active');
+        localStorage.setItem('academicLoginTab', 'student');
+    }
 
-        // Password toggle functionality
-        const passwordToggle = document.getElementById('student_password_toggle');
-        const passwordInput = document.getElementById('student_password');
-        const passwordIcon = document.getElementById('student_password_icon');
+    function showTeacher() {
+        teacherForm.style.display = 'block';
+        studentForm.style.display = 'none';
+        teacherBtn.classList.add('active');
+        studentBtn.classList.remove('active');
+        localStorage.setItem('academicLoginTab', 'teacher');
+    }
 
-        passwordToggle.addEventListener('click', function() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.classList.remove('bi-eye-slash');
-                passwordIcon.classList.add('bi-eye');
+    studentBtn.addEventListener('click', showStudent);
+    teacherBtn.addEventListener('click', showTeacher);
+
+    // Restore last active tab
+    const savedTab = localStorage.getItem('academicLoginTab') || 'student';
+    if (savedTab === 'teacher') {
+        showTeacher();
+    } else {
+        showStudent();
+    }
+
+    // ======= Student Password Toggle =======
+    const studentPasswordToggle = document.getElementById('student_password_toggle');
+    const studentPasswordInput  = document.getElementById('student_password');
+    const studentPasswordIcon   = document.getElementById('student_password_icon');
+
+    if (studentPasswordToggle) {
+        studentPasswordToggle.addEventListener('click', function () {
+            if (studentPasswordInput.type === 'password') {
+                studentPasswordInput.type = 'text';
+                studentPasswordIcon.classList.replace('bi-eye-slash', 'bi-eye');
             } else {
-                passwordInput.type = 'password';
-                passwordIcon.classList.remove('bi-eye');
-                passwordIcon.classList.add('bi-eye-slash');
+                studentPasswordInput.type = 'password';
+                studentPasswordIcon.classList.replace('bi-eye', 'bi-eye-slash');
             }
         });
-    });
+    }
 
-</script>
+    // ======= Teacher Password Toggle =======
+    const teacherPasswordToggle = document.getElementById('teacher_password_toggle');
+    const teacherPasswordInput  = document.getElementById('teacher_password');
+    const teacherPasswordIcon   = document.getElementById('teacher_password_icon');
 
-
-// Student Login Password Toggle
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const rows = document.querySelectorAll(".credential-row");
-
-        rows.forEach(row => {
-            row.addEventListener("click", function() {
-                const email = this.dataset.email;
-                const password = this.dataset.password;
-
-                document.getElementById("teacher_email").value = email;
-                document.getElementById("teacher_password").value = password;
-            });
-        });
-
-        // Password toggle functionality
-        const passwordToggle = document.getElementById('teacher_password_toggle');
-        const passwordInput = document.getElementById('teacher_password');
-        const passwordIcon = document.getElementById('teacher_password_icon');
-
-        passwordToggle.addEventListener('click', function() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.classList.remove('bi-eye-slash');
-                passwordIcon.classList.add('bi-eye');
+    if (teacherPasswordToggle) {
+        teacherPasswordToggle.addEventListener('click', function () {
+            if (teacherPasswordInput.type === 'password') {
+                teacherPasswordInput.type = 'text';
+                teacherPasswordIcon.classList.replace('bi-eye-slash', 'bi-eye');
             } else {
-                passwordInput.type = 'password';
-                passwordIcon.classList.remove('bi-eye');
-                passwordIcon.classList.add('bi-eye-slash');
+                teacherPasswordInput.type = 'password';
+                teacherPasswordIcon.classList.replace('bi-eye', 'bi-eye-slash');
             }
         });
-    });
+    }
 
+});
 </script>
 @endsection

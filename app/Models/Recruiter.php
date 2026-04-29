@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,9 +22,13 @@ class Recruiter extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'username',
         'email',
         'password',
+        'is_active',
+        'pro_created_by',
+        'pro_updated_by',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -44,4 +49,14 @@ class Recruiter extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function createdBy()
+    {
+        return $this->belongsTo(Admin::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(Admin::class, 'updated_by');
+    }
 }

@@ -31,12 +31,6 @@ class StudentFormRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name'  => ['required', 'string', 'max:255'],
-            'username'   => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('students', 'username')->ignore($studentId),
-            ],
             'email'    => [
                 'required',
                 'string',
@@ -58,8 +52,6 @@ class StudentFormRequest extends FormRequest
         return [
             'first_name.required' => 'First name is required.',
             'last_name.required' => 'Last name is required.',
-            'username.required' => 'Username is required.',
-            'username.unique' => 'This username is already taken.',
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
             'email.unique' => 'This email is already registered.',
@@ -73,7 +65,6 @@ class StudentFormRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            // $this->boolean() correctly handles "0","1","true","false"
             'is_active' => $this->boolean('is_active'),
         ]);
     }

@@ -243,37 +243,40 @@
     </style>
 </head>
 <body class="antialiased">
+
+
     {{-- <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
         @if (Route::has('login'))
         <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
             @auth
             <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Dashboard</a>
-    @else
-    <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Login</a>
-
-    @if (Route::has('register'))
-    <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</a>
-    @endif
-    @endauth
-    </div>
-    @endif
-
-    <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-        @if (Route::has('admin.login'))
-        <div class="">
-            @auth('admin')
-            <a href="{{ url('/admin/dashboard') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Admin Dashboard</a>
             @else
-            <a href="{{ route('admin.login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Admin Login</a>
+            <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Login</a>
 
-            @if (Route::has('admin.register'))
-            <a href="{{ route('admin.register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Admin Register</a>
+            @if (Route::has('register'))
+            <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</a>
             @endif
             @endauth
         </div>
         @endif
-    </div>
+
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            @if (Route::has('admin.login'))
+            <div class="">
+                @auth('admin')
+                <a href="{{ url('/admin/dashboard') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Admin Dashboard</a>
+                @else
+                <a href="{{ route('admin.login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Admin Login</a>
+
+                @if (Route::has('admin.register'))
+                <a href="{{ route('admin.register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Admin Register</a>
+                @endif
+                @endauth
+            </div>
+            @endif
+        </div>
     </div> --}}
+
 
 
 
@@ -295,19 +298,42 @@
                     <li class="nav-item"><a class="nav-link" href="#roles">Roles</a></li>
                     <li class="nav-item"><a class="nav-link" href="#security">Security</a></li>
 
+
+                    
                     @if (Route::has('login'))
                     <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
-                        @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-imru btn-sm px-3 rounded-2">Dashboard</a>
-                        @else
-                        <a href="{{ url('/academic/login') }}" class="btn btn-outline-info btn-sm px-3 rounded-2 ">Academic Login</a>
 
-                        @if (Route::has('register'))
-                        <a href="#" class="ml-4 btn btn-info btn-sm px-3 rounded-2">Corporate Login</a>
-                        @endif
+                        @auth('student')
+                            <a href="{{ route('student.dashboard') }}" class="btn btn-imru btn-sm px-3 rounded-2">
+                                <i class="bi bi-person me-1"></i>Student Dashboard
+                            </a>
                         @endauth
+
+                        @auth('teacher')
+                            <a href="{{ route('teacher.dashboard') }}" class="btn btn-imru btn-sm px-3 rounded-2">
+                                <i class="bi bi-person-badge me-1"></i>Teacher Dashboard
+                            </a>
+                        @endauth
+
+                        @guest('student')
+                            @guest('teacher')
+                                <a href="{{ route('academic.login') }}" class="btn btn-outline-info btn-sm px-3 rounded-2">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Academic Login
+                                </a>
+
+                                @if (Route::has('register'))
+                                <a href="#" class="ml-4 btn btn-info btn-sm px-3 rounded-2">
+                                    <i class="bi bi-building me-1"></i>Corporate Login
+                                </a>
+                                @endif
+                            @endguest
+                        @endguest
+
                     </div>
                     @endif
+
+
+
                 </ul>
             </div>
         </div>
@@ -317,10 +343,10 @@
     <section class="hero-section text-center">
         <div class="container">
             <img class="hero-logo mb-4" src="{{ asset('assets/admin/img/brand/logo_wh.png') }}" alt="IMRU Online Examination Portal" onerror="this.style.display='none'">
-            <h1 class="mb-3">Smarter examination system for <br><span>academic</span> and <span>corporate</span></h1>
+            <h1 class="mb-3">Smarter examination system for <br><span>academic</span> and <span>professional</span></h1>
             <p class="mb-4 mx-auto">A secure, scalable online examination portal for admission and recruitment assessments — with automated grading, live proctoring, and real-time analytics.</p>
             <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a href="{{ url('/academic/login') }}" class="btn btn-imru-outline px-4 py-2 rounded-2">Academic Login</a>
+                <a href="{{ route('academic.login') }}" class="btn btn-imru-outline px-4 py-2 rounded-2">Academic Login</a>
                 <a href="#" class="btn btn-imru px-4 py-2 rounded-2">Corporate Login</a>
             </div>
         </div>

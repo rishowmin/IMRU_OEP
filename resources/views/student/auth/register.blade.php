@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Register')
+@section('title', 'Academic Register')
 
 @section('content')
 <div class="container">
@@ -10,7 +10,7 @@
                 <div class="col-lg-6 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
                     <div class="d-flex justify-content-center py-4">
-                        <a href="index.html" class="logo d-flex align-items-center w-auto">
+                        <a href="{{ url('/') }}" class="logo d-flex align-items-center w-auto">
                             <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="IMRU OEP Logo" width="100">
                         </a>
                     </div><!-- End Logo -->
@@ -20,11 +20,11 @@
                         <div class="card-body">
 
                             <div class="pb-2">
-                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Create an Account</h5>
+                                <h5 class="card-title text-center pt-2 pb-0 fs-4">Create a Studdent Account</h5>
                                 <p class="text-center small">Enter your personal details to create account</p>
                             </div>
 
-                            <form method="POST" action="{{ route('admin.register') }}" class="row g-3 needs-validation" novalidate>
+                            <form method="POST" action="{{ route('student.register') }}" class="row g-3 needs-validation" novalidate>
                                 @csrf
 
                                 {{-- First Name --}}
@@ -60,19 +60,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- Username --}}
-                                <div class="col-12">
-                                    <div class="input-group">
-                                        <span class="input-group-text brr-0" id="inputGroupPrepend"><i class="bi bi-at auth-icon"></i></span>
-                                        <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" placeholder="Username">
-                                    </div>
-                                    @error('username')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
-                                </div>
-
                                 {{-- Password --}}
                                 <div class="col-12">
                                     <div class="input-group">
@@ -96,7 +83,7 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-outline-theme w-100">
+                                    <button type="submit" class="btn btn-theme w-100">
                                         <i class="bi bi-person-plus me-1"></i>
                                         {{ __('Register') }}
                                     </button>
@@ -105,7 +92,7 @@
                                 <div class="col-12">
                                     <p class="small mb-0 w-100 text-center">
                                         <span>Do you have an account?</span>
-                                        <a href="{{ route('admin.login') }}">Go to login <i class="bi bi-box-arrow-in-right"></i></a>
+                                        <a href="{{ url('/academic/login') }}">Go to login <i class="bi bi-box-arrow-in-right"></i></a>
                                     </p>
                                 </div>
 

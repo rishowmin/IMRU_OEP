@@ -107,33 +107,6 @@
                                             </div>
                                         </div>
 
-                                        {{-- Username --}}
-                                        <div class="row align-items-baseline mb-2">
-                                            <label for="username" class="col-sm-3 col-form-label fw-bold"><small>Username</small> <small class="text-danger">*</small></label>
-                                            <div class="col-sm-9">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Type of the question. (e.g., Multiple Choice, Short Answer, Essay, etc.)"><i class="bi bi-info-circle"></i></span>
-                                                    <input type="text" class="form-control @error('username') is-invalid @elseif(old('username', $student->username ?? false)) is-valid @enderror" id="username" name="username" value="{{ old('username', $student->username ?? '') }}" placeholder="Username">
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('username')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @else
-                                                    @if(old('username', $student->username ?? false))
-                                                    <div class="valid-feedback d-block">
-                                                        <i class="bi bi-check-circle"></i>
-                                                        Looks good!
-                                                    </div>
-                                                    @endif
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         {{-- Email --}}
                                         <div class="row align-items-baseline mb-2">
                                             <label for="email" class="col-sm-3 col-form-label fw-bold"><small>Email</small> <small class="text-danger">*</small></label>

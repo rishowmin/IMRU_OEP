@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Academic\CourseController;
 use App\Http\Controllers\Admin\Academic\EnrollmentController;
+use App\Http\Controllers\Admin\Academic\ExamAttemptController;
 use App\Http\Controllers\Admin\Academic\ExamController;
 use App\Http\Controllers\Admin\Academic\ExamRuleController;
 use App\Http\Controllers\Admin\Academic\QuestionController;
@@ -29,11 +30,17 @@ Route::get('/', function () {
 
 Route::get('/academic/login', function () {
     return view('auth_view.academic.login');
-});
+})->name('academic.login');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+
+
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -106,6 +113,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::delete('/id={examRule}', 'destroy')->name('admin.academic.examRules.destroy');
         });
 
+        // Exams Attempts
+        Route::prefix('exam-attempts')->controller(ExamAttemptController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.examAttempts.index');
+            Route::post('/id={attempt}/reset', 'reset')->name('admin.examAttempts.reset');
+        });
+
         // Questions
         Route::prefix('questions')->controller(QuestionController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.questions.index');
@@ -138,20 +151,19 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         // Review Answer
         Route::prefix('review-answer')->controller(ReviewAnswerController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.reviewAnswer.index');
-            // Route::post('/', 'store')->name('admin.academic.enrollments.store');
-            // Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
-            // Route::put('/id={enroll}', 'update')->name('admin.academic.enrollments.update');
-            // Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
+            Route::get('/exam/id={exam}', 'show')->name('admin.academic.reviewAnswer.show');
+            Route::get('/exam/id={exam}/student/id={student}', 'studentAnswers')->name('admin.academic.reviewAnswer.studentAnswers');
+            Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.reviewAnswer.store');
         });
 
     });
 
-    // Corporate Routes
-    Route::prefix('corporate')->group(function () {
+    // Professional Routes
+    Route::prefix('professional')->group(function () {
 
-        // Corporate Dashboard
+        // Professional Dashboard
         Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
-            Route::get('/', 'corporateDashboard')->name('admin.corporate.dashboard');
+            Route::get('/', 'professionalDashboard')->name('admin.professional.dashboard');
         });
 
     });
@@ -190,9 +202,19 @@ require __DIR__.'/studentauth.php';
 Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
 
     // Dashboard
-    // Route::prefix('dashboard')->controller(App\Http\Controllers\Teacher\DashboardController::class)->group(function () {
-    //     Route::get('/', 'dashboard')->name('teacher.dashboard');
-    // });
+    Route::prefix('dashboard')->controller(App\Http\Controllers\Teacher\DashboardController::class)->group(function () {
+        Route::get('/', 'dashboard')->name('teacher.dashboard');
+    });
+
+    // Courses
+    Route::prefix('courses')->controller(App\Http\Controllers\Teacher\CourseController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.courses.index');
+        Route::get('/create', 'create')->name('teacher.courses.create');
+        Route::post('/store', 'store')->name('teacher.courses.store');
+        Route::get('/edit/id={course}', 'edit')->name('teacher.courses.edit');
+        Route::put('/id={course}', 'update')->name('teacher.courses.update');
+        Route::delete('/id={course}', 'destroy')->name('teacher.courses.destroy');
+    });
 
 });
 

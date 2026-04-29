@@ -22,7 +22,15 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+
+            $table->boolean('is_active')->default(true)->comment('0=Inactive, 1=Active');
+
+            $table->string('pro_created_by')->nullable();
+            $table->string('pro_updated_by')->nullable();
+            $table->string('created_by')->nullable();
+            $table->string('updated_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

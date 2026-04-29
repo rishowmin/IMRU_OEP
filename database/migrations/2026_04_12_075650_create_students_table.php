@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -25,6 +24,8 @@ return new class extends Migration
 
             $table->boolean('is_active')->default(true)->comment('0=Inactive, 1=Active');
 
+            $table->string('aca_created_by')->nullable();
+            $table->string('aca_updated_by')->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

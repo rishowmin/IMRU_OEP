@@ -68,7 +68,7 @@
             $canStart = false;
         }
 
-        $noQuestions = !$exam->total_questions || $exam->total_questions == 0;
+        $noQuestions = ($exam->questions_count ?? 0) === 0;
     @endphp
 
     <div class="row">
@@ -228,12 +228,16 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        @if($isSubmitted)
+                        @if($noQuestions)
+                        <button class="btn btn-outline-danger" disabled>
+                            <i class="bi bi-slash-circle me-1"></i>Not Available
+                        </button>
+                        @elseif($isSubmitted)
                         <a href="{{ route('student.myExams.result', $exam->id) }}" class="btn btn-outline-primary">
                             <i class="bi bi-bar-chart me-1"></i>View Result
                         </a>
                         @elseif($canStart)
-                        <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-sm btn-success">
+                        <a href="{{ route('student.myExams.rule', $exam->id) }}" class="btn btn-success">
                             <i class="bi bi-play-fill me-1"></i>Start Exam
                         </a>
                         @elseif($status === 'Upcoming')

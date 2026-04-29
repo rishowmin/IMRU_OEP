@@ -5,6 +5,7 @@ namespace App\Models\Academic;
 use App\Models\Academic\ExamAnswer;
 use App\Models\Academic\ExamAttempt;
 use App\Models\Admin;
+use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,6 +31,8 @@ class Exam extends Model
         'instructions',
         'basic_rules',
         'is_active',
+        'aca_created_by',
+        'aca_updated_by',
         'created_by',
         'updated_by',
     ];
@@ -48,6 +51,16 @@ class Exam extends Model
         'is_active' => 'boolean',
         'deleted_at' => 'datetime',
     ];
+
+    public function acaCreatedBy()
+    {
+        return $this->belongsTo(Teacher::class, 'aca_created_by');
+    }
+
+    public function acaUpdatedBy()
+    {
+        return $this->belongsTo(Teacher::class, 'aca_updated_by');
+    }
 
     public function createdBy()
     {
