@@ -17,6 +17,7 @@ class Question extends Model
 
     protected $fillable = [
         'exam_id',
+        'topic',
         'question_type',
         'question_text',
         'difficulty_level',

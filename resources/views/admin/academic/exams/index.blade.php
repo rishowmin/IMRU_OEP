@@ -7,35 +7,38 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-person-badge"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.exams.create') }}" class="btn btn-sm btn-outline-theme">
-                            <i class="bi bi-plus-lg"></i>
-                            <span class="ms-1">Add @yield('title')</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-clipboard"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.exams.create') }}" class="btn btn-sm btn-outline-theme">
+                                <i class="bi bi-plus-lg"></i>
+                                <span class="ms-1">Add @yield('title')</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="section">
     <div class="row">
         <div class="col-lg-12">
 
@@ -244,18 +247,19 @@
 @if ($examList->count())
 <script>
     const table = new DataTable('#examTable', {
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        lengthChange: true,
-        scrollX: true
+        paging: true
+        , pageLength: 10
+        , lengthMenu: [5, 10, 25, 50, 100]
+        , lengthChange: true
+        , scrollX: true
     });
+
 </script>
 @endif
 
 {{-- Toggle Child Row Script --}}
 <script>
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('.toggle-icon');
         if (!btn) return;
 
@@ -272,6 +276,7 @@
             icon.classList.replace('bi-plus-square', 'bi-dash-square');
         }
     });
+
 </script>
 
 {{-- Delete Modal Script --}}

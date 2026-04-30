@@ -7,35 +7,38 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-question-square"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.questions.create') }}" class="btn btn-sm btn-outline-theme">
-                            <i class="bi bi-plus-lg"></i>
-                            <span class="ms-1">Add @yield('title')</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-file-earmark-text"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.questions.create') }}" class="btn btn-sm btn-outline-theme">
+                                <i class="bi bi-plus-lg"></i>
+                                <span class="ms-1">Add @yield('title')</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="section">
     <div class="row">
         <div class="col-lg-12">
 
@@ -58,7 +61,7 @@
                                         <th width="7%">#</th>
                                         <th width="25%">Question</th>
                                         <th width="8%">Type</th>
-                                        <th width="20%">Exam</th>
+                                        <th width="20%">Topic</th>
                                         <th width="10%">Difficulty</th>
                                         <th width="7%">Marks</th>
                                         <th width="10%">Status</th>
@@ -75,22 +78,15 @@
                                             </a>
                                             {{ $serialNo++ }}
                                         </th>
-                                        <td>{{ $question->question_text ?? 'N/A' }}</td>
                                         <td>
-                                            @if($question->question_type == 'mcq_2')
-                                            MCQ (2)
-                                            @elseif($question->question_type == 'mcq_4')
-                                            MCQ (4)
-                                            @elseif ($question->question_type == 'short_question')
-                                            Short Q.
-                                            @elseif ($question->question_type == 'long_question')
-                                            Long Q.
-                                            @else
-                                            N/A
-                                            @endif
+                                            <p class="mb-0">{{ $question->question_text ?? 'N/A' }}</p>
+                                            <small>
+                                            </small>
+                                        </td>
+                                        <td>
                                         </td>
 
-                                        <td>{{ $question->exam->exam_title ?? 'N/A' }} [{{ $question->exam->exam_code ?? 'N/A' }}]</td>
+                                        <td>{{ $question->topic ?? 'N/A' }}</td>
                                         <td>
                                             @if($question->difficulty_level == 'easy')
                                             <h6 class="mb-0"><span class="badge rounded-pill bg-success">Easy</span></h6>
@@ -99,7 +95,6 @@
                                             @else
                                             <h6 class="mb-0"><span class="badge rounded-pill bg-danger">Hard</span></h6>
                                             @endif
-
                                         </td>
                                         <td>{{ $question->marks ?? 'N/A' }}</td>
                                         <td>
@@ -128,6 +123,30 @@
                                         <template class="child-template">
                                             <table class="table table-sm mb-0 w-100 small">
                                                 <tbody>
+                                                    <tr>
+                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
+                                                        <th width="22%">Exam</th>
+                                                        <td width="70%">
+                                                            {{ $question->exam->exam_title ?? 'N/A' }} [{{ $question->exam->exam_code ?? 'N/A' }}]
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
+                                                        <th width="22%">Question Type</th>
+                                                        <td width="70%">
+                                                            @if($question->question_type == 'mcq_2')
+                                                            <span class="badge bg-dark">MCQ (2 Options)</span>
+                                                            @elseif($question->question_type == 'mcq_4')
+                                                            <span class="badge bg-dark">MCQ (4 Options)</span>
+                                                            @elseif ($question->question_type == 'short_question')
+                                                            <span class="badge bg-dark">Short Question</span>
+                                                            @elseif ($question->question_type == 'long_question')
+                                                            <span class="badge bg-dark">Long Question</span>
+                                                            @else
+                                                            <span class="badge bg-light text-dark border">N/A</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Evaluation Type</th>
@@ -220,18 +239,19 @@
 @if ($questionList->count())
 <script>
     const table = new DataTable('#questionTable', {
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        lengthChange: true,
-        scrollX: true
+        paging: true
+        , pageLength: 10
+        , lengthMenu: [5, 10, 25, 50, 100]
+        , lengthChange: true
+        , scrollX: true
     });
+
 </script>
 @endif
 
 {{-- Toggle Child Row Script --}}
 <script>
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('.toggle-icon');
         if (!btn) return;
 
@@ -248,6 +268,7 @@
             icon.classList.replace('bi-plus-square', 'bi-dash-square');
         }
     });
+
 </script>
 
 {{-- Delete Modal Script --}}

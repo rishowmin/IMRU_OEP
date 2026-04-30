@@ -7,35 +7,38 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-question-square"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.enrollments.index') }}" class="btn btn-sm btn-outline-theme">
-                            <i class="bi bi-plus-lg"></i>
-                            <span class="ms-1">Add @yield('title')</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-bookmark-plus"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.enrollments.index') }}" class="btn btn-sm btn-outline-theme">
+                                <i class="bi bi-plus-lg"></i>
+                                <span class="ms-1">Add @yield('title')</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="section">
     <div class="row">
         <div class="col-lg-4">
 
@@ -138,8 +141,7 @@
                                                 <div class="input-group">
                                                     <div class="form-check form-switch">
                                                         <input type="hidden" name="is_active" value="0">
-                                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
-                                                            {{ $isActive ? 'checked' : '' }} onchange="updateLabelText(this)">
+                                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ $isActive ? 'checked' : '' }} onchange="updateLabelText(this)">
                                                         <label class="form-check-label ms-2" for="is_active" id="isActiveLabel">
                                                             <span class="badge {{ $isActive ? 'bg-success' : 'bg-danger' }}">
                                                                 <i class="bi {{ $isActive ? 'bi-check-square' : 'bi-x-square' }} me-1"></i>
@@ -172,20 +174,20 @@
 
         <div class="col-lg-8">
 
-            <div class="accordion mb-3" id="accordionAcademicstudents">
+            <div class="accordion mb-3" id="accordionAcademicEnrollments">
                 <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingstudent">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsestudent" aria-expanded="true" aria-controls="collapsestudent">
+                    <h2 class="accordion-header" id="headingEnrollment">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEnrollment" aria-expanded="true" aria-controls="collapseEnrollment">
                             <h6 class="card-title p-0 m-0">
                                 <i class="bi bi-table"></i>
                                 @yield('title') List
                             </h6>
                         </button>
                     </h2>
-                    <div id="collapsestudent" class="accordion-collapse collapse show" aria-labelledby="headingstudent" data-bs-parent="#accordionAcademicstudents">
+                    <div id="collapseEnrollment" class="accordion-collapse collapse show" aria-labelledby="headingEnrollment" data-bs-parent="#accordionAcademicEnrollments">
                         <div class="accordion-body">
 
-                            <table class="table table-sm small" id="studentTable">
+                            <table class="table table-sm small" id="enrollmentTable">
                                 <thead>
                                     <tr>
                                         <th width="7%">#</th>
@@ -312,9 +314,9 @@
 </script>
 
 {{-- DataTable Script --}}
-{{-- @if ($enrollList->count())
+@if ($enrollments->count())
 <script>
-    const table = new DataTable('#questionTable', {
+    const table = new DataTable('#enrollmentTable', {
         paging: true,
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
@@ -322,11 +324,11 @@
         scrollX: true
     });
 </script>
-@endif --}}
+@endif
 
 {{-- Toggle Child Row Script --}}
 <script>
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('.toggle-icon');
         if (!btn) return;
 
@@ -343,6 +345,7 @@
             icon.classList.replace('bi-plus-square', 'bi-dash-square');
         }
     });
+
 </script>
 
 {{-- Delete Modal Script --}}
@@ -352,6 +355,8 @@
         let deleteRoute = "{{ route('admin.academic.enrollments.destroy', ['enroll' => ':id']) }}";
         $("#deleteForm").attr("action", deleteRoute.replace(':id', enroll));
     });
+
 </script>
 
 @endsection
+

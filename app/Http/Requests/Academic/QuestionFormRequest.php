@@ -25,6 +25,7 @@ class QuestionFormRequest extends FormRequest
     {
         return [
             'exam_id' => 'required|exists:aca_exams,id',
+            'topic' => 'required|string',
             'question_type' => 'required|string',
             'question_text' => 'required|string',
             'difficulty_level' => 'required|string',
@@ -46,6 +47,8 @@ class QuestionFormRequest extends FormRequest
         return [
             'exam_id.required' => 'The exam is required.',
             'exam_id.exists' => 'The selected exam is invalid.',
+            'topic.required' => 'The topic is required.',
+            'topic.string' => 'The topic must be a string.',
             'question_type.required' => 'The question type is required.',
             'question_type.string' => 'The question type must be a string.',
             'question_text.required' => 'The question text is required.',

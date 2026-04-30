@@ -25,6 +25,46 @@
         </li>
         {{-- End Academic Dashboard Nav --}}
 
+        {{-- Start Teachers Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.teachers*') ? '' : 'collapsed' }}" data-bs-target="#teachers-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-person-workspace"></i><span>Teachers</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="teachers-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.teachers*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.teachers.create') ? 'active' : '' }}" href="{{ route('admin.academic.teachers.create') }}">
+                        <i class="bi bi-circle"></i><span>Add Teacher</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.teachers.index') ? 'active' : '' }}" href="{{ route('admin.academic.teachers.index') }}">
+                        <i class="bi bi-circle"></i><span>Manage Teachers</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {{-- End Teachers Nav --}}
+
+        {{-- Start Students Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.students*') ? '' : 'collapsed' }}" data-bs-target="#students-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-people"></i><span>Students</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="students-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.students*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.students.create') ? 'active' : '' }}" href="{{ route('admin.academic.students.create') }}">
+                        <i class="bi bi-circle"></i><span>Add Student</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.students.index') ? 'active' : '' }}" href="{{ route('admin.academic.students.index') }}">
+                        <i class="bi bi-circle"></i><span>Manage Students</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {{-- End Students Nav --}}
+
         {{-- Start Courses Nav --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('admin.academic.courses*') ? '' : 'collapsed' }}" data-bs-target="#courses-nav" data-bs-toggle="collapse" href="#">
@@ -99,26 +139,6 @@
             </ul>
         </li>
         {{-- End Questions Nav --}}
-
-        {{-- Start Students Nav --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.students*') ? '' : 'collapsed' }}" data-bs-target="#students-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-people"></i><span>Students</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="students-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.students*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-                <li>
-                    <a class="{{ request()->routeIs('admin.academic.students.create') ? 'active' : '' }}" href="{{ route('admin.academic.students.create') }}">
-                        <i class="bi bi-circle"></i><span>Add Student</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="{{ request()->routeIs('admin.academic.students.index') ? 'active' : '' }}" href="{{ route('admin.academic.students.index') }}">
-                        <i class="bi bi-circle"></i><span>Manage Students</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {{-- End Students Nav --}}
 
         {{-- Start Enrollments Nav --}}
         <li class="nav-item">

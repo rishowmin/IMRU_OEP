@@ -8,7 +8,8 @@ use App\Http\Controllers\Admin\Academic\ExamController;
 use App\Http\Controllers\Admin\Academic\ExamRuleController;
 use App\Http\Controllers\Admin\Academic\QuestionController;
 use App\Http\Controllers\Admin\Academic\ReviewAnswerController;
-use App\Http\Controllers\Admin\Academic\StudentController;;
+use App\Http\Controllers\Admin\Academic\StudentController;
+use App\Http\Controllers\Admin\Academic\TeacherController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\MyExamController;
 use Illuminate\Support\Facades\Route;
@@ -129,6 +130,22 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::delete('/id={question}', 'destroy')->name('admin.academic.questions.destroy');
         });
 
+        // Teacher
+        Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.teachers.index');
+            Route::get('/create', 'create')->name('admin.academic.teachers.create');
+            Route::post('/store', 'store')->name('admin.academic.teachers.store');
+            Route::get('/edit/id={teacher}', 'edit')->name('admin.academic.teachers.edit');
+            Route::put('/id={teacher}', 'update')->name('admin.academic.teachers.update');
+            Route::delete('/id={teacher}', 'destroy')->name('admin.academic.teachers.destroy');
+
+            // Teacher Profile
+            Route::prefix('teacher-profile')->group(function () {
+                Route::get('/id={teacher}', 'teacherProfile')->name('admin.academic.teachers.profile');
+                Route::post('/store/id={teacher}', 'teacherProfileStore')->name('admin.academic.teachers.profile.store');
+            });
+        });
+
         // Students
         Route::prefix('students')->controller(StudentController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.students.index');
@@ -137,6 +154,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={student}', 'edit')->name('admin.academic.students.edit');
             Route::put('/id={student}', 'update')->name('admin.academic.students.update');
             Route::delete('/id={student}', 'destroy')->name('admin.academic.students.destroy');
+
+            // Student Profile
+            Route::prefix('student-profile')->group(function () {
+                Route::get('/id={student}', 'studentProfile')->name('admin.academic.students.profile');
+                Route::post('/store/id={student}', 'studentProfileStore')->name('admin.academic.students.profile.store');
+            });
         });
 
         // Enrollments

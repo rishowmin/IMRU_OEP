@@ -17,6 +17,11 @@ a:hover {
     color: var(--theme-color-secondary-hover);
 }
 
+th,
+td {
+    vertical-align: middle;
+}
+
 .bg-theme {
     background-color: #13415e;
 }
@@ -338,3 +343,127 @@ p {
         box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
 }
+
+
+
+/* .profile-photo {
+    width: 100px;
+    height: 100px;
+    border: 2px solid var(--theme-color);
+    border-radius: 100px;
+    padding: 2px;
+    margin: 0 auto;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 100px;
+}
+
+.profile-photo .camera-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-color);
+    border-radius: 100px;
+} */
+
+
+.profile-photo {
+    position: relative;
+    display: inline-block;
+    width: 110px;
+    height: 110px;
+    border: 2px solid var(--theme-color);
+    border-radius: 100px;
+    padding: 3px;
+    margin: 0 auto;
+    cursor: pointer;
+}
+
+.profile-photo img#photo-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    border-radius: 100px;
+}
+
+.profile-photo #photo-initials {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    border-radius: 100px;
+}
+
+.profile-photo #photo-initials span {
+    font-size:2rem;
+    font-weight:700;
+    color:#fff;
+    letter-spacing:1px;
+}
+
+.hide-initials {
+    display: none !important;
+}
+
+.profile-photo .camera-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-color);
+    border-radius: 100px;
+}
+
+.profile-photo .camera-overlay i {
+    font-size:0.75rem;
+}
+
+
+
+
+
+
+.header-nav .nav-profile img,
+.avatar_sec .img-sec img {
+    width: 40px;
+    height: 40px;
+    max-height: 40px;
+    border: 1px solid var(--theme-color);
+    border-radius: 100px;
+    object-fit: cover;
+}
+
+.header-nav .nav-profile .photo-initials,
+.avatar_sec .img-sec .photo-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid;
+    border-radius: 100px;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.header-nav .nav-profile .photo-initials span,
+.avatar_sec .img-sec .photo-initials span {
+    font-size:1rem;
+    font-weight:700;
+    color:#fff;
+}
+

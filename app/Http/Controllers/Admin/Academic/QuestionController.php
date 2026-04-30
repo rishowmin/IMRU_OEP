@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Academic;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\QuestionFormRequest;
+use App\Models\Academic\Course;
 use App\Models\Academic\Exam;
 use App\Models\Academic\Question;
 use Illuminate\Http\Request;
@@ -21,7 +22,8 @@ class QuestionController extends Controller
     public function create()
     {
         $examList = Exam::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questions.form', compact('examList'));
+        $courseList = Course::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
+        return view('admin.academic.questions.form', compact('examList', 'courseList'));
     }
 
     public function store(QuestionFormRequest $request)
@@ -44,6 +46,7 @@ class QuestionController extends Controller
 
             Question::create([
                 'exam_id' => $request->exam_id,
+                'topic' => $request->topic,
                 'question_type' => $request->question_type,
                 'question_text' => $request->question_text,
                 'difficulty_level' => $request->difficulty_level,
@@ -69,16 +72,20 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $examList = Exam::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questions.form', compact('question', 'examList'));
+        $courseList = Course::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
+        return view('admin.academic.questions.form', compact('question', 'examList', 'courseList'));
     }
 
     public function update(QuestionFormRequest $request, Question $question)
     {
         try {
             if ($request->hasFile('question_figure')) {
+                $uploadPath = 'storage/question_figure/';
+
                 // Delete old file if exists
-                if ($question->question_figure) {
-                    $oldFilePath = 'storage/question_figure/' . $question->question_figure;
+                $oldFileName = $question->question_figure;
+                if ($oldFileName) {
+                    $oldFilePath = $uploadPath . $oldFileName;
                     if (file_exists($oldFilePath)) {
                         unlink($oldFilePath);
                     }
@@ -88,13 +95,14 @@ class QuestionController extends Controller
                 $extension = $file->getClientOriginalExtension();
                 $fileName  = substr(Str::slug($request->question_text), 0, 20) . '-' . time() . '.' . $extension;
 
-                $file->move('storage/question_figure/', $fileName);
+                $file->move($uploadPath, $fileName);
 
                 $question->question_figure = $fileName;
             }
 
             $question->update([
                 'exam_id' => $request->exam_id,
+                'topic' => $request->topic,
                 'question_type' => $request->question_type,
                 'question_text' => $request->question_text,
                 'difficulty_level' => $request->difficulty_level,
@@ -108,8 +116,6 @@ class QuestionController extends Controller
                 'question_order' => $request->question_order ?? 0,
                 'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
-
-
             ]);
 
             return redirect()->route('admin.academic.questions.index')->with('success', 'Question has been updated successfully!');

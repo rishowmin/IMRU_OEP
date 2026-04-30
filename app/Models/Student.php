@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Academic\Course;
 use App\Models\Academic\Enrollment;
 use App\Models\Academic\ExamAnswer;
+use App\Models\StudentInfo;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -89,5 +90,10 @@ class Student extends Authenticatable
     public function examAnswers()
     {
         return $this->hasMany(ExamAnswer::class, 'exam_id');
+    }
+
+    public function info()
+    {
+        return $this->hasOne(StudentInfo::class, 'student_id');
     }
 }

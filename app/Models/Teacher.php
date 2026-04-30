@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\TeacherInfo;
 use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -58,5 +59,9 @@ class Teacher extends Authenticatable
     public function updatedBy()
     {
         return $this->belongsTo(Admin::class, 'updated_by');
+    }
+    public function info()
+    {
+        return $this->hasOne(TeacherInfo::class, 'teacher_id');
     }
 }

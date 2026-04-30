@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('aca_questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exam_id')->constrained('aca_exams')->cascadeOnDelete();
-
+            $table->string('topic')->default('General');
             $table->string('question_type');
             $table->text('question_text');
             $table->string('difficulty_level')->default('medium')->comment('easy, medium, hard');

@@ -102,6 +102,40 @@
                                             </div>
                                         </div>
 
+                                        {{-- Topic --}}
+                                        <div class="row align-items-baseline mb-2">
+                                            <label for="topic" class="col-sm-3 col-form-label fw-bold"><small>Topic</small> <small class="text-danger">*</small></label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Select the exam"><i class="bi bi-info-circle"></i></span>
+                                                    <select class="form-select @error('topic') is-invalid @elseif(old('topic', $question->topic ?? false)) is-valid @enderror" name="topic" id="topic" class="form-control">
+                                                        <option value="General" {{ old('topic', $question->topic ?? '') == 'General' ? 'selected' : '' }}>General</option>
+                                                        @foreach($courseList as $course)
+                                                        <option value="{{ $course->course_title }}" {{ old('topic', $question->topic ?? '') == $course->course_title ? 'selected' : '' }}>
+                                                            {{ $course->course_title }}
+                                                        </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="d-flex align-items-center">
+                                                    @error('topic')
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                        {{ $message }}
+                                                    </div>
+                                                    @else
+                                                    @if(old('topic', $question->topic ?? false))
+                                                    <div class="valid-feedback d-block">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Looks good!
+                                                    </div>
+                                                    @endif
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {{-- Question Type --}}
                                         <div class="row align-items-baseline mb-2">
                                             <label for="question_type" class="col-sm-3 col-form-label fw-bold"><small>Question Type</small> <small class="text-danger">*</small></label>

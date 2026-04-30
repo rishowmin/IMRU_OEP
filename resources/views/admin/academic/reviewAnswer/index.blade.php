@@ -7,29 +7,32 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-pencil-square"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-chat-left-text"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="pagetitle mb-0">
     <div class="row">
         <div class="col-lg-12">
 
@@ -136,18 +139,19 @@
 @if ($exams->count())
 <script>
     const table = new DataTable('#reviewAnsTable', {
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        lengthChange: true,
-        scrollX: true
+        paging: true
+        , pageLength: 10
+        , lengthMenu: [5, 10, 25, 50, 100]
+        , lengthChange: true
+        , scrollX: true
     });
+
 </script>
 @endif
 
 {{-- Toggle Child Row Script --}}
 <script>
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('.toggle-icon');
         if (!btn) return;
 
@@ -164,5 +168,7 @@
             icon.classList.replace('bi-plus-square', 'bi-dash-square');
         }
     });
+
 </script>
 @endsection
+
