@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Questions')
+@section('title', 'Questions Library')
 
 @section('content')
 
@@ -26,7 +26,7 @@
                             </nav>
                         </div>
                         <div class="card-header-right">
-                            <a href="{{ route('admin.academic.questions.create') }}" class="btn btn-sm btn-outline-theme">
+                            <a href="{{ route('admin.academic.questions.library.create') }}" class="btn btn-sm btn-outline-theme">
                                 <i class="bi bi-plus-lg"></i>
                                 <span class="ms-1">Add @yield('title')</span>
                             </a>
@@ -60,9 +60,8 @@
                                     <tr>
                                         <th width="7%">#</th>
                                         <th width="35%">Question</th>
-                                        <th width="10%">Type</th>
-                                        <th width="15%">Difficulty</th>
-                                        <th width="10%">Marks</th>
+                                        <th width="15%">Type</th>
+                                        <th width="20%">Topic</th>
                                         <th width="10%">Status</th>
                                         <th width="13%">Actions</th>
                                     </tr>
@@ -93,18 +92,7 @@
                                             <span class="badge bg-light text-dark border">N/A</span>
                                             @endif
                                         </td>
-
-
-                                        <td>
-                                            @if($question->difficulty_level == 'easy')
-                                            <h6 class="mb-0"><span class="badge rounded-pill bg-success">Easy</span></h6>
-                                            @elseif($question->difficulty_level == 'medium')
-                                            <h6 class="mb-0"><span class="badge rounded-pill bg-warning">Medium</span></h6>
-                                            @else
-                                            <h6 class="mb-0"><span class="badge rounded-pill bg-danger">Hard</span></h6>
-                                            @endif
-                                        </td>
-                                        <td>{{ $question->marks ?? 'N/A' }}</td>
+                                        <td>{{ $question->topic ?? 'N/A' }}</td>
                                         <td>
                                             @if($question->is_active == '1')
                                             <h6 class="mb-0"><span class="badge border-success border-1 text-success"><i class="bi bi-check-circle me-1"></i> ACTIVE</span></h6>
@@ -114,7 +102,7 @@
                                         </td>
                                         <td>
                                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit">
-                                                <a href="{{ route('admin.academic.questions.edit', $question->id) }}" class="btn btn-sm btn-outline-warning">
+                                                <a href="{{ route('admin.academic.questions.library.edit', $question->id) }}" class="btn btn-sm btn-outline-warning">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
                                             </span>
@@ -131,26 +119,6 @@
                                         <template class="child-template">
                                             <table class="table table-sm mb-0 w-100 small">
                                                 <tbody>
-                                                    <tr>
-                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
-                                                        <th width="22%">Exam</th>
-                                                        <td width="70%">
-                                                            {{ $question->exam->exam_title ?? 'N/A' }} [{{ $question->exam->exam_code ?? 'N/A' }}]
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
-                                                        <th width="22%">Evaluation Type</th>
-                                                        <td width="70%">
-                                                            @if($question->evaluation_type == 'automatic')
-                                                            Automatic
-                                                            @elseif($question->evaluation_type == 'manual')
-                                                            Manual
-                                                            @else
-                                                            N/A
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Options</th>
@@ -196,7 +164,7 @@
                                     @empty
 
                                     <tr>
-                                        <td colspan="7" class="text-center">
+                                        <td colspan="6" class="text-center">
                                             <strong>
                                                 <i class="bi bi-exclamation-triangle me-1"></i>
                                                 <span>No @yield('title') Available</span>
@@ -265,10 +233,11 @@
 {{-- Delete Modal Script --}}
 <script>
     $(document).on("click", ".deleteBtn", function() {
-        let question = $(this).data("id");
-        let deleteRoute = "{{ route('admin.academic.questions.destroy', ['question' => ':id']) }}";
-        $("#deleteForm").attr("action", deleteRoute.replace(':id', question));
+        let questionLib = $(this).data("id");
+        let deleteRoute = "{{ route('admin.academic.questions.library.destroy', ['questionLib' => ':id']) }}";
+        $("#deleteForm").attr("action", deleteRoute.replace(':id', questionLib));
     });
+
 </script>
 
 @endsection

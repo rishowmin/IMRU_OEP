@@ -16,10 +16,11 @@ class CourseSeeder extends Seeder
     {
         $courses = [
             // Batch 27 = 31 entry
+            ['course_title' => 'ICT',                                  'course_code' => 'ICT-1234',        'credits' => '3'],
             ['course_title' => 'Cryptography and Steganography',       'course_code' => 'PMIT-6204',       'credits' => '3'],
             ['course_title' => 'UI and UX',                            'course_code' => 'PMIT-6224',       'credits' => '3'],
             ['course_title' => 'IoT and Fog Computing',                'course_code' => 'PMIT-6223',       'credits' => '3'],
-            ['course_title' => 'Human Computer Interaction',           'course_code' => 'PMIT-6311',         'credits' => '3'],
+            ['course_title' => 'Human Computer Interaction',           'course_code' => 'PMIT-6311',       'credits' => '3'],
         ];
 
         foreach ($courses as $course) {
@@ -27,7 +28,7 @@ class CourseSeeder extends Seeder
                 'course_title' => $course['course_title'],
                 'course_code'  => $course['course_code'],
                 'credits'      => $course['credits'],
-                'is_active'  => 1,
+                'is_active'    => 1,
             ]);
         }
     }

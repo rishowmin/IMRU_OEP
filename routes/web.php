@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Academic\ExamAttemptController;
 use App\Http\Controllers\Admin\Academic\ExamController;
 use App\Http\Controllers\Admin\Academic\ExamRuleController;
 use App\Http\Controllers\Admin\Academic\QuestionController;
+use App\Http\Controllers\Admin\Academic\QuestionLibraryController;
 use App\Http\Controllers\Admin\Academic\ReviewAnswerController;
 use App\Http\Controllers\Admin\Academic\StudentController;
 use App\Http\Controllers\Admin\Academic\TeacherController;
@@ -98,7 +99,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={exam}', 'edit')->name('admin.academic.exams.edit');
             Route::put('/id={exam}', 'update')->name('admin.academic.exams.update');
             Route::delete('/id={exam}', 'destroy')->name('admin.academic.exams.destroy');
+
             Route::get('/question-paper/id={exam}', 'questionPaper')->name('admin.academic.exams.questionPaper');
+            Route::post('/question-paper/id={exam}/store', 'storeQuestion')->name('admin.academic.exams.questionPaper.store');
+            Route::post('/id={exam}/question-paper/library', 'storeFromLibrary')->name('admin.academic.exams.questionPaper.library');
+            Route::put('/question-paper/id={exam}/question/update/id={question}', 'updateQuestion')->name('admin.academic.exams.questionPaper.update');
+            Route::delete('/question-paper/id={exam}/question/id={question}', 'destroyQuestion')->name('admin.academic.exams.questionPaper.destroy');
 
             Route::get('/settings/id={exam}', 'examSettings')->name('admin.academic.exams.settings');
             Route::put('/settings/id={exam}', 'updateExamSettings')->name('admin.academic.exams.settings.update');
@@ -128,6 +134,16 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={question}', 'edit')->name('admin.academic.questions.edit');
             Route::put('/id={question}', 'update')->name('admin.academic.questions.update');
             Route::delete('/id={question}', 'destroy')->name('admin.academic.questions.destroy');
+        });
+
+        // Questions Library
+        Route::prefix('questions-library')->controller(QuestionLibraryController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.questions.library.index');
+            Route::get('/create', 'create')->name('admin.academic.questions.library.create');
+            Route::post('/store', 'store')->name('admin.academic.questions.library.store');
+            Route::get('/edit/id={questionLib}', 'edit')->name('admin.academic.questions.library.edit');
+            Route::put('/id={questionLib}', 'update')->name('admin.academic.questions.library.update');
+            Route::delete('/id={questionLib}', 'destroy')->name('admin.academic.questions.library.destroy');
         });
 
         // Teacher

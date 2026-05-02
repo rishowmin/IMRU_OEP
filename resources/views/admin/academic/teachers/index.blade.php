@@ -165,7 +165,7 @@
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Experience</th>
                                                         <td width="70%">
-                                                            @if ($teacher->info->experience_years != null)
+                                                            @if ($teacher->info?->experience_years != null)
                                                             {{ $teacher->info->experience_years .' years' }}
                                                             @else
                                                             N/A

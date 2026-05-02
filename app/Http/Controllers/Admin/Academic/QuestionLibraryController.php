@@ -3,36 +3,34 @@
 namespace App\Http\Controllers\Admin\Academic;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Academic\QuestionFormRequest;
+use App\Http\Requests\Academic\QuestionLibraryFormRequest;
 use App\Models\Academic\Course;
-use App\Models\Academic\Exam;
-use App\Models\Academic\Question;
+use App\Models\Academic\QuestionLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class QuestionController extends Controller
+class QuestionLibraryController extends Controller
 {
     public function index()
     {
         $serialNo = 1;
-        $questionList = Question::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questions.index', compact('serialNo', 'questionList'));
+        $questionList = QuestionLibrary::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
+        return view('admin.academic.questionsLibrary.index', compact('serialNo', 'questionList'));
     }
 
     public function create()
     {
-        $examList = Exam::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
         $courseList = Course::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questions.form', compact('examList', 'courseList'));
+        return view('admin.academic.questionsLibrary.form', compact('courseList'));
     }
 
-    public function store(QuestionFormRequest $request)
+    public function store(QuestionLibraryFormRequest $request)
     {
         try {
-            $questionFigurePath = null;
+            $questionLibFigurePath = null;
 
             if ($request->hasFile('question_figure')) {
-                $uploadPath = 'storage/question_figure/';
+                $uploadPath = 'storage/question_figure/library/';
 
                 $file = $request->file('question_figure');
                 $extension = $file->getClientOriginalExtension();
@@ -41,48 +39,43 @@ class QuestionController extends Controller
 
                 $file->move($uploadPath, $fileName);
 
-                $questionFigurePath = $fileName;
+                $questionLibFigurePath = $fileName;
             }
 
-            Question::create([
-                'exam_id' => $request->exam_id,
+            QuestionLibrary::create([
+                'topic' => $request->topic,
                 'question_type' => $request->question_type,
                 'question_text' => $request->question_text,
-                'difficulty_level' => $request->difficulty_level,
-                'marks' => $request->marks,
-                'evaluation_type' => $request->evaluation_type,
                 'option_a' => $request->option_a,
                 'option_b' => $request->option_b,
                 'option_c' => $request->option_c,
                 'option_d' => $request->option_d,
                 'correct_answer' => $request->correct_answer,
-                'question_figure' => $questionFigurePath,
-                'question_order' => $request->question_order ?? 0,
+                'question_figure' => $questionLibFigurePath,
                 'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
 
-            return redirect()->route('admin.academic.questions.index')->with('success', 'Question has been created successfully!');
+            return redirect()->route('admin.academic.questions.library.index')->with('success', 'Question has been created successfully to library!');
         } catch (\Throwable $exception) {
             return back()->withInput()->with('error', 'Question could not be created. Please try again.');
         }
     }
 
-    public function edit(Question $question)
+    public function edit(QuestionLibrary $questionLib)
     {
-        $examList = Exam::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
         $courseList = Course::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questions.form', compact('question', 'examList', 'courseList'));
+        return view('admin.academic.questionsLibrary.form', compact('questionLib', 'courseList'));
     }
 
-    public function update(QuestionFormRequest $request, Question $question)
+    public function update(QuestionLibraryFormRequest $request, QuestionLibrary $questionLib)
     {
         try {
             if ($request->hasFile('question_figure')) {
-                $uploadPath = 'storage/question_figure/';
+                $uploadPath = 'storage/question_figure/library/';
 
                 // Delete old file if exists
-                $oldFileName = $question->question_figure;
+                $oldFileName = $questionLib->question_figure;
                 if ($oldFileName) {
                     $oldFilePath = $uploadPath . $oldFileName;
                     if (file_exists($oldFilePath)) {
@@ -96,38 +89,34 @@ class QuestionController extends Controller
 
                 $file->move($uploadPath, $fileName);
 
-                $question->question_figure = $fileName;
+                $questionLib->question_figure = $fileName;
             }
 
-            $question->update([
-                'exam_id' => $request->exam_id,
+            $questionLib->update([
+                'topic' => $request->topic,
                 'question_type' => $request->question_type,
                 'question_text' => $request->question_text,
-                'difficulty_level' => $request->difficulty_level,
-                'marks' => $request->marks,
-                'evaluation_type' => $request->evaluation_type,
                 'option_a' => $request->option_a,
                 'option_b' => $request->option_b,
                 'option_c' => $request->option_c,
                 'option_d' => $request->option_d,
                 'correct_answer' => $request->correct_answer,
-                'question_order' => $request->question_order ?? 0,
                 'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ]);
 
-            return redirect()->route('admin.academic.questions.index')->with('success', 'Question has been updated successfully!');
+            return redirect()->route('admin.academic.questions.library.index')->with('success', 'Question has been updated successfully to library!');
         } catch (\Throwable $exception) {
             return back()->withInput()->with('error', 'Question update failed. Please try again.');
         }
     }
 
-    public function destroy(Question $question)
+    public function destroy(QuestionLibrary $questionLib)
     {
-        $question->delete(); // Soft delete
+        $questionLib->delete(); // Soft delete
 
         return redirect()
-            ->route('admin.academic.questions.index')
+            ->route('admin.academic.questions.library.index')
             ->with('status', 'Question has been deleted successfully!');
     }
 }

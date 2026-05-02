@@ -25,7 +25,6 @@ class AdminSeeder extends Seeder
                 'last_name'  => $admin['last_name'],
                 'email'      => $admin['email'],
                 'password'   => Hash::make('12345678'),
-                'is_active'  => 1,
             ]);
         }
     }

@@ -99,7 +99,8 @@
                                 </div>
 
                                 <div class="title mb-3">
-                                    <h5 class="card-title mb-0 fw-semibold p-0">{{ $exam->course->course_title }} <small>[{{ $exam->course->course_code }}]</small></h5>
+                                    <h5 class="card-title mb-0 fw-semibold text-truncate p-0">{{ $exam->course->course_title }}</h5>
+                                    <p class="text-muted mb-1">[{{ $exam->course->course_code }}]</p>
                                     <small class="text-muted">{{ $exam->exam_title }} - [{{ $exam->exam_code }}]</small>
                                 </div>
 

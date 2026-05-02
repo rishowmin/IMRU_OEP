@@ -13,21 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('aca_questions', function (Blueprint $table) {
+        Schema::create('aca_question_libraries', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('exam_id')->constrained('aca_exams')->cascadeOnDelete();
+            $table->string('topic')->default('General');
             $table->string('question_type');
             $table->text('question_text');
-            $table->string('difficulty_level')->default('medium')->comment('easy, medium, hard');
-            $table->unsignedDecimal('marks', 5, 2)->default(1.00);
-            $table->string('evaluation_type')->default('automatic')->comment('automatic=objective, manual=subjective');
             $table->string('option_a')->nullable();
             $table->string('option_b')->nullable();
             $table->string('option_c')->nullable();
             $table->string('option_d')->nullable();
             $table->longText('correct_answer')->nullable();
             $table->string('question_figure')->nullable();
-            $table->unsignedInteger('question_order')->default(0);
 
             $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');
 
@@ -47,6 +43,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('aca_questions');
+        Schema::dropIfExists('aca_question_libraries');
     }
 };

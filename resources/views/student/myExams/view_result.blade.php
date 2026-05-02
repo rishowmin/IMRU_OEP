@@ -91,6 +91,10 @@
                                 <i class="bi {{ $isCorrect ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
                                 {{ $isCorrect ? 'Correct' : 'Wrong' }}
                             </span>
+                            @elseif(!empty($answer->reviewAnswer))
+                            <span class="badge bg-success ms-auto">
+                                <i class="bi bi-check-circle me-1"></i>Reviewed
+                            </span>
                             @else
                             <span class="badge bg-warning text-dark ms-auto">
                                 <i class="bi bi-pause-circle me-1"></i>Pending Review
@@ -187,18 +191,21 @@
                             {{-- Review Result --}}
                             @if($answer->reviewAnswer)
                             <div class="p-2 rounded border
-                                {{ $answer->reviewAnswer->review ? 'border-success bg-success bg-opacity-10' : 'border-danger bg-danger bg-opacity-10' }}">
+                                {{ $answer->reviewAnswer->review ? 'border-success bg-success bg-opacity-10' : ($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks) ? 'border-warning bg-warning bg-opacity-10' : 'border-danger bg-danger bg-opacity-10') }}">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center gap-2">
                                         @if($answer->reviewAnswer->review)
                                         <i class="bi bi-check-circle-fill text-success"></i>
                                         <span class="small fw-semibold text-success">Correct</span>
+                                        @elseif($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks))
+                                        <i class="bi bi-check-circle text-warning"></i>
+                                        <span class="small fw-semibold text-warning">Partial Marks</span>
                                         @else
                                         <i class="bi bi-x-circle-fill text-danger"></i>
                                         <span class="small fw-semibold text-danger">Wrong</span>
                                         @endif
                                     </div>
-                                    <span class="badge {{ $answer->reviewAnswer->review ? 'bg-success' : 'bg-danger' }}">
+                                    <span class="badge {{ $answer->reviewAnswer->review ? 'bg-success' : ($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks) ? 'bg-warning' : 'bg-danger') }} ms-auto">
                                         {{ $answer->reviewAnswer->marks_awarded }} / {{ intval($answer->question->marks) }} marks
                                     </span>
                                 </div>
@@ -277,10 +284,10 @@
 
                     $totalSubjectiveMarks = $subjectiveQuestions->sum('marks');
                     $pendingReviewCount   = $subjectiveAnswers->count() - $reviewedAnswers->count();
-                    // $totalObtained        = $mcqMarks + $subjectiveMarksObtained;
-                    $totalObtained = $answeredQuestions->count() > 0
-                        ? round(($exam->total_marks / $answeredQuestions->count()) * $correctCount, 2)
-                        : 0;
+                    $totalObtained        = $mcqMarks + $subjectiveMarksObtained;
+                    // $totalObtained = $answeredQuestions->count() > 0
+                    //     ? round(($exam->total_marks / $answeredQuestions->count()) * $correctCount, 2)
+                    //     : 0;
                     $totalPossible        = $exam->total_marks;
                     $percentage           = $totalPossible > 0 ? round(($totalObtained / $totalPossible) * 100, 1) : 0;
                     $isPassed             = $totalObtained >= ($exam->passing_marks ?? 0);

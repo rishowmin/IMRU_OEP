@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Questions')
+@section('title', 'Questions Library')
 @section('title2', 'Question')
 
 @section('content')
@@ -22,13 +22,13 @@
                         <nav style="--bs-breadcrumb-divider: '•';">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item "><a href="{{ route('admin.academic.questions.index') }}">@yield('title')</a></li>
-                                <li class="breadcrumb-item active">{{ isset($question) ? 'Edit' : 'Create' }} @yield('title2')</li>
+                                <li class="breadcrumb-item "><a href="{{ route('admin.academic.questions.library.index') }}">@yield('title')</a></li>
+                                <li class="breadcrumb-item active">{{ isset($questionLib) ? 'Edit' : 'Create' }} @yield('title2')</li>
                             </ol>
                         </nav>
                     </div>
                     <div class="card-header-right">
-                        <a href="{{ route('admin.academic.questions.index') }}" class="btn btn-outline-theme btn-sm">
+                        <a href="{{ route('admin.academic.questions.library.index') }}" class="btn btn-outline-theme btn-sm">
                             <i class="bi bi-arrow-left-square"></i>
                             <span class="ms-1">Back to List</span>
                         </a>
@@ -47,7 +47,7 @@
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsecourse" aria-expanded="true" aria-controls="collapsecourse">
                             <h6 class="card-title p-0 m-0">
                                 <i class="bi bi-pencil-square"></i>
-                                {{ isset($question) ? 'Edit' : 'Create' }} @yield('title2') Form
+                                {{ isset($questionLib) ? 'Edit' : 'Create' }} @yield('title2') Form
                             </h6>
                         </button>
                     </h2>
@@ -55,43 +55,43 @@
                         <div class="accordion-body">
 
 
-                            <form action="{{ isset($question) ? route('admin.academic.questions.update', $question->id) : route('admin.academic.questions.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ isset($questionLib) ? route('admin.academic.questions.library.update', $questionLib->id) : route('admin.academic.questions.library.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
-                                @if(isset($question))
+                                @if(isset($questionLib))
                                 @method('PUT')
                                 @endif
                                 @php
-                                $isActive = old('is_active', isset($question) ? $question->is_active : 1);
+                                $isActive = old('is_active', isset($questionLib) ? $questionLib->is_active : 1);
                                 @endphp
 
                                 <div class="row">
 
                                     <div class="col-sm-8">
 
-                                        {{-- Exam ID --}}
+                                        {{-- Topic --}}
                                         <div class="row align-items-baseline mb-2">
-                                            <label for="exam_id" class="col-sm-3 col-form-label fw-bold"><small>Exam Title & Code</small> <small class="text-danger">*</small></label>
+                                            <label for="topic" class="col-sm-3 col-form-label fw-bold"><small>Topic</small> <small class="text-danger">*</small></label>
                                             <div class="col-sm-9">
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Select the exam"><i class="bi bi-info-circle"></i></span>
-                                                    <select class="form-select @error('exam_id') is-invalid @elseif(old('exam_id', $question->exam_id ?? false)) is-valid @enderror" name="exam_id" id="exam_id" class="form-control">
-                                                        <option selected disabled>Select Exam</option>
-                                                        @foreach($examList as $exam)
-                                                        <option value="{{ $exam->id }}" {{ old('exam_id', $question->exam_id ?? '') == $exam->id ? 'selected' : '' }}>
-                                                            {{ $exam->exam_title }} - [{{ $exam->exam_code }}]
+                                                    <select class="form-select @error('topic') is-invalid @elseif(old('topic', $questionLib->topic ?? false)) is-valid @enderror" name="topic" id="topic" class="form-control">
+                                                        <option value="General" {{ old('topic', $questionLib->topic ?? '') == 'General' ? 'selected' : '' }}>General</option>
+                                                        @foreach($courseList as $course)
+                                                        <option value="{{ $course->course_title }}" {{ old('topic', $questionLib->topic ?? '') == $course->course_title ? 'selected' : '' }}>
+                                                            {{ $course->course_title }}
                                                         </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
 
                                                 <div class="d-flex align-items-center">
-                                                    @error('exam_id')
+                                                    @error('topic')
                                                     <div class="invalid-feedback d-block">
                                                         <i class="bi bi-exclamation-circle"></i>
                                                         {{ $message }}
                                                     </div>
                                                     @else
-                                                    @if(old('exam_id', $question->exam_id ?? false))
+                                                    @if(old('topic', $questionLib->topic ?? false))
                                                     <div class="valid-feedback d-block">
                                                         <i class="bi bi-check-circle"></i>
                                                         Looks good!
@@ -108,11 +108,11 @@
                                             <div class="col-sm-9">
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Type of the question. (e.g., Multiple Choice, Short Answer, Essay, etc.)"><i class="bi bi-info-circle"></i></span>
-                                                    <select class="form-select @error('question_type') is-invalid @elseif(old('question_type', $question->question_type ?? false)) is-valid @enderror" id="question_type" name="question_type">
-                                                        <option value="mcq_4" {{ old('question_type', $question->question_type ?? '') == 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
-                                                        <option value="mcq_2" {{ old('question_type', $question->question_type ?? '') == 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
-                                                        <option value="short_question" {{ old('question_type', $question->question_type ?? '') == 'short_question' ? 'selected' : '' }}>Short Question</option>
-                                                        <option value="long_question" {{ old('question_type', $question->question_type ?? '') == 'long_question' ? 'selected' : '' }}>Long Question</option>
+                                                    <select class="form-select @error('question_type') is-invalid @elseif(old('question_type', $questionLib->question_type ?? false)) is-valid @enderror" id="question_type" name="question_type">
+                                                        <option value="mcq_4" {{ old('question_type', $questionLib->question_type ?? '') == 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
+                                                        <option value="mcq_2" {{ old('question_type', $questionLib->question_type ?? '') == 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
+                                                        <option value="short_question" {{ old('question_type', $questionLib->question_type ?? '') == 'short_question' ? 'selected' : '' }}>Short Question</option>
+                                                        <option value="long_question" {{ old('question_type', $questionLib->question_type ?? '') == 'long_question' ? 'selected' : '' }}>Long Question</option>
                                                     </select>
                                                 </div>
 
@@ -123,7 +123,7 @@
                                                         {{ $message }}
                                                     </div>
                                                     @else
-                                                    @if(old('question_type', $question->question_type ?? false))
+                                                    @if(old('question_type', $questionLib->question_type ?? false))
                                                     <div class="valid-feedback d-block">
                                                         <i class="bi bi-check-circle"></i>
                                                         Looks good!
@@ -140,7 +140,7 @@
                                             <div class="col-sm-9">
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="inputGroupPrepend" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Text of the question"><i class="bi bi-info-circle"></i></span>
-                                                    <textarea class="form-control @error('question_text') is-invalid @elseif(old('question_text', $question->question_text ?? false)) is-valid @enderror" id="question_text" name="question_text" placeholder="Question Text" rows="3">{{ old('question_text', $question->question_text ?? '') }}</textarea>
+                                                    <textarea class="form-control @error('question_text') is-invalid @elseif(old('question_text', $questionLib->question_text ?? false)) is-valid @enderror" id="question_text" name="question_text" placeholder="Question Text" rows="3">{{ old('question_text', $questionLib->question_text ?? '') }}</textarea>
                                                 </div>
 
                                                 <div class="d-flex align-items-center">
@@ -150,95 +150,7 @@
                                                         {{ $message }}
                                                     </div>
                                                     @else
-                                                    @if(old('question_text', $question->question_text ?? false))
-                                                    <div class="valid-feedback d-block">
-                                                        <i class="bi bi-check-circle"></i>
-                                                        Looks good!
-                                                    </div>
-                                                    @endif
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Difficulty Level --}}
-                                        <div class="row align-items-baseline mb-2">
-                                            <label for="difficulty_level" class="col-sm-3 col-form-label fw-bold"><small>Difficulty Level</small> <small class="text-danger">*</small></label>
-                                            <div class="col-sm-9">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <select class="form-select @error('difficulty_level') is-invalid @elseif(old('difficulty_level', $question->difficulty_level ?? false)) is-valid @enderror" id="difficulty_level" name="difficulty_level">
-                                                        <option value="easy" {{ old('difficulty_level', $question->difficulty_level ?? '') == 'easy' ? 'selected' : '' }}>Easy</option>
-                                                        <option value="medium" {{ old('difficulty_level', $question->difficulty_level ?? '') == 'medium' ? 'selected' : '' }}>Medium</option>
-                                                        <option value="hard" {{ old('difficulty_level', $question->difficulty_level ?? '') == 'hard' ? 'selected' : '' }}>Hard</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('difficulty_level')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @else
-                                                    @if(old('difficulty_level', $question->difficulty_level ?? false))
-                                                    <div class="valid-feedback d-block">
-                                                        <i class="bi bi-check-circle"></i>
-                                                        Looks good!
-                                                    </div>
-                                                    @endif
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Marks --}}
-                                        <div class="row align-items-baseline mb-2">
-                                            <label for="marks" class="col-sm-3 col-form-label fw-bold"><small>Marks</small> <small class="text-danger">*</small></label>
-                                            <div class="col-sm-9">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <input type="number" class="form-control @error('marks') is-invalid @elseif(old('marks', $question->marks ?? false)) is-valid @enderror" id="marks" name="marks" placeholder="Question Text" value="{{ old('marks', $question->marks ?? 1) }}">
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('marks')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @else
-                                                    @if(old('marks', $question->marks ?? false))
-                                                    <div class="valid-feedback d-block">
-                                                        <i class="bi bi-check-circle"></i>
-                                                        Looks good!
-                                                    </div>
-                                                    @endif
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Evaluation Type --}}
-                                        <div class="row align-items-baseline mb-2">
-                                            <label for="evaluation_type" class="col-sm-3 col-form-label fw-bold"><small>Evaluation Type</small> <small class="text-danger">*</small></label>
-                                            <div class="col-sm-9">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <select class="form-select @error('evaluation_type') is-invalid @elseif(old('evaluation_type', $question->evaluation_type ?? false)) is-valid @enderror" id="evaluation_type" name="evaluation_type">
-                                                        <option value="automatic" {{ old('evaluation_type', $question->evaluation_type ?? '') == 'automatic' ? 'selected' : '' }}>Automatic</option>
-                                                        <option value="manual" {{ old('evaluation_type', $question->evaluation_type ?? '') == 'manual' ? 'selected' : '' }}>Manual</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('evaluation_type')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @else
-                                                    @if(old('evaluation_type', $question->evaluation_type ?? false))
+                                                    @if(old('question_text', $questionLib->question_text ?? false))
                                                     <div class="valid-feedback d-block">
                                                         <i class="bi bi-check-circle"></i>
                                                         Looks good!
@@ -255,13 +167,13 @@
                                             <div class="col-sm-9">
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <input type="text" class="form-control" id="option_a" name="option_a" placeholder="Option A" value="{{ old('option_a', $question->option_a ?? '') }}">
+                                                    <input type="text" class="form-control" id="option_a" name="option_a" placeholder="Option A" value="{{ old('option_a', $questionLib->option_a ?? '') }}">
 
-                                                    <input type="text" class="form-control" id="option_b" name="option_b" placeholder="Option B" value="{{ old('option_b', $question->option_b ?? '') }}">
+                                                    <input type="text" class="form-control" id="option_b" name="option_b" placeholder="Option B" value="{{ old('option_b', $questionLib->option_b ?? '') }}">
 
-                                                    <input type="text" class="form-control" id="option_c" name="option_c" placeholder="Option C" value="{{ old('option_c', $question->option_c ?? '') }}">
+                                                    <input type="text" class="form-control" id="option_c" name="option_c" placeholder="Option C" value="{{ old('option_c', $questionLib->option_c ?? '') }}">
 
-                                                    <input type="text" class="form-control" id="option_d" name="option_d" placeholder="Option D" value="{{ old('option_d', $question->option_d ?? '') }}">
+                                                    <input type="text" class="form-control" id="option_d" name="option_d" placeholder="Option D" value="{{ old('option_d', $questionLib->option_d ?? '') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -272,18 +184,7 @@
                                             <div class="col-sm-9">
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <textarea class="form-control" id="correct_answer" name="correct_answer" placeholder="Correct Answer" rows="3">{{ old('correct_answer', $question->correct_answer ?? '') }}</textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Question Order --}}
-                                        <div class="row align-items-baseline mb-2">
-                                            <label for="question_order" class="col-sm-3 col-form-label fw-bold"><small>Question Order</small></label>
-                                            <div class="col-sm-9">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                                    <input type="number" class="form-control" id="question_order" name="question_order" placeholder="Question Order" value="{{ old('question_order', $question->question_order ?? '') }}">
+                                                    <textarea class="form-control" id="correct_answer" name="correct_answer" placeholder="Correct Answer" rows="3">{{ old('correct_answer', $questionLib->correct_answer ?? '') }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -319,9 +220,9 @@
                                                 </div>
 
                                                 <div class="figure-preview mt-3">
-                                                    @if(isset($question) && $question->question_figure)
+                                                    @if(isset($questionLib) && $questionLib->question_figure)
                                                     <div class="p-2 border rounded">
-                                                        <img id="figure_preview_img" src="{{ asset('storage/question_figure/' . $question->question_figure) }}" alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
+                                                        <img id="figure_preview_img" src="{{ asset('storage/question_figure/library/' . $questionLib->question_figure) }}" alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
                                                     </div>
                                                     @else
                                                     <div class="p-2 border rounded">
@@ -344,7 +245,7 @@
                                     </button>
                                     <button type="submit" class="btn btn-outline-success w-25 ms-1">
                                         <i class="bi bi-floppy"></i>
-                                        <span class="ms-1">{{ isset($question) ? 'Update' : 'Save' }}</span>
+                                        <span class="ms-1">{{ isset($questionLib) ? 'Update' : 'Save' }}</span>
                                     </button>
                                 </div>
                             </form>

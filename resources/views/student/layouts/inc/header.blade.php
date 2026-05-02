@@ -43,7 +43,7 @@
                     <li class="dropdown-header">
                         <h6>{{ $firstName }} {{ $lastName }}</h6>
                         <span>
-                            @if ($studentInfo->student_id_no != null)
+                            @if ($studentInfo?->student_id_no != null)
                             Student ID: {{ $studentInfo->student_id_no }}
                             @else
                             Student

@@ -107,8 +107,7 @@
                                             <select class="form-select" id="exam_type" name="exam_type">
                                                 <option value="" disabled {{ old('exam_type', $exam->exam_type ?? '') == '' ? 'selected' : '' }}>Select Exam Type</option>
                                                 <option value="Quiz" {{ old('exam_type', $exam->exam_type ?? '') == 'Quiz' ? 'selected' : '' }}>Quiz</option>
-                                                <option value="Class Test" {{ old('exam_type', $exam->exam_type ?? '') == 'Class Test' ? 'selected' : '' }}>Class Test</option>
-                                                <option value="Term" {{ old('exam_type', $exam->exam_type ?? '') == 'Term' ? 'selected' : '' }}>Term</option>
+                                                <option value="Subjective" {{ old('exam_type', $exam->exam_type ?? '') == 'Subjective' ? 'selected' : '' }}>Subjective</option>
                                             </select>
                                         </div>
                                     </div>

@@ -22,8 +22,20 @@ td {
     vertical-align: middle;
 }
 
+.text-theme {
+    color: #13415e;
+}
+
+.text-theme-secondary {
+    color: #15A6FF;
+}
+
 .bg-theme {
     background-color: #13415e;
+}
+
+.border-theme {
+    border-color: #13415e;
 }
 
 .btn-theme {
