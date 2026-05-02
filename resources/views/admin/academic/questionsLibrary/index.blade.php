@@ -198,11 +198,11 @@
 @if ($questionList->count())
 <script>
     const table = new DataTable('#questionTable', {
-        paging: true
-        , pageLength: 10
-        , lengthMenu: [5, 10, 25, 50, 100]
-        , lengthChange: true
-        , scrollX: true
+        paging: true,
+        pageLength: 25,
+        lengthMenu: [10, 25, 50, 100, 200],
+        lengthChange: true,
+        scrollX: true,
     });
 
 </script>

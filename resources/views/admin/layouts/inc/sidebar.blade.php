@@ -122,7 +122,7 @@
 
         {{-- Start Questions Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.questions*') ? '' : 'collapsed' }}" data-bs-target="#questions-nav" data-bs-toggle="collapse" href="#">
+            <a class="nav-link {{ request()->routeIs('admin.academic.questions*', 'admin.academic.questions.library*') ? '' : 'collapsed' }}" data-bs-target="#questions-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-file-earmark-text"></i><span>Questions</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="questions-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.questions*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
@@ -136,29 +136,14 @@
                         <i class="bi bi-circle"></i><span>Manage Questions</span>
                     </a>
                 </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.questions.library.index') ? 'active' : '' }}" href="{{ route('admin.academic.questions.library.index') }}">
+                        <i class="bi bi-circle"></i><span>Question Bank</span>
+                    </a>
+                </li>
             </ul>
         </li>
         {{-- End Questions Nav --}}
-
-        {{-- Start Questions Library Nav --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.questions.library*') ? '' : 'collapsed' }}" data-bs-target="#questions-library-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-file-earmark-text"></i><span>Questions Bank</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="questions-library-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.questions.library*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-                <li>
-                    <a class="{{ request()->routeIs('admin.academic.questions.library.create') ? 'active' : '' }}" href="{{ route('admin.academic.questions.library.create') }}">
-                        <i class="bi bi-circle"></i><span>Add Question</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="{{ request()->routeIs('admin.academic.questions.library.index') ? 'active' : '' }}" href="{{ route('admin.academic.questions.library.index') }}">
-                        <i class="bi bi-circle"></i><span>Manage Questions</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {{-- End Questions Library Nav --}}
 
         {{-- Start Enrollments Nav --}}
         <li class="nav-item">

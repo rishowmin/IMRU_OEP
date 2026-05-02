@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Database\Seeders\AdminSeeder;
 use Database\Seeders\CourseSeeder;
+use Database\Seeders\ExamRulesSeeder;
 use Database\Seeders\QuestionLibrarySeeder;
 use Database\Seeders\StudentSeeder;
 use Database\Seeders\TeacherSeeder;
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
             StudentSeeder::class,
             CourseSeeder::class,
             QuestionLibrarySeeder::class,
+            ExamRulesSeeder::class
         ]);
     }
 }

@@ -250,11 +250,11 @@
 @if ($studentList->count())
 <script>
     const table = new DataTable('#studentTable', {
-        paging: true
-        , pageLength: 10
-        , lengthMenu: [5, 10, 25, 50, 100]
-        , lengthChange: true
-        , scrollX: true
+        paging: true,
+        pageLength: 20,
+        lengthMenu: [10, 20, 30, 50, 100],
+        lengthChange: true,
+        scrollX: true,
     });
 
 </script>
