@@ -53,7 +53,7 @@
                         </button>
                     </h2>
                     <div id="collapseexam" class="accordion-collapse collapse show" aria-labelledby="headingexam" data-bs-parent="#accordionAcademinexams">
-                        <div class="accordion-body">
+                        <div class="accordion-body px-0">
 
                             <table class="table table-sm small" id="examTable">
                                 <thead>

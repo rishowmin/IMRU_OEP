@@ -29,18 +29,23 @@ class EnrollmentFormRequest extends FormRequest
         $courseId = $this->input('course_id');
 
         return [
-            'course_id' => [
-                'required',
-                'exists:aca_courses,id',
-            ],
-            'student_id' => [
-                'required',
-                'exists:students,id',
-                Rule::unique('aca_enrollments', 'student_id')
-                    ->where(fn($query) => $query->where('course_id', $courseId))
-                    ->ignore($enrollId),
-            ],
-            'is_active'   => 'nullable|boolean',
+            // 'course_id' => [
+            //     'required',
+            //     'exists:aca_courses,id',
+            // ],
+            // 'student_id' => [
+            //     'required',
+            //     'exists:students,id',
+            //     Rule::unique('aca_enrollments', 'student_id')
+            //         ->where(fn($query) => $query->where('course_id', $courseId))
+            //         ->ignore($enrollId),
+            // ],
+            // 'is_active'   => 'nullable|boolean',
+
+            'course_id'    => ['required', 'exists:aca_courses,id'],
+            'student_id'   => ['required', 'array', 'min:1'],
+            'student_id.*' => ['required', 'exists:students,id'],
+            'is_active'    => ['nullable', 'boolean'],
         ];
     }
 

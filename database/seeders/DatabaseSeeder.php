@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\AcaCourseSeeder;
+use Database\Seeders\AcaQuestionLibrarySeeder;
+use Database\Seeders\AcaExamRulesSeeder;
 use Database\Seeders\AdminSeeder;
-use Database\Seeders\CourseSeeder;
-use Database\Seeders\ExamRulesSeeder;
-use Database\Seeders\QuestionLibrarySeeder;
 use Database\Seeders\StudentSeeder;
 use Database\Seeders\TeacherSeeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,9 +23,9 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             TeacherSeeder::class,
             StudentSeeder::class,
-            CourseSeeder::class,
-            QuestionLibrarySeeder::class,
-            ExamRulesSeeder::class
+            AcaCourseSeeder::class,
+            AcaQuestionLibrarySeeder::class,
+            AcaExamRulesSeeder::class
         ]);
     }
 }

@@ -163,6 +163,15 @@
         </li>
         {{-- End Review Answer Nav --}}
 
+        {{-- Start Proctoring Monitor Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.proctoring.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.proctoring.index') }}">
+                <i class="bi bi-shield-exclamation"></i>
+                <span>Proctoring Monitor</span>
+            </a>
+        </li>
+        {{-- End Proctoring Monitor Nav --}}
+
         <li class="nav-heading d-none">
             <span>Corporate</span>
         </li>

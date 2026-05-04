@@ -7,35 +7,39 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-question-square"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.examRules.index') }}" class="btn btn-sm btn-outline-theme">
-                            <i class="bi bi-plus-lg"></i>
-                            <span class="ms-1">Add @yield('title')</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-gear"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.examRules.index') }}" class="btn btn-sm btn-outline-theme">
+                                <i class="bi bi-plus-lg"></i>
+                                <span class="ms-1">Add @yield('title')</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="section">
     <div class="row">
         <div class="col-lg-4">
 
@@ -215,7 +219,7 @@
                         </button>
                     </h2>
                     <div id="collapsestudent" class="accordion-collapse collapse show" aria-labelledby="headingstudent" data-bs-parent="#accordionAcademicstudents">
-                        <div class="accordion-body">
+                        <div class="accordion-body px-0">
 
                             <table class="table table-sm small" id="ruleTable">
                                 <thead>
@@ -360,12 +364,12 @@
 @if ($ruleList->count())
 <script>
     const table = new DataTable('#ruleTable', {
-        paging: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        lengthChange: true,
-        scrollX: true,
-    });
+        paging: true
+        , pageLength: 10
+        , lengthMenu: [5, 10, 25, 50, 100]
+        , lengthChange: true
+        , scrollX: true
+    , });
 
 </script>
 @endif
@@ -399,15 +403,16 @@
         let deleteRoute = "{{ route('admin.academic.examRules.destroy', ['examRule' => ':id']) }}";
         $("#deleteForm").attr("action", deleteRoute.replace(':id', examRule));
     });
+
 </script>
 
 {{-- Auto-generate key from title --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const titleInput = document.getElementById('title');
-        const keyInput   = document.getElementById('key');
+        const keyInput = document.getElementById('key');
 
-        titleInput.addEventListener('input', function () {
+        titleInput.addEventListener('input', function() {
             // Only auto-fill if key is empty or was previously auto-generated
             if (keyInput.dataset.manuallyEdited !== 'true') {
                 keyInput.value = titleInput.value
@@ -419,17 +424,19 @@
         });
 
         // Mark as manually edited if user types in key field
-        keyInput.addEventListener('input', function () {
+        keyInput.addEventListener('input', function() {
             keyInput.dataset.manuallyEdited = 'true';
         });
 
         // If key is cleared, allow auto-generation again
-        keyInput.addEventListener('blur', function () {
+        keyInput.addEventListener('blur', function() {
             if (keyInput.value === '') {
                 keyInput.dataset.manuallyEdited = 'false';
             }
         });
     });
+
 </script>
 
 @endsection
+

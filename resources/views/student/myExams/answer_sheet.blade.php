@@ -4,34 +4,34 @@
 @section('content')
 
 @if(session('success') || session('status') || session('error'))
-    @include('student.layouts.common.status')
+@include('student.layouts.common.status')
 @endif
 
 @php
-    $now = now();
-    $startDT = \Carbon\Carbon::parse(
-        $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
-    );
-    $endDT = \Carbon\Carbon::parse(
-        $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
-    );
+$now = now();
+$startDT = \Carbon\Carbon::parse(
+$exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
+);
+$endDT = \Carbon\Carbon::parse(
+$exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
+);
 
-    if ($now->lt($startDT)) {
-        $status = 'Upcoming';
-        $statusClass = 'bg-primary';
-        $statusIconClass = 'bi-hourglass-split';
-        $canStart = false;
-    } elseif ($now->between($startDT, $endDT)) {
-        $status = 'Ongoing';
-        $statusClass = 'bg-success';
-        $statusIconClass = 'bi-play-circle';
-        $canStart = true;
-    } else {
-        $status = 'Completed';
-        $statusClass = 'bg-secondary';
-        $statusIconClass = 'bi-check-circle';
-        $canStart = false;
-    }
+if ($now->lt($startDT)) {
+$status = 'Upcoming';
+$statusClass = 'bg-primary';
+$statusIconClass = 'bi-hourglass-split';
+$canStart = false;
+} elseif ($now->between($startDT, $endDT)) {
+$status = 'Ongoing';
+$statusClass = 'bg-success';
+$statusIconClass = 'bi-play-circle';
+$canStart = true;
+} else {
+$status = 'Completed';
+$statusClass = 'bg-secondary';
+$statusIconClass = 'bi-check-circle';
+$canStart = false;
+}
 @endphp
 
 <section class="section py-3">
@@ -107,109 +107,82 @@
                     {{-- Questions --}}
                     <div class="card-body px-4 py-3">
                         @if($exam->questions->count() > 0)
-                            @foreach($exam->questions as $index => $question)
-                            <div class="question-item border rounded-3 p-4 mb-3 bg-light bg-opacity-50">
+                        @foreach($exam->questions as $index => $question)
+                        <div class="question-item border rounded-3 p-4 mb-3 bg-light bg-opacity-50">
 
-                                {{-- Question Meta --}}
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <span class="badge bg-dark bg-opacity-75 rounded-pill px-2 py-1 small">Q{{ $index + 1 }}</span>
+                            {{-- Question Meta --}}
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="badge bg-dark bg-opacity-75 rounded-pill px-2 py-1 small">Q{{ $index + 1 }}</span>
 
-                                    @if($question->difficulty_level == 'easy')
-                                        <span class="badge border border-success text-success bg-success bg-opacity-10 small">Easy</span>
-                                    @elseif($question->difficulty_level == 'medium')
-                                        <span class="badge border border-warning text-warning bg-warning bg-opacity-10 small">Medium</span>
-                                    @else
-                                        <span class="badge border border-danger text-danger bg-danger bg-opacity-10 small">Hard</span>
-                                    @endif
-
-                                    @if($question->question_type == 'mcq_2')
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">MCQ · 2 Options</span>
-                                    @elseif($question->question_type == 'mcq_4')
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">MCQ · 4 Options</span>
-                                    @elseif($question->question_type == 'short_question')
-                                        <span class="badge bg-info bg-opacity-10 text-info border border-info small">Short Answer</span>
-                                    @else
-                                        <span class="badge bg-purple bg-opacity-10 text-secondary border border-secondary small">Long Answer</span>
-                                    @endif
-
-                                    <span class="ms-auto badge bg-success bg-opacity-10 text-success border border-success fw-bold small">
-                                        {{ intval($question->marks) }} {{ intval($question->marks) == 1 ? 'Mark' : 'Marks' }}
-                                    </span>
-                                </div>
-
-                                {{-- Question Text --}}
-                                <p class="fw-semibold text-dark mb-3 lh-base">{{ $question->question_text }}</p>
-
-                                {{-- Question Figure --}}
-                                @if($question->question_figure)
-                                <div class="text-center mb-3">
-                                    <img
-                                        src="{{ asset('storage/question_figure/' . $question->question_figure) }}"
-                                        alt="Question Figure"
-                                        class="img-fluid rounded border"
-                                        style="max-height: 220px;"
-                                    >
-                                </div>
+                                @if($question->difficulty_level == 'easy')
+                                <span class="badge border border-success text-success bg-success bg-opacity-10 small">Easy</span>
+                                @elseif($question->difficulty_level == 'medium')
+                                <span class="badge border border-warning text-warning bg-warning bg-opacity-10 small">Medium</span>
+                                @else
+                                <span class="badge border border-danger text-danger bg-danger bg-opacity-10 small">Hard</span>
                                 @endif
 
-                                {{-- MCQ Options --}}
-                                @if(in_array($question->question_type, ['mcq_2', 'mcq_4']))
-                                    <div class="d-flex flex-column gap-2">
-                                        @foreach(['a' => $question->option_a, 'b' => $question->option_b, 'c' => $question->option_c, 'd' => $question->option_d] as $optKey => $optVal)
-                                            @if($optVal)
-                                            <label class="d-flex align-items-center gap-3 border rounded-3 px-3 py-2 bg-white cursor-pointer fw-normal text-dark w-100 mb-0" for="q{{ $question->id }}_option_{{ $optKey }}">
-                                                <input
-                                                    class="form-check-input mt-0 flex-shrink-0"
-                                                    type="radio"
-                                                    name="answers[{{ $question->id }}]"
-                                                    id="q{{ $question->id }}_option_{{ $optKey }}"
-                                                    value="{{ $optVal }}"
-                                                >
-                                                <span class="badge bg-secondary bg-opacity-25 text-dark fw-bold">{{ strtoupper($optKey) }}</span>
-                                                <span class="small">{{ $optVal }}</span>
-                                            </label>
-                                            @endif
-                                        @endforeach
-                                    </div>
-
-                                {{-- Short / Long Answer --}}
-                                @elseif(in_array($question->question_type, ['short_question', 'long_question']))
-                                    <textarea
-                                        class="form-control bg-white border rounded-3"
-                                        name="answers[{{ $question->id }}]"
-                                        id="q{{ $question->id }}_answer"
-                                        rows="{{ $question->question_type == 'short_question' ? 3 : 6 }}"
-                                        placeholder="Write your answer here…"
-                                    ></textarea>
+                                @if($question->question_type == 'mcq_2')
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">MCQ · 2 Options</span>
+                                @elseif($question->question_type == 'mcq_4')
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">MCQ · 4 Options</span>
+                                @elseif($question->question_type == 'short_question')
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info small">Short Answer</span>
+                                @else
+                                <span class="badge bg-purple bg-opacity-10 text-secondary border border-secondary small">Long Answer</span>
                                 @endif
 
+                                <span class="ms-auto badge bg-success bg-opacity-10 text-success border border-success fw-bold small">
+                                    {{ intval($question->marks) }} {{ intval($question->marks) == 1 ? 'Mark' : 'Marks' }}
+                                </span>
                             </div>
-                            @endforeach
+
+                            {{-- Question Text --}}
+                            <p class="fw-semibold text-dark mb-3 lh-base">{{ $question->question_text }}</p>
+
+                            {{-- Question Figure --}}
+                            @if($question->question_figure)
+                            <div class="text-center mb-3">
+                                <img src="{{ asset('storage/question_figure/' . $question->question_figure) }}" alt="Question Figure" class="img-fluid rounded border" style="max-height: 220px;">
+                            </div>
+                            @endif
+
+                            {{-- MCQ Options --}}
+                            @if(in_array($question->question_type, ['mcq_2', 'mcq_4']))
+                            <div class="d-flex flex-column gap-2">
+                                @foreach(['a' => $question->option_a, 'b' => $question->option_b, 'c' => $question->option_c, 'd' => $question->option_d] as $optKey => $optVal)
+                                @if($optVal)
+                                <label class="d-flex align-items-center gap-3 border rounded-3 px-3 py-2 bg-white cursor-pointer fw-normal text-dark w-100 mb-0" for="q{{ $question->id }}_option_{{ $optKey }}">
+                                    <input class="form-check-input mt-0 flex-shrink-0" type="radio" name="answers[{{ $question->id }}]" id="q{{ $question->id }}_option_{{ $optKey }}" value="{{ $optVal }}">
+                                    <span class="badge bg-secondary bg-opacity-25 text-dark fw-bold">{{ strtoupper($optKey) }}</span>
+                                    <span class="small">{{ $optVal }}</span>
+                                </label>
+                                @endif
+                                @endforeach
+                            </div>
+
+                            {{-- Short / Long Answer --}}
+                            @elseif(in_array($question->question_type, ['short_question', 'long_question']))
+                            <textarea class="form-control bg-white border rounded-3" name="answers[{{ $question->id }}]" id="q{{ $question->id }}_answer" rows="{{ $question->question_type == 'short_question' ? 3 : 6 }}" placeholder="Write your answer here…"></textarea>
+                            @endif
+
+                        </div>
+                        @endforeach
                         @else
-                            <div class="text-center py-5 text-muted">
-                                <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted opacity-50"></i>
-                                <p class="mb-0">No questions available for this exam.</p>
-                            </div>
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted opacity-50"></i>
+                            <p class="mb-0">No questions available for this exam.</p>
+                        </div>
                         @endif
                     </div>
 
                     {{-- Card Footer: Actions --}}
                     <div class="card-footer bg-white border-top px-4 py-3">
                         <div class="d-flex gap-2">
-                            <button
-                                type="button"
-                                class="btn btn-outline-danger w-50 stopExamBtn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#stop_exam_confirm_modal"
-                            >
+                            <button type="button" class="btn btn-outline-danger w-50 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
                                 <i class="bi bi-stop-circle me-1"></i>Stop Exam
                             </button>
-                            <button
-                                type="button"
-                                class="btn btn-success w-50"
-                                data-bs-toggle="modal"
-                                data-bs-target="#submit_exam_confirm_modal"
-                            >
+                            <button type="button" class="btn btn-success w-50" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
                                 <i class="bi bi-send me-1"></i>Submit Answers
                             </button>
                         </div>
@@ -281,20 +254,10 @@
                 {{-- Sticky Action Buttons --}}
                 <div class="card border-0 shadow-sm">
                     <div class="card-body d-grid gap-2 p-3">
-                        <button
-                            type="button"
-                            class="btn btn-success"
-                            data-bs-toggle="modal"
-                            data-bs-target="#submit_exam_confirm_modal"
-                        >
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
                             <i class="bi bi-send me-1"></i>Submit Answers
                         </button>
-                        <button
-                            type="button"
-                            class="btn btn-outline-danger stopExamBtn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#stop_exam_confirm_modal"
-                        >
+                        <button type="button" class="btn btn-outline-danger stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
                             <i class="bi bi-stop-circle me-1"></i>Stop Exam
                         </button>
                     </div>
@@ -314,56 +277,110 @@
 @endsection
 
 @section('scripts')
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 1: Submit Helper (must be first, no DOMContentLoaded) --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
     var formSubmitting = false;
 
     function submitExam(stopped, reason) {
         if (formSubmitting) return;
         formSubmitting = true;
-        document.getElementById('stoppedFlag').value = stopped ? '1' : '0';
+        document.getElementById('stoppedFlag').value  = stopped ? '1' : '0';
         document.getElementById('stopReasonFlag').value = reason ?? '';
         document.getElementById('examAnswerForm').submit();
     }
 </script>
 
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 2: Proctoring Setup (ATTEMPT_ID, CSRF, Routes)      --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<script>
+    // Read from meta tags in layout <head>
+    const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
+    const ATTEMPT_ID = '{{ $attempt->id }}'; // Direct from blade (more reliable)
+
+    // Proctoring route URLs
+    const PROCTOR = {
+        tabSwitch : '{{ route("student.proctoring.tabSwitch", ":id") }}'.replace(':id', ATTEMPT_ID),
+        clipboard : '{{ route("student.proctoring.clipboard", ":id") }}'.replace(':id', ATTEMPT_ID),
+        webcam    : '{{ route("student.proctoring.webcam", ":id") }}'.replace(':id', ATTEMPT_ID),
+        event     : '{{ route("student.proctoring.event", ":id") }}'.replace(':id', ATTEMPT_ID),
+    };
+
+    // Generic POST helper for all proctoring logs
+    async function logProctoring(url, body = {}) {
+        try {
+            const res = await fetch(url, {
+                method  : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json',
+                    'X-CSRF-TOKEN' : CSRF_TOKEN,
+                    'Accept'       : 'application/json',
+                },
+                body: JSON.stringify(body),
+            });
+            console.log('[Proctoring]', url, res.status); // Debug: remove in production
+        } catch (err) {
+            console.error('[Proctoring Error]', err);
+        }
+    }
+
+    // Warning toast helper
+    function showProctoringWarning(message) {
+        document.querySelector('#proctoring-warning')?.remove();
+        const div         = document.createElement('div');
+        div.id            = 'proctoring-warning';
+        div.style.cssText = `
+            position: fixed; top: 20px; right: 20px;
+            background: #dc3545; color: white;
+            padding: 12px 18px; border-radius: 8px;
+            font-weight: bold; z-index: 99999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 14px;
+        `;
+        div.innerText = message;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    // Quick test: log to console to confirm setup worked
+    console.log('[Proctoring Setup] ATTEMPT_ID:', ATTEMPT_ID);
+    console.log('[Proctoring Setup] PROCTOR routes:', PROCTOR);
+</script>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 3: Timer + Progress + MCQ Highlight                 --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const totalQuestions = {{ $exam->questions->count() }};
-    let timeLeft = {{ $remainingSeconds ?? 0 }};
-    const timerEl     = document.getElementById('exam_timer');
-    const answeredEl  = document.getElementById('answeredBadge');
-    const progressBar = document.getElementById('progressBar');
-    const progressLbl = document.getElementById('progressLabel');
+    let timeLeft         = {{ $remainingSeconds ?? 0 }};
+    const timerEl        = document.getElementById('exam_timer');
+    const answeredEl     = document.getElementById('answeredBadge');
+    const progressBar    = document.getElementById('progressBar');
+    const progressLbl    = document.getElementById('progressLabel');
 
-    // --- Timer ---
+    // Timer
     function updateTimer() {
         if (timeLeft <= 0) {
             timerEl.innerHTML = '<i class="bi bi-stopwatch me-1"></i>Time Up!';
-            timerEl.classList.remove('bg-success');
-            timerEl.classList.add('bg-danger');
+            timerEl.classList.replace('bg-success', 'bg-danger');
             submitExam(false, 'timer_expired');
             return;
         }
-
         const h = Math.floor(timeLeft / 3600);
         const m = Math.floor((timeLeft % 3600) / 60);
         const s = timeLeft % 60;
-
         timerEl.innerHTML = `<i class="bi bi-stopwatch me-1"></i>${String(h).padStart(2,'0')}h : ${String(m).padStart(2,'0')}m : ${String(s).padStart(2,'0')}s`;
-
-        if (timeLeft <= 300) {
-            timerEl.classList.remove('bg-success');
-            timerEl.classList.add('bg-danger');
-        }
-
+        if (timeLeft <= 300) timerEl.classList.replace('bg-success', 'bg-danger');
         timeLeft--;
     }
-
     updateTimer();
     setInterval(updateTimer, 1000);
 
-    // --- Answered Counter + Progress ---
+    // Answered counter + progress bar
     function updateAnsweredCount() {
         let answered = 0;
         document.querySelectorAll('.question-item').forEach(function (item) {
@@ -375,41 +392,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 answered++;
             }
         });
-
-        answeredEl.innerHTML  = `<i class="bi bi-ui-checks me-1"></i>${answered} / ${totalQuestions} Answered`;
-
+        answeredEl.innerHTML = `<i class="bi bi-ui-checks me-1"></i>${answered} / ${totalQuestions} Answered`;
         const pct = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
-        progressBar.style.width    = pct + '%';
+        progressBar.style.width = pct + '%';
         progressBar.setAttribute('aria-valuenow', pct);
-        progressLbl.textContent    = pct + '%';
+        progressLbl.textContent = pct + '%';
     }
-
     document.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', updateAnsweredCount));
     document.querySelectorAll('textarea').forEach(t => t.addEventListener('input', updateAnsweredCount));
     updateAnsweredCount();
 
-    // --- MCQ label highlight on select ---
+    // MCQ label highlight
     document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
         radio.addEventListener('change', function () {
-            const group = document.querySelectorAll(`input[name="${this.name}"]`);
-            group.forEach(function (r) {
-                const lbl = r.closest('label');
-                if (lbl) {
-                    lbl.classList.remove('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
-                }
+            document.querySelectorAll(`input[name="${this.name}"]`).forEach(function (r) {
+                r.closest('label')?.classList.remove('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
             });
-            const selectedLabel = this.closest('label');
-            if (selectedLabel) {
-                selectedLabel.classList.add('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
-            }
+            this.closest('label')?.classList.add('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
         });
     });
 
-    // --- Submit / Stop Modals ---
+    // Submit / Stop modal buttons
     document.getElementById('confirmSubmitExam').addEventListener('click', function () {
         submitExam(false, '');
     });
-
     document.getElementById('confirmStopExam').addEventListener('click', function () {
         submitExam(true, document.getElementById('stopReasonFlag').value || 'manual_stop');
     });
@@ -417,13 +423,48 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 4: Copy / Paste / Cut + Back Button Restriction      --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    {{-- ── Always Active: Copy / Paste / Cut Restriction ─────── --}}
+    (function () {
+        ['copy', 'paste', 'cut'].forEach(function (action) {
+            document.addEventListener(action, function (e) {
+                e.preventDefault();
+                logProctoring(PROCTOR.clipboard, { action_type: action });
+                showProctoringWarning(`⚠️ ${action.charAt(0).toUpperCase() + action.slice(1)} is not allowed during the exam.`);
+                console.log('[Clipboard] Blocked:', action);
+            });
+        });
 
-    @foreach($mappedRules as $map)
-    @php $ruleKey = $map->rule->key ?? ''; @endphp
+        // Block right-click
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            showProctoringWarning('⚠️ Right-click is disabled during the exam.');
+        });
 
-    @if($ruleKey === 'back_button')
+        // Block keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            const blocked = [
+                // e.ctrlKey && e.key === 'c',
+                // e.ctrlKey && e.key === 'v',
+                // e.ctrlKey && e.key === 'x',
+                e.ctrlKey && e.key === 'u',
+                e.ctrlKey && e.key === 's',
+                e.key === 'F12',
+                e.ctrlKey && e.shiftKey && e.key === 'I',
+                e.ctrlKey && e.shiftKey && e.key === 'J',
+            ];
+            if (blocked.some(Boolean)) {
+                e.preventDefault();
+                showProctoringWarning('⚠️ This action is not allowed during the exam.');
+            }
+        });
+    })();
+
+    {{-- Always Active: Back Button Restriction ────────────────────────────────── --}}
     (function () {
         history.pushState(null, null, location.href);
 
@@ -447,96 +488,141 @@ document.addEventListener('DOMContentLoaded', function () {
                 navigator.sendBeacon(
                     '{{ route("student.myExams.store", $exam->id) }}',
                     new URLSearchParams({
-                        _token: '{{ csrf_token() }}',
-                        stopped: '1',
+                        _token     : '{{ csrf_token() }}',
+                        stopped    : '1',
                         stop_reason: 'url_change',
                     })
                 );
             }
         });
     })();
-    @endif
 
+});
+</script>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 5: Exam Rules + Proctoring Monitoring               --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    @foreach($mappedRules as $map)
+    @php $ruleKey = $map->rule->key ?? ''; @endphp
+
+    {{-- ── Rule: Tab Switching + Browser Maximized ────────────── --}}
     @if($ruleKey === 'tab_switching')
     (function () {
         let tabSwitchCount = 0;
-        const maxTabSwitches = 1;
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden && window.outerHeight > 0) {
-                tabSwitchCount++;
-                if (tabSwitchCount >= maxTabSwitches) {
-                    submitExam(true, 'tab_switching');
-                }
-            } else if (!document.hidden && tabSwitchCount < maxTabSwitches) {
-                document.getElementById('stopReasonFlag').value = 'tab_switching';
-                new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
-            }
-        });
-    })();
-    @endif
+        let tabSwitchedAt  = null;
 
-    @if($ruleKey === 'browser_maximized')
-    (function () {
         const screenWidth  = window.screen.width;
         const screenHeight = window.screen.height;
 
         function checkMaximized() {
-            return window.outerWidth >= screenWidth * 0.95 && window.outerHeight >= screenHeight * 0.95;
+            return window.outerWidth  >= screenWidth  * 0.95
+                && window.outerHeight >= screenHeight * 0.95;
         }
 
         document.addEventListener('visibilitychange', function () {
-            if (document.hidden && window.outerHeight === 0) {
-                submitExam(true, 'browser_maximized');
+
+            if (document.hidden) {
+
+                // Window minimized
+                if (window.outerHeight === 0) {
+                    console.log('[Browser] Window minimized.');
+
+                    // ✅ Log to DB
+                    logProctoring(PROCTOR.event, {
+                        event_type : 'tab_switch',
+                        severity   : 'medium',
+                        metadata   : { reason: 'browser_minimized' },
+                    });
+
+                    // ⚠️ Warn only, do NOT submit
+                    showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
+                    return;
+                }
+
+                // Tab switched
+                tabSwitchCount++;
+                tabSwitchedAt = Date.now();
+
+                // ✅ Log to DB
+                logProctoring(PROCTOR.tabSwitch);
+
+                console.log('[Tab Switch] Left tab. Count:', tabSwitchCount);
+
+                // ⚠️ Warn only, do NOT submit
+                showProctoringWarning(`⚠️ Warning: Tab switching is not allowed! (${tabSwitchCount} violation${tabSwitchCount > 1 ? 's' : ''} recorded)`);
+
+            } else {
+
+                // Student returned
+                const duration_ms = tabSwitchedAt ? Date.now() - tabSwitchedAt : null;
+
+                // ✅ Log return + duration to DB
+                logProctoring(PROCTOR.tabSwitch, {
+                    returned_at : new Date().toISOString(),
+                    duration_ms : duration_ms,
+                });
+
+                tabSwitchedAt = null;
+                console.log('[Tab Switch] Returned. Duration:', duration_ms, 'ms');
             }
         });
 
+        // Window resize
         let resizeTimeout;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function () {
-                if (!checkMaximized()) submitExam(true, 'browser_maximized');
+                if (!checkMaximized()) {
+                    console.log('[Browser] Window no longer maximized.');
+
+                    // ✅ Log to DB
+                    logProctoring(PROCTOR.event, {
+                        event_type : 'tab_switch',
+                        severity   : 'low',
+                        metadata   : { reason: 'window_not_maximized' },
+                    });
+
+                    // ⚠️ Warn only, do NOT submit
+                    showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
+                }
             }, 300);
         });
+
     })();
     @endif
 
-
-
-
-
-
-
-
-
-
-
-
+    {{-- ── Rule: Webcam Required ───────────────────────────── --}}
     @if($ruleKey === 'webcam_required')
     (function () {
-        let stream = null;
+        let stream              = null;
         let webcamCheckInterval = null;
+        let snapshotInterval    = null;
 
-        const overlay = document.createElement('div');
-        overlay.id = 'webcam_overlay';
+        const overlay       = document.createElement('div');
+        overlay.id          = 'webcam_overlay';
         overlay.style.cssText = `
             position: fixed; bottom: 16px; left: 16px; z-index: 9999;
             background: #000; border-radius: 10px; overflow: hidden;
-            width: 160px; height: 120px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            border: 2px solid #198754;
+            width: 160px; height: 120px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 2px solid #198754;
         `;
 
-        const video = document.createElement('video');
-        video.autoplay = true;
-        video.muted = true;
-        video.playsInline = true;
-        video.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        const video           = document.createElement('video');
+        video.autoplay        = true;
+        video.muted           = true;
+        video.playsInline     = true;
+        video.style.cssText   = 'width:100%;height:100%;object-fit:cover;';
 
-        const badge = document.createElement('div');
-        badge.style.cssText = `
+        const badge           = document.createElement('div');
+        badge.style.cssText   = `
             position: absolute; top: 6px; left: 6px;
             background: #198754; color: #fff;
-            font-size: 11px; padding: 2px 7px; border-radius: 20px;
-            font-family: inherit; font-weight: 500;
+            font-size: 11px; padding: 2px 7px;
+            border-radius: 20px; font-weight: 500;
         `;
         badge.innerHTML = '&#128247; Live';
 
@@ -546,31 +632,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function onDenied(reason) {
             badge.style.background = '#dc3545';
-            badge.textContent = 'Webcam Off';
-            submitExam(true, reason || 'webcam_denied');
+            badge.textContent      = 'Webcam Off';
+
+            // ✅ Log to DB
+            logProctoring(PROCTOR.event, {
+                event_type : 'face_not_detected',
+                severity   : 'high',
+                metadata   : { reason: reason },
+            });
+
+            console.log('[Webcam] Denied:', reason);
+
+            // ⚠️ Warn only, do NOT submit
+            showProctoringWarning('⚠️ Warning: Webcam access is required. Please enable your camera.');
+        }
+
+        async function captureSnapshot() {
+            if (!stream || !stream.active) return;
+            try {
+                const track    = stream.getVideoTracks()[0];
+                const capture  = new ImageCapture(track);
+                const blob     = await capture.takePhoto();
+                const formData = new FormData();
+                formData.append('image', blob, 'snapshot.jpg');
+
+                const res = await fetch(PROCTOR.webcam, {
+                    method  : 'POST',
+                    headers : { 'X-CSRF-TOKEN': CSRF_TOKEN },
+                    body    : formData,
+                });
+                console.log('[Webcam] Snapshot sent. Status:', res.status);
+            } catch (err) {
+                console.error('[Webcam] Snapshot failed:', err);
+            }
         }
 
         function startWebcam() {
             navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(function (s) {
-                    stream = s;
+                    stream          = s;
                     video.srcObject = s;
-                    badge.innerHTML = '&#128247; Live';
+                    badge.innerHTML        = '&#128247; Live';
                     badge.style.background = '#198754';
+                    console.log('[Webcam] Started successfully.');
+
+                    captureSnapshot();
+                    snapshotInterval = setInterval(captureSnapshot, 30000);
 
                     webcamCheckInterval = setInterval(function () {
-                        if (!stream || !stream.active) {
-                            clearInterval(webcamCheckInterval);
-                            onDenied('webcam_disconnected');
-                        }
                         const tracks = stream.getVideoTracks();
-                        if (!tracks.length || tracks[0].readyState === 'ended') {
+                        if (!stream.active || !tracks.length || tracks[0].readyState === 'ended') {
                             clearInterval(webcamCheckInterval);
+                            clearInterval(snapshotInterval);
                             onDenied('webcam_disconnected');
                         }
                     }, 3000);
                 })
-                .catch(function () {
+                .catch(function (err) {
+                    console.error('[Webcam] Access denied:', err);
                     onDenied('webcam_denied');
                 });
         }
@@ -580,29 +699,21 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             startWebcam();
         }
+
+        document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
+            clearInterval(snapshotInterval);
+            clearInterval(webcamCheckInterval);
+            stream?.getTracks().forEach(t => t.stop());
+            console.log('[Webcam] Stopped on submit.');
+        });
+
     })();
     @endif
-
-
-
-
-
-
-
-
-
-
-
 
     @endforeach
 
 });
 </script>
 
-
-
-
-
-
-
 @endsection
+

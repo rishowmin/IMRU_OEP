@@ -1,18 +1,24 @@
 <?php
 
 use App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\Academic\CourseController;
-use App\Http\Controllers\Admin\Academic\EnrollmentController;
-use App\Http\Controllers\Admin\Academic\ExamAttemptController;
-use App\Http\Controllers\Admin\Academic\ExamController;
-use App\Http\Controllers\Admin\Academic\ExamRuleController;
-use App\Http\Controllers\Admin\Academic\QuestionController;
-use App\Http\Controllers\Admin\Academic\QuestionLibraryController;
-use App\Http\Controllers\Admin\Academic\ReviewAnswerController;
-use App\Http\Controllers\Admin\Academic\StudentController;
-use App\Http\Controllers\Admin\Academic\TeacherController;
+use App\Http\Controllers\Admin\Academic\AcaCourseController;
+use App\Http\Controllers\Admin\Academic\AcaEnrollmentController;
+use App\Http\Controllers\Admin\Academic\AcaExamAttemptController;
+use App\Http\Controllers\Admin\Academic\AcaExamController;
+use App\Http\Controllers\Admin\Academic\AcaExamRuleController;
+use App\Http\Controllers\Admin\Academic\AcaProctoringController;
+use App\Http\Controllers\Admin\Academic\AcaQuestionController;
+use App\Http\Controllers\Admin\Academic\AcaQuestionLibraryController;
+use App\Http\Controllers\Admin\Academic\AcaReviewAnswerController;
+use App\Http\Controllers\Admin\Academic\AcaStudentController;
+use App\Http\Controllers\Admin\Academic\AcaTeacherController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Student\MyExamController;
+use App\Http\Controllers\Student\StudDashboardController;
+use App\Http\Controllers\Student\StudMyExamController;
+use App\Http\Controllers\Student\StudProctoringController;
+use App\Http\Controllers\Teacher\TechCourseController;
+use App\Http\Controllers\Teacher\TechDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,7 +75,7 @@ Route::middleware('auth:admin')->group(function () {
 Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Dashboard
-    Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
+    Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
         Route::get('/', 'dashboard')->name('admin.dashboard');
     });
 
@@ -77,12 +83,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::prefix('academic')->group(function () {
 
         // Academic Dashboard
-        Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
+        Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
             Route::get('/', 'academicDashboard')->name('admin.academic.dashboard');
         });
 
         // Courses
-        Route::prefix('courses')->controller(CourseController::class)->group(function () {
+        Route::prefix('courses')->controller(AcaCourseController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.courses.index');
             Route::get('/create', 'create')->name('admin.academic.courses.create');
             Route::post('/store', 'store')->name('admin.academic.courses.store');
@@ -92,7 +98,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Exams
-        Route::prefix('exams')->controller(ExamController::class)->group(function () {
+        Route::prefix('exams')->controller(AcaExamController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.exams.index');
             Route::get('/create', 'create')->name('admin.academic.exams.create');
             Route::post('/store', 'store')->name('admin.academic.exams.store');
@@ -111,7 +117,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Exams Rules
-        Route::prefix('exam-rules')->controller(ExamRuleController::class)->group(function () {
+        Route::prefix('exam-rules')->controller(AcaExamRuleController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.examRules.index');
             Route::get('/create', 'create')->name('admin.academic.examRules.create');
             Route::post('/store', 'store')->name('admin.academic.examRules.store');
@@ -121,13 +127,13 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Exams Attempts
-        Route::prefix('exam-attempts')->controller(ExamAttemptController::class)->group(function () {
+        Route::prefix('exam-attempts')->controller(AcaExamAttemptController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.examAttempts.index');
-            Route::post('/id={attempt}/reset', 'reset')->name('admin.examAttempts.reset');
+            Route::post('/id={attempt}/reset', 'reset')->name('admin.academic.examAttempts.reset');
         });
 
         // Questions
-        Route::prefix('questions')->controller(QuestionController::class)->group(function () {
+        Route::prefix('questions')->controller(AcaQuestionController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.questions.index');
             Route::get('/create', 'create')->name('admin.academic.questions.create');
             Route::post('/store', 'store')->name('admin.academic.questions.store');
@@ -137,7 +143,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Questions Library
-        Route::prefix('questions-library')->controller(QuestionLibraryController::class)->group(function () {
+        Route::prefix('questions-library')->controller(AcaQuestionLibraryController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.questions.library.index');
             Route::get('/create', 'create')->name('admin.academic.questions.library.create');
             Route::post('/store', 'store')->name('admin.academic.questions.library.store');
@@ -147,7 +153,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Teacher
-        Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
+        Route::prefix('teachers')->controller(AcaTeacherController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.teachers.index');
             Route::get('/create', 'create')->name('admin.academic.teachers.create');
             Route::post('/store', 'store')->name('admin.academic.teachers.store');
@@ -163,7 +169,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Students
-        Route::prefix('students')->controller(StudentController::class)->group(function () {
+        Route::prefix('students')->controller(AcaStudentController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.students.index');
             Route::get('/create', 'create')->name('admin.academic.students.create');
             Route::post('/store', 'store')->name('admin.academic.students.store');
@@ -179,7 +185,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Enrollments
-        Route::prefix('enrollments')->controller(EnrollmentController::class)->group(function () {
+        Route::prefix('enrollments')->controller(AcaEnrollmentController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.enrollments.index');
             Route::post('/', 'store')->name('admin.academic.enrollments.store');
             Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
@@ -188,11 +194,18 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         });
 
         // Review Answer
-        Route::prefix('review-answer')->controller(ReviewAnswerController::class)->group(function () {
+        Route::prefix('review-answer')->controller(AcaReviewAnswerController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.reviewAnswer.index');
             Route::get('/exam/id={exam}', 'show')->name('admin.academic.reviewAnswer.show');
             Route::get('/exam/id={exam}/student/id={student}', 'studentAnswers')->name('admin.academic.reviewAnswer.studentAnswers');
             Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.reviewAnswer.store');
+        });
+
+        // Proctoring Reports
+        Route::prefix('proctoring')->controller(AcaProctoringController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.proctoring.index');
+            Route::get('/report/id={attempt}',  'getReport')->name('admin.academic.proctoring.report');
+            Route::get('/summary/id={attempt}', 'getSummary')->name('admin.academic.proctoring.summary');
         });
 
     });
@@ -201,7 +214,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::prefix('professional')->group(function () {
 
         // Professional Dashboard
-        Route::prefix('dashboard')->controller(App\Http\Controllers\Admin\DashboardController::class)->group(function () {
+        Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
             Route::get('/', 'professionalDashboard')->name('admin.professional.dashboard');
         });
 
@@ -217,18 +230,26 @@ require __DIR__.'/adminauth.php';
 Route::prefix('student')->middleware('auth:student')->group(function () {
 
     // Dashboard
-    Route::prefix('dashboard')->controller(App\Http\Controllers\Student\DashboardController::class)->group(function () {
+    Route::prefix('dashboard')->controller(StudDashboardController::class)->group(function () {
         Route::get('/', 'dashboard')->name('student.dashboard');
     });
 
     // My Exams
-    Route::prefix('myExams')->controller(MyExamController::class)->group(function () {
+    Route::prefix('myExams')->controller(StudMyExamController::class)->group(function () {
         Route::get('/', 'index')->name('student.myExams');
         Route::get('/details/id={exam}', 'show')->name('student.myExams.show');
         Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
         Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
         Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
         Route::get('/rules/id={exam}', 'examRules')->name('student.myExams.rule');
+    });
+
+    // Proctoring
+    Route::prefix('proctoring')->controller(StudProctoringController::class)->group(function () {
+        Route::post('/tab-switch/id={attempt}',  'logTabSwitch')->name('student.proctoring.tabSwitch');
+        Route::post('/clipboard/id={attempt}',   'logClipboard')->name('student.proctoring.clipboard');
+        Route::post('/webcam/id={attempt}',      'logWebcam')->name('student.proctoring.webcam');
+        Route::post('/event/id={attempt}',       'logEvent')->name('student.proctoring.event');
     });
 
 });
@@ -241,12 +262,12 @@ require __DIR__.'/studentauth.php';
 Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
 
     // Dashboard
-    Route::prefix('dashboard')->controller(App\Http\Controllers\Teacher\DashboardController::class)->group(function () {
+    Route::prefix('dashboard')->controller(TechDashboardController::class)->group(function () {
         Route::get('/', 'dashboard')->name('teacher.dashboard');
     });
 
     // Courses
-    Route::prefix('courses')->controller(App\Http\Controllers\Teacher\CourseController::class)->group(function () {
+    Route::prefix('courses')->controller(TechCourseController::class)->group(function () {
         Route::get('/', 'index')->name('teacher.courses.index');
         Route::get('/create', 'create')->name('teacher.courses.create');
         Route::post('/store', 'store')->name('teacher.courses.store');

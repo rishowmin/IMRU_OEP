@@ -14,50 +14,53 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-gear"></i>
-                            <span class="ms-1">@yield('title2')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('admin.academic.exams.index') }}">@yield('title')</a></li>
-                                <li class="breadcrumb-item active">@yield('title2')</li>
-                                <li class="breadcrumb-item active">{{ $exam->exam_title ?? '' }} <small>[{{ $exam->exam_code ?? '' }}]</small></li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.exams.index') }}" class="btn btn-outline-theme btn-sm">
-                            <i class="bi bi-arrow-left-square"></i>
-                            <span class="ms-1">Back to List</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-gear"></i>
+                                <span class="ms-1">@yield('title2')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.academic.exams.index') }}">@yield('title')</a></li>
+                                    <li class="breadcrumb-item active">@yield('title2')</li>
+                                    <li class="breadcrumb-item active">{{ $exam->exam_title ?? '' }} <small>[{{ $exam->exam_code ?? '' }}]</small></li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.exams.index') }}" class="btn btn-outline-theme btn-sm">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back to List</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
+<section class="section">
     <form method="POST" action="{{ route('admin.academic.exams.settings.update', $exam->id) }}">
         @csrf
         @method('PUT')
 
         <div class="row">
-            
+
             {{-- Instructions --}}
             <div class="col-lg-6 mb-3">
                 @if(isset($allRules['instruction']) && $allRules['instruction']->count())
                 <div class="card border-0 shadow-sm mb-0 h-auto">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h6 class="card-title fw-semibold mb-0 p-0">
-                            <i class="bi bi-info-circle me-1 text-primary"></i>Instructions
+                        <h6 class="card-title fw-semibold mb-0 p-0 text-primary">
+                            <i class="bi bi-info-circle me-1"></i>Instructions
                         </h6>
                         <small class="text-muted">
                             <span id="instruction-selected">{{ collect($allRules['instruction'])->filter(fn($r) => in_array($r->id, $mappedRuleIds))->count() }}</span> / {{ $allRules['instruction']->where('is_active', 1)->count() }} selected
@@ -111,8 +114,8 @@
                 @if(isset($allRules['rule']) && $allRules['rule']->count())
                 <div class="card border-0 shadow-sm mb-0 h-auto">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h6 class="card-title fw-semibold mb-0 p-0">
-                            <i class="bi bi-shield-exclamation me-1 text-danger"></i>Rules
+                        <h6 class="card-title fw-semibold mb-0 p-0 text-danger">
+                            <i class="bi bi-shield-exclamation me-1"></i>Rules
                         </h6>
                         <small class="text-muted">
                             <span id="rule-selected">{{ collect($allRules['rule'])->filter(fn($r) => in_array($r->id, $mappedRuleIds))->count() }}</span> / {{ $allRules['rule']->where('is_active', 1)->count() }} selected
@@ -178,32 +181,12 @@
         </div>
 
     </form>
-
 </section>
 
 @endsection
 
 @section('scripts')
 <script>
-    // document.querySelectorAll('.rule-toggle').forEach(function (toggle) {
-    //     toggle.addEventListener('change', function () {
-    //         const listItem = this.closest('.rule-item');
-    //         const badge = listItem.querySelector('.rule-badge');
-    //         const isInstruction = listItem.closest('.card')
-    //             ?.querySelector('.card-header i')
-    //             ?.classList.contains('text-primary');
-
-    //         if (this.checked) {
-    //             listItem.classList.add(isInstruction ? 'bg-primary' : 'bg-danger', 'bg-opacity-10');
-    //             badge.className = `badge rule-badge ${isInstruction ? 'bg-primary' : 'bg-danger'}`;
-    //             badge.textContent = 'Active';
-    //         } else {
-    //             listItem.classList.remove('bg-primary', 'bg-danger', 'bg-opacity-10');
-    //             badge.className = 'badge bg-light text-dark border rule-badge';
-    //             badge.textContent = 'Inactive';
-    //         }
-    //     });
-    // });
 
     document.querySelectorAll('.rule-toggle').forEach(function (toggle) {
         toggle.addEventListener('change', function () {
@@ -212,7 +195,7 @@
             const card = listItem.closest('.card');
 
             const isInstruction = card
-                ?.querySelector('.card-header i')
+                ?.querySelector('.card-header h6')
                 ?.classList.contains('text-primary');
 
             if (this.checked) {

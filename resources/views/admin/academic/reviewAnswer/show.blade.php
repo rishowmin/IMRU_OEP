@@ -54,7 +54,7 @@
                         </button>
                     </h2>
                     <div id="collapseReviewAns" class="accordion-collapse collapse show" aria-labelledby="headingReviewAns" data-bs-parent="#accordionAcademicReviewAns">
-                        <div class="accordion-body">
+                        <div class="accordion-body px-0">
 
 
 
@@ -75,7 +75,7 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
-                                            <div class="fw-semibold">{{ $data['student']->name }}</div>
+                                            <div class="fw-semibold">{{ $data['student']->first_name }} {{ $data['student']->last_name }}</div>
                                             <small class="text-muted">{{ $data['student']->email }}</small>
                                         </td>
                                         <td>{{ $data['total_answers'] }}</td>

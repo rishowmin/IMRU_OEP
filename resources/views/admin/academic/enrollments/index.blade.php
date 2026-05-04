@@ -102,7 +102,7 @@
                                         </div>
 
                                         {{-- Student ID --}}
-                                        <div class="row align-items-baseline mb-2">
+                                        {{-- <div class="row align-items-baseline mb-2">
                                             <div class="col-sm-12">
                                                 <label for="student_id" class="form-label fw-bold"><small>Student's Name</small> <small class="text-danger">*</small></label>
                                                 <div class="input-group">
@@ -132,7 +132,75 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
+
+                                        {{-- Student --}}
+<div class="mb-3">
+    <label class="form-label fw-semibold small">
+        Student's Name
+        <span class="text-danger ms-1">*</span>
+    </label>
+
+    @error('student_id')
+        <div class="alert alert-danger py-1 px-2 small mb-2">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </div>
+    @enderror
+
+    {{-- Hidden inputs (populated by JS) --}}
+    <div id="student-hidden-inputs"></div>
+
+    <div class="border rounded-3 overflow-hidden">
+
+        {{-- Search bar --}}
+        <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom bg-white">
+            <i class="bi bi-search text-muted" style="font-size:13px;"></i>
+            <input type="text"
+                id="student-search"
+                class="form-control form-control-sm border-0 shadow-none p-0"
+                placeholder="Search students by name or email…"
+                autocomplete="off">
+        </div>
+
+        {{-- Checkbox list --}}
+        <div id="student-list"
+            class="overflow-auto"
+            style="max-height: 220px;"
+            data-students="{{ json_encode($students->map(fn($s) => [
+                'id'    => $s->id,
+                'name'  => $s->first_name . ' ' . $s->last_name,
+                'email' => $s->email,
+            ])) }}"
+            data-selected="{{ json_encode(
+                isset($enroll)
+                    ? [$enroll->student_id]
+                    : array_map('intval', (array) old('student_id', []))
+            ) }}"
+            data-single="{{ isset($enroll) ? 'true' : 'false' }}">
+        </div>
+
+        {{-- Footer --}}
+        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-top bg-light">
+            @if(!isset($enroll))
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" id="btn-select-all"
+                        class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:12px;">
+                        Select all
+                    </button>
+                    <button type="button" id="btn-clear-all"
+                        class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:12px;">
+                        Clear
+                    </button>
+                    <span class="vr"></span>
+                    <small class="text-muted fw-semibold" id="student-count"></small>
+                </div>
+            @else
+                <small class="text-muted fw-semibold" id="student-count"></small>
+            @endif
+        </div>
+
+    </div>
+</div>
 
                                         {{-- Status --}}
                                         <div class="row align-items-baseline">
@@ -185,7 +253,7 @@
                         </button>
                     </h2>
                     <div id="collapseEnrollment" class="accordion-collapse collapse show" aria-labelledby="headingEnrollment" data-bs-parent="#accordionAcademicEnrollments">
-                        <div class="accordion-body">
+                        <div class="accordion-body px-0">
 
                             <table class="table table-sm small" id="enrollmentTable">
                                 <thead>
@@ -356,6 +424,124 @@
         $("#deleteForm").attr("action", deleteRoute.replace(':id', enroll));
     });
 
+</script>
+
+<script>
+(function () {
+    const listEl   = document.getElementById('student-list');
+    if (!listEl) return;
+
+    const students = JSON.parse(listEl.dataset.students);
+    const isSingle = listEl.dataset.single === 'true';
+    const hiddenEl = document.getElementById('student-hidden-inputs');
+    const countEl  = document.getElementById('student-count');
+    const searchEl = document.getElementById('student-search');
+    const btnAll   = document.getElementById('btn-select-all');
+    const btnClear = document.getElementById('btn-clear-all');
+
+    let selected = new Set(JSON.parse(listEl.dataset.selected).map(Number));
+    let query    = '';
+
+    function initials(name) {
+        return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    function renderCount() {
+        if (!countEl) return;
+        const n = selected.size;
+        countEl.textContent = n + ' selected';
+        countEl.className = 'fw-semibold small ' + (n > 0 ? 'text-primary' : 'text-muted');
+    }
+
+    function renderHidden() {
+        hiddenEl.innerHTML = '';
+        const ids = selected.size ? [...selected] : [''];
+        ids.forEach(id => {
+            const inp = document.createElement('input');
+            inp.type  = 'hidden';
+            inp.name  = 'student_id[]';
+            inp.value = id;
+            hiddenEl.appendChild(inp);
+        });
+    }
+
+    function renderList() {
+        const q        = query.toLowerCase();
+        const filtered = students.filter(s =>
+            s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q)
+        );
+
+        listEl.innerHTML = '';
+
+        if (!filtered.length) {
+            listEl.innerHTML = `
+                <div class="px-3 py-3 text-center text-muted small">
+                    <i class="bi bi-person-x me-1"></i>No students match your search
+                </div>`;
+            return;
+        }
+
+        filtered.forEach(s => {
+            const isChecked = selected.has(s.id);
+            const uid       = 'sc-' + s.id;
+
+            const row       = document.createElement('label');
+            row.htmlFor     = uid;
+            row.className   = 'd-flex align-items-center gap-3 px-3 py-2 border-bottom mb-0'
+                + (isChecked ? ' bg-primary bg-opacity-10' : '');
+            row.style.cssText = 'cursor:pointer;transition:background 0.1s;';
+
+            row.innerHTML = `
+                <input type="checkbox" class="form-check-input mt-0 flex-shrink-0"
+                    id="${uid}" ${isChecked ? 'checked' : ''}>
+                <span class="rounded-circle d-inline-flex align-items-center justify-content-center fw-semibold flex-shrink-0"
+                    style="width:32px;height:32px;font-size:11px;
+                        background:${isChecked ? '#0d6efd' : 'var(--bs-secondary-bg)'};
+                        color:${isChecked ? '#fff' : 'var(--bs-secondary-color)'};">
+                    ${initials(s.name)}
+                </span>
+                <span class="d-flex flex-column overflow-hidden">
+                    <span class="small fw-semibold text-truncate">${s.name}</span>
+                    <span class="text-muted text-truncate" style="font-size:11px;">${s.email}</span>
+                </span>
+                ${isChecked ? '<i class="bi bi-check2 ms-auto text-primary"></i>' : '<span class="ms-auto"></span>'}
+            `;
+
+            row.querySelector('input').addEventListener('change', e => {
+                if (isSingle) selected.clear();
+                if (e.target.checked) selected.add(s.id);
+                else selected.delete(s.id);
+                sync();
+            });
+
+            listEl.appendChild(row);
+        });
+    }
+
+    function sync() {
+        renderHidden();
+        renderCount();
+        renderList();
+    }
+
+    if (btnAll) {
+        btnAll.addEventListener('click', () => {
+            const q = query.toLowerCase();
+            students
+                .filter(s => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q))
+                .forEach(s => selected.add(s.id));
+            sync();
+        });
+    }
+
+    if (btnClear) {
+        btnClear.addEventListener('click', () => { selected.clear(); sync(); });
+    }
+
+    searchEl.addEventListener('input', e => { query = e.target.value; renderList(); });
+
+    sync();
+})();
 </script>
 
 @endsection

@@ -479,3 +479,21 @@ p {
     color:#fff;
 }
 
+
+
+
+div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-start {
+    margin-left: 20px;
+}
+
+div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
+    margin-right: 20px;
+}
+
+
+
+
+.pagetitle h1 {
+    font-size: 20px;
+    color: var(--theme-color);
+}
