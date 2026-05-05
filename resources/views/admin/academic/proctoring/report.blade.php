@@ -72,7 +72,8 @@
                             <i class="bi bi-person fs-4 text-primary"></i>
                         </div> --}}
 
-                        <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                        <div class="avatar_sec d-flex align-items-center gap-3">
+
                             @php
                             $student = $attempt->student;
                             $studentInfo = $student->info;
@@ -83,19 +84,19 @@
                             $bgColor = $colors[abs(crc32($firstName . $lastName)) % count($colors)];
                             @endphp
 
-                            {{-- Preview image --}}
-                            <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }} width: 50px; height: 50px;" class="rounded-circle">
+                            <div class="img-sec">
+                                {{-- Preview image --}}
+                                <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }} width: 60px; height:60px; max-height:60px;">
 
-                            {{-- Initials fallback --}}
-                            @if(!$studentInfo?->profile_photo)
-                            <div class="photo-initials" style="background-color:{{ $bgColor }};">
-                                <span>{{ $initials ?: '?' }}</span>
+                                {{-- Initials fallback --}}
+                                @if(!$studentInfo?->profile_photo)
+                                <div class="photo-initials" style="background-color:{{ $bgColor }}; width: 60px; height:60px;">
+                                    <span style="font-size: 20px;">{{ $initials ?: '?' }}</span>
+                                </div>
+                                @endif
                             </div>
-                            @endif
+                            
                         </div>
-
-
-
 
                         <div>
                             <h5 class="fw-bold mb-0">{{ $attempt->student->first_name.' '.$attempt->student->last_name ?? 'N/A' }}</h5>
