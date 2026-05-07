@@ -44,8 +44,7 @@ class AcaExamController extends Controller
                 'total_marks' => $request->total_marks,
                 'passing_marks' => $request->passing_marks,
                 'total_questions' => $request->total_questions,
-                'instructions' => $request->instructions,
-                'basic_rules' => $request->basic_rules,
+                'comments' => $request->comments,
                 'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ]);
@@ -77,8 +76,7 @@ class AcaExamController extends Controller
                 'total_marks' => $request->total_marks,
                 'passing_marks' => $request->passing_marks,
                 'total_questions' => $request->total_questions,
-                'instructions' => $request->instructions,
-                'basic_rules' => $request->basic_rules,
+                'comments' => $request->comments,
                 'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ]);

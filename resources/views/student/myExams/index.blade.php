@@ -50,35 +50,46 @@
 
                     @php
                     $now = now();
-                    $startDT = \Carbon\Carbon::parse(
-                    $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
-                    );
-                    $endDT = \Carbon\Carbon::parse(
-                    $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
-                    );
+
+                    // Guard against null exam_date
+                    $examDate = $exam->exam_date ? $exam->exam_date->toDateString() : null;
+
+                    $startDT = $examDate && $exam->start_time
+                        ? \Carbon\Carbon::parse($examDate . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s'))
+                        : null;
+
+                    $endDT = $examDate && $exam->end_time
+                        ? \Carbon\Carbon::parse($examDate . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s'))
+                        : null;
 
                     $isSubmitted = in_array($exam->id, $submittedExamIds);
 
                     if ($isSubmitted) {
-                    $status = 'Submitted';
-                    $statusClass = 'bg-primary';
-                    $statusIconClass = 'bi-check2-circle';
-                    $canStart = false;
+                        $status = 'Submitted';
+                        $statusClass = 'bg-primary';
+                        $statusIconClass = 'bi-check2-circle';
+                        $canStart = false;
+                    } elseif (!$startDT) {
+                        // Date/time not configured yet
+                        $status = 'Upcoming';
+                        $statusClass = 'bg-warning';
+                        $statusIconClass = 'bi-hourglass-split';
+                        $canStart = false;
                     } elseif ($now->lt($startDT)) {
-                    $status = 'Upcoming';
-                    $statusClass = 'bg-warning';
-                    $statusIconClass = 'bi-hourglass-split';
-                    $canStart = false;
+                        $status = 'Upcoming';
+                        $statusClass = 'bg-warning';
+                        $statusIconClass = 'bi-hourglass-split';
+                        $canStart = false;
                     } elseif ($now->between($startDT, $endDT)) {
-                    $status = 'Ongoing';
-                    $statusClass = 'bg-success';
-                    $statusIconClass = 'bi-play-circle';
-                    $canStart = true;
+                        $status = 'Ongoing';
+                        $statusClass = 'bg-success';
+                        $statusIconClass = 'bi-play-circle';
+                        $canStart = true;
                     } else {
-                    $status = 'Ended';
-                    $statusClass = 'bg-secondary';
-                    $statusIconClass = 'bi-slash-circle';
-                    $canStart = false;
+                        $status = 'Ended';
+                        $statusClass = 'bg-secondary';
+                        $statusIconClass = 'bi-slash-circle';
+                        $canStart = false;
                     }
 
                     $noQuestions = ($exam->questions_count ?? 0) === 0;
@@ -127,11 +138,14 @@
                                 <ul class="list-unstyled small text-muted mb-3 flex-grow-1">
                                     <li class="mb-1">
                                         <i class="bi bi-calendar3 me-2"></i>
-                                        {{ $exam->exam_date->format('d F Y') }}
+                                        {{-- {{ $exam->exam_date->format('d F Y') }} --}}
+                                        {{ $exam->exam_date ? $exam->exam_date->format('d F Y') : 'N/A' }}
                                     </li>
                                     <li class="mb-1">
                                         <i class="bi bi-clock me-2"></i>
-                                        {{ $exam->start_time?->format('h:i A') ?? 'N/A' }} - {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
+                                        {{-- {{ $exam->start_time?->format('h:i A') ?? 'N/A' }} - {{ $exam->end_time?->format('h:i A') ?? 'N/A' }} --}}
+                                        {{ $exam->start_time ? $exam->start_time->format('h:i A') : 'N/A' }} -
+                                        {{ $exam->end_time ? $exam->end_time->format('h:i A') : 'N/A' }}
                                     </li>
                                     <li class="mb-1">
                                         <i class="bi bi-stopwatch me-2"></i>
@@ -212,35 +226,46 @@
 
                                 @php
                                 $now = now();
-                                $startDT = \Carbon\Carbon::parse(
-                                $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s')
-                                );
-                                $endDT = \Carbon\Carbon::parse(
-                                $exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s')
-                                );
+
+                                // Guard against null exam_date
+                                $examDate = $exam->exam_date ? $exam->exam_date->toDateString() : null;
+
+                                $startDT = $examDate && $exam->start_time
+                                    ? \Carbon\Carbon::parse($examDate . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s'))
+                                    : null;
+
+                                $endDT = $examDate && $exam->end_time
+                                    ? \Carbon\Carbon::parse($examDate . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s'))
+                                    : null;
 
                                 $isSubmitted = in_array($exam->id, $submittedExamIds);
 
                                 if ($isSubmitted) {
-                                $status = 'Submitted';
-                                $statusClass = 'bg-primary';
-                                $statusIconClass = 'bi-check2-circle';
-                                $canStart = false;
+                                    $status = 'Submitted';
+                                    $statusClass = 'bg-primary';
+                                    $statusIconClass = 'bi-check2-circle';
+                                    $canStart = false;
+                                } elseif (!$startDT) {
+                                    // Date/time not configured yet
+                                    $status = 'Upcoming';
+                                    $statusClass = 'bg-warning';
+                                    $statusIconClass = 'bi-hourglass-split';
+                                    $canStart = false;
                                 } elseif ($now->lt($startDT)) {
-                                $status = 'Upcoming';
-                                $statusClass = 'bg-warning';
-                                $statusIconClass = 'bi-hourglass-split';
-                                $canStart = false;
+                                    $status = 'Upcoming';
+                                    $statusClass = 'bg-warning';
+                                    $statusIconClass = 'bi-hourglass-split';
+                                    $canStart = false;
                                 } elseif ($now->between($startDT, $endDT)) {
-                                $status = 'Ongoing';
-                                $statusClass = 'bg-success';
-                                $statusIconClass = 'bi-play-circle';
-                                $canStart = true;
+                                    $status = 'Ongoing';
+                                    $statusClass = 'bg-success';
+                                    $statusIconClass = 'bi-play-circle';
+                                    $canStart = true;
                                 } else {
-                                $status = 'Ended';
-                                $statusClass = 'bg-secondary';
-                                $statusIconClass = 'bi-slash-circle';
-                                $canStart = false;
+                                    $status = 'Ended';
+                                    $statusClass = 'bg-secondary';
+                                    $statusIconClass = 'bi-slash-circle';
+                                    $canStart = false;
                                 }
 
                                 $noQuestions = ($exam->questions_count ?? 0) === 0;
@@ -268,10 +293,15 @@
                                         </div>
                                     </td>
                                     <td class="text-nowrap">
-                                        <div class="fw-semibold"><i class="bi bi-calendar3 me-1 text-muted"></i>{{ $exam->exam_date->format('d M Y') }}</div>
+                                        <div class="fw-semibold">
+                                            <i class="bi bi-calendar3 me-1 text-muted"></i>
+                                            {{-- {{ $exam->exam_date->format('d M Y') }} --}}
+                                            {{ $exam->exam_date ? $exam->exam_date->format('d M Y') : 'N/A' }}
+                                        </div>
                                         <div class="text-muted small">
                                             <i class="bi bi-clock me-1"></i>
-                                            {{ $exam->start_time?->format('h:i A') ?? 'N/A' }} - {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
+                                            {{ $exam->start_time ? $exam->start_time->format('h:i A') : 'N/A' }} -
+                                            {{ $exam->end_time ? $exam->end_time->format('h:i A') : 'N/A' }}
                                         </div>
                                         <div class="text-muted small">
                                             <i class="bi bi-stopwatch me-1"></i>

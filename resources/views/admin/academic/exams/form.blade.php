@@ -185,24 +185,13 @@
                                     </div>
                                 </div>
 
-                                {{-- Instructions --}}
+                                {{-- Comments --}}
                                 <div class="row align-items-baseline mb-2">
-                                    <label for="instructions" class="col-sm-3 col-form-label fw-bold"><small>Instructions</small></label>
+                                    <label for="comments" class="col-sm-3 col-form-label fw-bold"><small>Comments</small></label>
                                     <div class="col-sm-9">
                                         <div class="input-group">
                                             <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                            <textarea class="form-control" id="instructions" name="instructions" placeholder="Instructions" rows="3">{{ old('instructions', $exam->instructions ?? '') }}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Basic Rules --}}
-                                <div class="row align-items-baseline mb-2">
-                                    <label for="basic_rules" class="col-sm-3 col-form-label fw-bold"><small>Basic Rules</small></label>
-                                    <div class="col-sm-9">
-                                        <div class="input-group">
-                                            <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
-                                            <textarea class="form-control" id="basic_rules" name="basic_rules" placeholder="Basic Rules" rows="3">{{ old('basic_rules', $exam->basic_rules ?? '') }}</textarea>
+                                            <textarea class="form-control" id="comments" name="comments" placeholder="Comments" rows="3">{{ old('comments', $exam->comments ?? '') }}</textarea>
                                         </div>
                                     </div>
                                 </div>

@@ -26,8 +26,7 @@ return new class extends Migration
             $table->decimal('total_marks', 8, 2)->nullable();
             $table->decimal('passing_marks', 8, 2)->nullable();
             $table->integer('total_questions')->nullable();
-            $table->longText('instructions')->nullable();
-            $table->longText('basic_rules')->nullable();
+            $table->longText('comments')->nullable();
 
             $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');
 

@@ -4,6 +4,7 @@ namespace App\Models\Academic;
 
 use App\Models\Admin;
 use App\Models\Teacher;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +18,8 @@ class AcaQuestionLibrary extends Model
     protected $fillable = [
         'topic',
         'question_type',
+        'difficulty_level',
+        'marks',
         'question_text',
         'option_a',
         'option_b',
@@ -59,5 +62,49 @@ class AcaQuestionLibrary extends Model
     public function updatedBy()
     {
         return $this->belongsTo(Admin::class, 'updated_by');
+    }
+
+    /**
+     * Scope: only active, non-deleted questions.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+        // SoftDeletes already handles whereNull('deleted_at') automatically
+    }
+
+    public function scopeByDifficulty($query, string $difficulty)
+    {
+        return $query->where('difficulty', $difficulty);
+    }
+
+    public function scopeByTopic($query, string $topic)
+    {
+        return $query->where('topic', $topic);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    public function getDifficultyBadgeColorAttribute(): string
+    {
+        return match($this->difficulty) {
+            'easy'   => 'success',
+            'medium' => 'warning',
+            'hard'   => 'danger',
+            default  => 'secondary',
+        };
+    }
+
+    public function getShuffledOptions(): array
+    {
+        $options = [
+            'a' => $this->option_a,
+            'b' => $this->option_b,
+            'c' => $this->option_c,
+            'd' => $this->option_d,
+        ];
+        return array_filter($options);
     }
 }

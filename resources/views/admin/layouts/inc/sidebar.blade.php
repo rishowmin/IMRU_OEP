@@ -90,12 +90,12 @@
 
         {{-- Start Exams Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
+            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*', 'admin.academic.aiExamSets*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-clipboard"></i>
                 <span>Exams</span>
                 <i class="bi bi-chevron-down ms-auto"></i>
             </a>
-            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*', 'admin.academic.aiExamSets*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.exams.create') ? 'active' : '' }}" href="{{ route('admin.academic.exams.create') }}">
                         <i class="bi bi-circle"></i><span>Add Exam</span>
@@ -114,6 +114,11 @@
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.examAttempts*') ? 'active' : '' }}" href="{{ route('admin.academic.examAttempts.index') }}">
                         <i class="bi bi-circle"></i><span>Exam Attempts</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ request()->routeIs('admin.academic.aiExamSets*') ? 'active' : '' }}" href="{{ route('admin.academic.aiExamSets.index') }}">
+                        <i class="bi bi-circle"></i><span>Generate Exams by AI</span>
                     </a>
                 </li>
             </ul>

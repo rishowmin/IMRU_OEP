@@ -35,8 +35,7 @@ class ExamFormRequest extends FormRequest
             'total_marks' => 'nullable|numeric|min:0',
             'passing_marks' => 'nullable|numeric|min:0|max:' . ($this->total_marks ?? 99999999),
             'total_questions' => 'nullable|integer|min:0',
-            'instructions' => 'nullable|string',
-            'basic_rules' => 'nullable|string',
+            'comments' => 'nullable|string',
             'is_active'   => 'nullable|boolean',
         ];
     }
@@ -66,8 +65,7 @@ class ExamFormRequest extends FormRequest
             'passing_marks.max' => 'The passing marks may not be greater than total marks.',
             'total_questions.integer' => 'The total questions must be an integer.',
             'total_questions.min' => 'The total questions must be at least 0.',
-            'instructions.string' => 'The instructions must be a string.',
-            'basic_rules.string' => 'The basic rules must be a string.',
+            'comments.string' => 'The comments must be a string.',
             'is_active.boolean' => 'The active status must be true or false.',
         ];
     }

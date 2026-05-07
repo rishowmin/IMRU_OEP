@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Academic\AcaEnrollmentController;
 use App\Http\Controllers\Admin\Academic\AcaExamAttemptController;
 use App\Http\Controllers\Admin\Academic\AcaExamController;
 use App\Http\Controllers\Admin\Academic\AcaExamRuleController;
+use App\Http\Controllers\Admin\Academic\AcaExamSetController;
 use App\Http\Controllers\Admin\Academic\AcaProctoringController;
 use App\Http\Controllers\Admin\Academic\AcaQuestionController;
 use App\Http\Controllers\Admin\Academic\AcaQuestionLibraryController;
@@ -150,6 +151,18 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={questionLib}', 'edit')->name('admin.academic.questions.library.edit');
             Route::put('/id={questionLib}', 'update')->name('admin.academic.questions.library.update');
             Route::delete('/id={questionLib}', 'destroy')->name('admin.academic.questions.library.destroy');
+        });
+
+        // AI Exam Sets
+        Route::prefix('ai-exam-sets')->controller(AcaExamSetController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.aiExamSets.index');
+            Route::get('/create', 'create')->name('admin.academic.aiExamSets.create');
+            Route::post('/store', 'store')->name('admin.academic.aiExamSets.store');
+            Route::get('/show/id={examSet}', 'show')->name('admin.academic.aiExamSets.show');
+            Route::delete('/id={examSet}', 'destroy')->name('admin.academic.aiExamSets.destroy');
+            
+            Route::patch('/id={examSet}/status', 'updateStatus')->name('admin.academic.aiExamSets.status');
+            Route::post('/id={examSet}/publish', 'publishToExam')->name('admin.academic.aiExamSets.publish');
         });
 
         // Teacher

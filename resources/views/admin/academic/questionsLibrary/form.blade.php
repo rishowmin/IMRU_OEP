@@ -134,6 +134,64 @@
                                             </div>
                                         </div>
 
+                                        {{-- Difficulty Level --}}
+                                        <div class="row align-items-baseline mb-2">
+                                            <label for="difficulty_level" class="col-sm-3 col-form-label fw-bold"><small>Difficulty Level</small> <small class="text-danger">*</small></label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
+                                                    <select class="form-select @error('difficulty_level') is-invalid @elseif(old('difficulty_level', $questionLib->difficulty_level ?? false)) is-valid @enderror" id="difficulty_level" name="difficulty_level">
+                                                        <option value="easy" {{ old('difficulty_level', $questionLib->difficulty_level ?? '') == 'easy' ? 'selected' : '' }}>Easy</option>
+                                                        <option value="medium" {{ old('difficulty_level', $questionLib->difficulty_level ?? '') == 'medium' ? 'selected' : '' }}>Medium</option>
+                                                        <option value="hard" {{ old('difficulty_level', $questionLib->difficulty_level ?? '') == 'hard' ? 'selected' : '' }}>Hard</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="d-flex align-items-center">
+                                                    @error('difficulty_level')
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                        {{ $message }}
+                                                    </div>
+                                                    @else
+                                                    @if(old('difficulty_level', $questionLib->difficulty_level ?? false))
+                                                    <div class="valid-feedback d-block">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Looks good!
+                                                    </div>
+                                                    @endif
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Marks --}}
+                                        <div class="row align-items-baseline mb-2">
+                                            <label for="marks" class="col-sm-3 col-form-label fw-bold"><small>Marks</small> <small class="text-danger">*</small></label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
+                                                    <input type="number" class="form-control @error('marks') is-invalid @elseif(old('marks', $questionLib->marks ?? false)) is-valid @enderror" id="marks" name="marks" placeholder="Question Text" value="{{ old('marks', $questionLib->marks ?? 1) }}">
+                                                </div>
+
+                                                <div class="d-flex align-items-center">
+                                                    @error('marks')
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                        {{ $message }}
+                                                    </div>
+                                                    @else
+                                                    @if(old('marks', $questionLib->marks ?? false))
+                                                    <div class="valid-feedback d-block">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Looks good!
+                                                    </div>
+                                                    @endif
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {{-- Question Text --}}
                                         <div class="row align-items-baseline mb-2">
                                             <label for="question_text" class="col-sm-3 col-form-label fw-bold"><small>Question Text</small> <small class="text-danger">*</small></label>

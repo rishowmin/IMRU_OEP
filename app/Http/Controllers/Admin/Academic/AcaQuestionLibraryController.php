@@ -45,6 +45,8 @@ class AcaQuestionLibraryController extends Controller
             AcaQuestionLibrary::create([
                 'topic' => $request->topic,
                 'question_type' => $request->question_type,
+                'difficulty_level' => $request->difficulty_level,
+                'marks' => $request->marks,
                 'question_text' => $request->question_text,
                 'option_a' => $request->option_a,
                 'option_b' => $request->option_b,
@@ -95,6 +97,8 @@ class AcaQuestionLibraryController extends Controller
             $questionLib->update([
                 'topic' => $request->topic,
                 'question_type' => $request->question_type,
+                'difficulty_level' => $request->difficulty_level,
+                'marks' => $request->marks,
                 'question_text' => $request->question_text,
                 'option_a' => $request->option_a,
                 'option_b' => $request->option_b,

@@ -59,9 +59,11 @@
                                 <thead>
                                     <tr>
                                         <th width="7%">#</th>
-                                        <th width="35%">Question</th>
-                                        <th width="15%">Type</th>
-                                        <th width="20%">Topic</th>
+                                        <th width="25%">Question</th>
+                                        <th width="15%">Topic</th>
+                                        <th width="10%">Type</th>
+                                        <th width="10%">Difficulty</th>
+                                        <th width="10%">Marks</th>
                                         <th width="10%">Status</th>
                                         <th width="13%">Actions</th>
                                     </tr>
@@ -79,20 +81,30 @@
                                         <td>
                                             <p class="mb-0">{{ $question->question_text ?? 'N/A' }}</p>
                                         </td>
+                                        <td>{{ $question->topic ?? 'N/A' }}</td>
                                         <td>
                                             @if($question->question_type == 'mcq_2')
-                                            <span class="badge bg-dark">MCQ (2 Options)</span>
+                                            <span class="badge bg-dark">MCQ (2)</span>
                                             @elseif($question->question_type == 'mcq_4')
-                                            <span class="badge bg-dark">MCQ (4 Options)</span>
+                                            <span class="badge bg-dark">MCQ (4)</span>
                                             @elseif ($question->question_type == 'short_question')
-                                            <span class="badge bg-dark">Short Question</span>
+                                            <span class="badge bg-dark">Short Q.</span>
                                             @elseif ($question->question_type == 'long_question')
-                                            <span class="badge bg-dark">Long Question</span>
+                                            <span class="badge bg-dark">Long Q.</span>
                                             @else
                                             <span class="badge bg-light text-dark border">N/A</span>
                                             @endif
                                         </td>
-                                        <td>{{ $question->topic ?? 'N/A' }}</td>
+                                        <td>
+                                            @if ($question->difficulty_level == 'easy')
+                                            <span class="badge rounded-pill bg-success">Easy</span>
+                                            @elseif ($question->difficulty_level == 'medium')
+                                            <span class="badge rounded-pill bg-warning">Medium</span>
+                                            @else
+                                            <span class="badge rounded-pill bg-danger">Hard</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $question->marks ?? 'N/A' }}</td>
                                         <td>
                                             @if($question->is_active == '1')
                                             <h6 class="mb-0"><span class="badge border-success border-1 text-success"><i class="bi bi-check-circle me-1"></i> ACTIVE</span></h6>
@@ -164,7 +176,7 @@
                                     @empty
 
                                     <tr>
-                                        <td colspan="6" class="text-center">
+                                        <td colspan="8" class="text-center">
                                             <strong>
                                                 <i class="bi bi-exclamation-triangle me-1"></i>
                                                 <span>No @yield('title') Available</span>

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('topic')->default('General');
             $table->string('question_type');
+            $table->string('difficulty_level')->default('medium')->comment('easy, medium, hard');
+            $table->unsignedDecimal('marks', 5, 2)->default(1.00);
             $table->text('question_text');
             $table->string('option_a')->nullable();
             $table->string('option_b')->nullable();

@@ -26,6 +26,10 @@
                             </nav>
                         </div>
                         <div class="card-header-right">
+                            <a href="{{ route('admin.academic.aiExamSets.create') }}" class="btn btn-sm btn-theme">
+                                <i class="bi bi-stars"></i>
+                                <span class="ms-1">Create @yield('title') by AI</span>
+                            </a>
                             <a href="{{ route('admin.academic.exams.create') }}" class="btn btn-sm btn-outline-theme">
                                 <i class="bi bi-plus-lg"></i>
                                 <span class="ms-1">Add @yield('title')</span>
