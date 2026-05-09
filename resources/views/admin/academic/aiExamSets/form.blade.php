@@ -63,7 +63,7 @@
                                 <div class="row mb-3">
 
                                     <div class="col-md-12">
-                                        <label for="title" class="form-label fw-bold"><small>Course Code & Title</small> <small class="text-danger">*</small></label>
+                                        <label for="title" class="form-label fw-bold"><small>Exam Title</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="e.g. Midterm Exam — Computer Networks">
                                         </div>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\Academic;
 use App\Http\Controllers\Controller;
 use App\Models\Academic\AcaCourse;
 use App\Models\Academic\AcaExam;
-use App\Models\Academic\AcaExamInstance;
 use App\Models\Academic\AcaExamSet;
 use App\Models\Academic\AcaQuestion;
 use App\Models\Academic\AcaQuestionLibrary;
@@ -35,7 +34,7 @@ class AcaExamSetController extends Controller
             ->sort()
             ->values();
 
-        return view('admin.academic.exams.aiExamSets.index', compact('examSets', 'topics', 'serialNo'));
+        return view('admin.academic.aiExamSets.index', compact('examSets', 'topics', 'serialNo'));
     }
 
     // -------------------------------------------------------------------------
@@ -57,7 +56,7 @@ class AcaExamSetController extends Controller
             ->get()
             ->groupBy('topic');
 
-        return view('admin.academic.exams.aiExamSets.form', compact('topics', 'questionStats'));
+        return view('admin.academic.aiExamSets.form', compact('topics', 'questionStats'));
     }
 
     // -------------------------------------------------------------------------
@@ -104,12 +103,10 @@ class AcaExamSetController extends Controller
 
     public function show(AcaExamSet $examSet)
     {
-        // $questions = $examSet->getQuestionsInOrder();
-        // return view('admin.academic.exams.aiExamSets.show', compact('examSet', 'questions'));
         $questions  = $examSet->getQuestionsInOrder();
         $courseList = AcaCourse::whereNull('deleted_at')->orderBy('course_title')->get();
 
-        return view('admin.academic.exams.aiExamSets.show', compact('examSet', 'questions', 'courseList'));
+        return view('admin.academic.aiExamSets.show', compact('examSet', 'questions', 'courseList'));
     }
 
     // -------------------------------------------------------------------------
@@ -149,11 +146,6 @@ class AcaExamSetController extends Controller
         try {
             DB::beginTransaction();
 
-            // How many questions to use (user can reduce, defaults to all)
-            // $useCount  = $request->filled('total_questions')
-            //                 ? (int) $request->total_questions
-            //                 : $examSet->total_questions;
-
             // $questions = $examSet->getQuestionsInOrder()->take($useCount);
             $questions = $examSet->getQuestionsInOrder(); // no ->take()
 
@@ -163,7 +155,7 @@ class AcaExamSetController extends Controller
                             : $examSet->total_questions;
 
 
-            // ✅ Calculate total_marks from actual questions — not from request
+            // Calculate total_marks from actual questions — not from request
             $totalMarks = $questions->sum('marks');
 
             $exam = AcaExam::create([
@@ -175,8 +167,8 @@ class AcaExamSetController extends Controller
                 'start_time'        => $request->start_time,
                 'end_time'          => $request->end_time,
                 'exam_duration_min' => $examSet->duration_minutes,
-                'total_marks'       => $totalMarks,                          // ✅ from questions
-                'passing_marks'     => round($totalMarks * 0.4, 2),          // ✅ 40% of actual marks
+                'total_marks'       => $totalMarks,                          // from questions
+                'passing_marks'     => round($totalMarks * 0.4, 2),          // 40% of actual marks
                 'total_questions'   => $useCount,
                 'comments'          => 'AI-generated exam. Easy: ' . $examSet->easy_count
                                     . ', Medium: ' . $examSet->medium_count

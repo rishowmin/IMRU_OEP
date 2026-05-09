@@ -90,12 +90,12 @@
 
         {{-- Start Exams Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*', 'admin.academic.aiExamSets*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
+            <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-clipboard"></i>
                 <span>Exams</span>
                 <i class="bi bi-chevron-down ms-auto"></i>
             </a>
-            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*', 'admin.academic.aiExamSets*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+            <ul id="exam-nav" class="nav-content collapse {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
                 <li>
                     <a class="{{ request()->routeIs('admin.academic.exams.create') ? 'active' : '' }}" href="{{ route('admin.academic.exams.create') }}">
                         <i class="bi bi-circle"></i><span>Add Exam</span>
@@ -116,14 +116,18 @@
                         <i class="bi bi-circle"></i><span>Exam Attempts</span>
                     </a>
                 </li>
-                <li>
-                    <a class="{{ request()->routeIs('admin.academic.aiExamSets*') ? 'active' : '' }}" href="{{ route('admin.academic.aiExamSets.index') }}">
-                        <i class="bi bi-circle"></i><span>Generate Exams by AI</span>
-                    </a>
-                </li>
             </ul>
         </li>
         {{-- End Exams Nav --}}
+
+        {{-- Start Exams by AI Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.aiExamSets*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.aiExamSets.index') }}">
+                <i class="bi bi-stars"></i>
+                <span>Exams By AI</span>
+            </a>
+        </li>
+        {{-- End Exams by AI Nav --}}
 
         {{-- Start Questions Nav --}}
         <li class="nav-item">
@@ -152,7 +156,7 @@
 
         {{-- Start Enrollments Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.enrollments.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.enrollments.index') }}">
+            <a class="nav-link {{ request()->routeIs('admin.academic.enrollments*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.enrollments.index') }}">
                 <i class="bi bi-bookmark-plus"></i>
                 <span>Enrollments</span>
             </a>
@@ -161,7 +165,7 @@
 
         {{-- Start Review Answer Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.reviewAnswer.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.reviewAnswer.index') }}">
+            <a class="nav-link {{ request()->routeIs('admin.academic.reviewAnswer*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.reviewAnswer.index') }}">
                 <i class="bi bi-chat-left-text"></i>
                 <span>Review Answer</span>
             </a>
@@ -170,7 +174,7 @@
 
         {{-- Start Proctoring Monitor Nav --}}
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.proctoring.index') ? '' : 'collapsed' }}" href="{{ route('admin.academic.proctoring.index') }}">
+            <a class="nav-link {{ request()->routeIs('admin.academic.proctoring*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.proctoring.index') }}">
                 <i class="bi bi-shield-exclamation"></i>
                 <span>Proctoring Monitor</span>
             </a>

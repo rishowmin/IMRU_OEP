@@ -273,7 +273,7 @@
                         Select a course. The system will automatically create an exam
                         and copy all <strong>{{ $examSet->total_questions }} questions</strong> into it.
                     </p>
-                    <form action="{{ route('admin.academic.aiExamSets.publish', $examSet) }}" method="POST" onsubmit="return confirm('Create exam with {{ $examSet->total_questions }} questions for the selected course?')">
+                    <form action="{{ route('admin.academic.aiExamSets.publish', $examSet) }}" method="POST" id="publishExamForm">
                         @csrf
                         <div class="mb-2">
                             <label class="form-label fw-semibold small">Course <span class="text-danger">*</span></label>
@@ -304,7 +304,7 @@
                             <small class="text-muted">{{ $examSet->total_questions }}</small>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-sm w-100 fw-semibold">
+                        <button type="button" class="btn btn-success btn-sm w-100 fw-semibold" id="openPublishModal">
                             <i class="bi bi-rocket-takeoff me-1"></i> Publish Exam
                         </button>
                     </form>
@@ -346,6 +346,8 @@
 
 </section>
 
+@include('admin.layouts.common.createExamModal')
+
 @endsection
 
 @section('scripts')
@@ -365,5 +367,31 @@
         document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.classList.remove('active'));
         document.getElementById('filter-' + (diff || 'all')).classList.add('active');
     }
+</script>
+
+<script>
+    // Open modal only after basic validation passes
+    document.getElementById('openPublishModal').addEventListener('click', function () {
+        const form = document.getElementById('publishExamForm');
+
+        // Trigger native HTML5 validation first
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Open the confirmation modal
+        const modal = new bootstrap.Modal(document.getElementById('createExam_modal'));
+        modal.show();
+    });
+
+    // When user confirms in modal — submit the real form
+    document.getElementById('confirmPublishBtn').addEventListener('click', function () {
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creating...';
+
+        document.getElementById('publishExamForm').submit();
+    });
 </script>
 @endsection

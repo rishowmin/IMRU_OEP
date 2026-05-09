@@ -20,7 +20,7 @@
                             </button>
                             <button type="submit" class="btn btn-danger btn-sm ms-1">
                                 <i class="bi bi-trash"></i>
-                                <span class="ms-1">Yex, Delete!</span>
+                                <span class="ms-1">Yes, Delete!</span>
                             </button>
                         </div>
                     </div>

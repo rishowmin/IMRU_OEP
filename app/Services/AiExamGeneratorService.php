@@ -302,23 +302,23 @@ class AiExamGeneratorService
         $total = $targets['easy'] + $targets['medium'] + $targets['hard'];
 
         return <<<PROMPT
-Select questions for an academic exam. Respond ONLY with valid JSON, no markdown.
+        Select questions for an academic exam. Respond ONLY with valid JSON, no markdown.
 
-EXAM: {$config['title']} | Topic: {$config['topic']} | Duration: {$config['duration_minutes']} min
-NEED: {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard (total: {$total})
+        EXAM: {$config['title']} | Topic: {$config['topic']} | Duration: {$config['duration_minutes']} min
+        NEED: {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard (total: {$total})
 
-QUESTIONS:
-{$questionsJson}
+        QUESTIONS:
+        {$questionsJson}
 
-RULES:
-1. Select EXACTLY {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard
-2. If a difficulty is short, use nearest available and note in reasoning
-3. Prefer variety in question_type
-4. No duplicate or very similar previews
+        RULES:
+        1. Select EXACTLY {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard
+        2. If a difficulty is short, use nearest available and note in reasoning
+        3. Prefer variety in question_type
+        4. No duplicate or very similar previews
 
-RESPOND WITH ONLY THIS JSON:
-{"selected_ids":[integer IDs in exam order],"easy_ids":[IDs],"medium_ids":[IDs],"hard_ids":[IDs],"total_marks":integer,"reasoning":"brief explanation"}
-PROMPT;
+        RESPOND WITH ONLY THIS JSON:
+        {"selected_ids":[integer IDs in exam order],"easy_ids":[IDs],"medium_ids":[IDs],"hard_ids":[IDs],"total_marks":integer,"reasoning":"brief explanation"}
+        PROMPT;
     }
 
     private function fallbackRandomSelection(Collection $questions, array $targets): array
