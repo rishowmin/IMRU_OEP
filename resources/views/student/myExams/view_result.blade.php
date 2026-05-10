@@ -8,7 +8,6 @@
 @endif
 
 <section class="section">
-
     <div class="row">
         <div class="col-lg-12">
             <div class="card mb-3">
@@ -36,7 +35,10 @@
             </div>
         </div>
     </div>
+</section>
 
+<section class="section">
+    
     <div class="row">
 
         {{-- Left: Questions & Answers --}}
@@ -52,12 +54,14 @@
 
                     @forelse($answers as $answer)
                     @php
-                    $index = $loop->index;
-                    $question = $answer->question;
-                    $studentAnswer = $answer->answer ?? null;
-                    $correctAnswer = $question->correct_answer ?? null;
-                    $isCorrect = $studentAnswer && $correctAnswer && strtoupper($studentAnswer) === strtoupper($correctAnswer);
-                    $isUnanswered = is_null($studentAnswer);
+                        $index         = $loop->index;
+                        $question      = $answer->question;
+                        $studentAnswer = $answer->answer ?? null;
+                        $correctAnswer = $question->correct_answer ?? null;
+                        $isObjective   = in_array($question->question_type, ['mcq_2', 'mcq_4']);
+                        $isUnanswered  = is_null($studentAnswer) || trim($studentAnswer) === '';
+                        $isCorrect     = $isObjective && !$isUnanswered && $correctAnswer
+                                         && strtolower(trim($studentAnswer)) === strtolower(trim($correctAnswer));
                     @endphp
 
                     <div class="question-item mb-4 p-3 border rounded
@@ -85,20 +89,20 @@
 
                             {{-- Result badge --}}
                             @if($isUnanswered)
-                            <span class="badge bg-secondary ms-auto">Not Answered</span>
-                            @elseif(in_array($question->question_type, ['mcq_2', 'mcq_4']))
-                            <span class="badge {{ $isCorrect ? 'bg-success' : 'bg-danger' }} ms-auto">
-                                <i class="bi {{ $isCorrect ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
-                                {{ $isCorrect ? 'Correct' : 'Wrong' }}
-                            </span>
+                                <span class="badge bg-secondary ms-auto">Not Answered</span>
+                            @elseif($isObjective)
+                                <span class="badge {{ $isCorrect ? 'bg-success' : 'bg-danger' }} ms-auto">
+                                    <i class="bi {{ $isCorrect ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
+                                    {{ $isCorrect ? 'Correct' : 'Wrong' }}
+                                </span>
                             @elseif(!empty($answer->reviewAnswer))
-                            <span class="badge bg-success ms-auto">
-                                <i class="bi bi-check-circle me-1"></i>Reviewed
-                            </span>
+                                <span class="badge bg-success ms-auto">
+                                    <i class="bi bi-check-circle me-1"></i>Reviewed
+                                </span>
                             @else
-                            <span class="badge bg-warning text-dark ms-auto">
-                                <i class="bi bi-pause-circle me-1"></i>Pending Review
-                            </span>
+                                <span class="badge bg-warning text-dark ms-auto">
+                                    <i class="bi bi-pause-circle me-1"></i>Pending Review
+                                </span>
                             @endif
                         </div>
 
@@ -115,52 +119,53 @@
                         {{-- Question Figure --}}
                         @if($question->question_figure)
                         <div class="p-2 border rounded w-50 m-auto mb-2">
-                            <img src="{{ asset('storage/question_figure/' . $question->question_figure) }}" alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
+                            <img src="{{ asset('storage/question_figure/' . $question->question_figure) }}"
+                                 alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
                         </div>
                         @endif
 
                         {{-- MCQ Options --}}
-                        @if(in_array($question->question_type, ['mcq_2', 'mcq_4']))
+                        @if($isObjective)
                         <div class="options mb-2">
                             @php
-                            $optionMap = [
-                            'A' => $question->option_a,
-                            'B' => $question->option_b,
-                            'C' => $question->option_c,
-                            'D' => $question->option_d,
-                            ];
+                                $optionMap = [
+                                    'A' => $question->option_a,
+                                    'B' => $question->option_b,
+                                    'C' => $question->option_c,
+                                    'D' => $question->option_d,
+                                ];
 
-                            // Find correct key — handles both letter (B) and full text
-                            $correctKey = null;
-                            if ($correctAnswer) {
-                            $foundKey = array_search($correctAnswer, $optionMap);
-                            $correctKey = $foundKey !== false ? strtoupper($foundKey) : strtoupper($correctAnswer);
-                            }
+                                // correct_answer and student answer both store full option TEXT
+                                // Find the matching key (A/B/C/D) by comparing text values
+                                $correctKey = null;
+                                $studentKey = null;
 
-                            // Find student key — handles both letter (A) and full text
-                            $studentKey = null;
-                            if ($studentAnswer) {
-                            $foundKey = array_search($studentAnswer, $optionMap);
-                            $studentKey = $foundKey !== false ? strtoupper($foundKey) : strtoupper($studentAnswer);
-                            }
+                                foreach ($optionMap as $k => $v) {
+                                    if ($v && $correctAnswer && strtolower(trim($v)) === strtolower(trim($correctAnswer))) {
+                                        $correctKey = $k;
+                                    }
+                                    if ($v && $studentAnswer && strtolower(trim($v)) === strtolower(trim($studentAnswer))) {
+                                        $studentKey = $k;
+                                    }
+                                }
                             @endphp
 
                             @foreach($optionMap as $key => $option)
                             @if($option)
                             @php
-                            $isStudentChoice = !is_null($studentKey) && $studentKey === $key;
-                            $isCorrectOption = !is_null($correctKey) && $correctKey === $key;
+                                $isStudentChoice = $studentKey === $key;
+                                $isCorrectOption = $correctKey === $key;
                             @endphp
                             <div class="mb-2 px-3 py-2 rounded d-flex align-items-center gap-2 option-item small
                                 {{ $isCorrectOption ? 'option-correct' : '' }}
                                 {{ $isStudentChoice && !$isCorrectOption ? 'option-wrong' : '' }}">
 
                                 @if($isCorrectOption)
-                                <i class="bi bi-check-circle-fill text-success"></i>
+                                    <i class="bi bi-check-circle-fill text-success"></i>
                                 @elseif($isStudentChoice && !$isCorrectOption)
-                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
                                 @else
-                                <i class="bi bi-circle text-muted"></i>
+                                    <i class="bi bi-circle text-muted"></i>
                                 @endif
 
                                 <span class="{{ $isCorrectOption ? 'text-success fw-bold' : '' }} {{ $isStudentChoice && !$isCorrectOption ? 'text-danger fw-bold' : '' }}">
@@ -168,13 +173,12 @@
                                 </span>
 
                                 @if($isCorrectOption && $isStudentChoice)
-                                <span class="badge bg-success ms-auto">Your Answer</span>
+                                    <span class="badge bg-success ms-auto">Your Answer ✓</span>
                                 @elseif($isCorrectOption)
-                                <span class="badge bg-success ms-auto">Correct Answer</span>
+                                    <span class="badge bg-success ms-auto">Correct Answer</span>
                                 @elseif($isStudentChoice)
-                                <span class="badge bg-danger ms-auto">Your Answer</span>
+                                    <span class="badge bg-danger ms-auto">Your Answer</span>
                                 @endif
-
                             </div>
                             @endif
                             @endforeach
@@ -188,25 +192,29 @@
                                 {{ $studentAnswer ?? 'No answer provided.' }}
                             </div>
 
-                            {{-- Review Result --}}
                             @if($answer->reviewAnswer)
+                            @php
+                                $ra        = $answer->reviewAnswer;
+                                $qMarks    = intval($answer->question->marks);
+                                $isPartial = !$ra->review && $ra->marks_awarded > 0 && $ra->marks_awarded < $qMarks;
+                            @endphp
                             <div class="p-2 rounded border
-                                {{ $answer->reviewAnswer->review ? 'border-success bg-success bg-opacity-10' : ($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks) ? 'border-warning bg-warning bg-opacity-10' : 'border-danger bg-danger bg-opacity-10') }}">
+                                {{ $ra->review ? 'border-success bg-success bg-opacity-10' : ($isPartial ? 'border-warning bg-warning bg-opacity-10' : 'border-danger bg-danger bg-opacity-10') }}">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center gap-2">
-                                        @if($answer->reviewAnswer->review)
-                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                        <span class="small fw-semibold text-success">Correct</span>
-                                        @elseif($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks))
-                                        <i class="bi bi-check-circle text-warning"></i>
-                                        <span class="small fw-semibold text-warning">Partial Marks</span>
+                                        @if($ra->review)
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                            <span class="small fw-semibold text-success">Correct</span>
+                                        @elseif($isPartial)
+                                            <i class="bi bi-check-circle text-warning"></i>
+                                            <span class="small fw-semibold text-warning">Partial Marks</span>
                                         @else
-                                        <i class="bi bi-x-circle-fill text-danger"></i>
-                                        <span class="small fw-semibold text-danger">Wrong</span>
+                                            <i class="bi bi-x-circle-fill text-danger"></i>
+                                            <span class="small fw-semibold text-danger">Wrong</span>
                                         @endif
                                     </div>
-                                    <span class="badge {{ $answer->reviewAnswer->review ? 'bg-success' : ($answer->reviewAnswer->marks_awarded > 0 && $answer->reviewAnswer->marks_awarded < intval($answer->question->marks) ? 'bg-warning' : 'bg-danger') }} ms-auto">
-                                        {{ $answer->reviewAnswer->marks_awarded }} / {{ intval($answer->question->marks) }} marks
+                                    <span class="badge {{ $ra->review ? 'bg-success' : ($isPartial ? 'bg-warning' : 'bg-danger') }} ms-auto">
+                                        {{ $ra->marks_awarded }} / {{ $qMarks }} marks
                                     </span>
                                 </div>
                             </div>
@@ -239,63 +247,62 @@
                 <div class="card-body">
 
                     @php
-                    $answeredQuestions   = $answers->map(fn($a) => $a->question);
-                    $mcqQuestions        = $answeredQuestions->filter(fn($q) => in_array($q->question_type, ['mcq_2', 'mcq_4']));
-                    $subjectiveQuestions = $answeredQuestions->filter(fn($q) => in_array($q->question_type, ['short_question', 'long_question']));
+                        $allQuestions        = $answers->map(fn($a) => $a->question);
+                        $mcqQuestions        = $allQuestions->filter(fn($q) => in_array($q->question_type, ['mcq_2', 'mcq_4']));
+                        $subjectiveQuestions = $allQuestions->filter(fn($q) => in_array($q->question_type, ['short_question', 'long_question']));
 
-                    $correctCount    = 0;
-                    $wrongCount      = 0;
-                    $unansweredCount = 0;
-                    $mcqMarks        = 0;
-                    $totalMcqMarks   = 0;
-
-                    foreach ($answers as $answer) {
-                        $question      = $answer->question;
-                        $studentAnswer = $answer->answer ?? null;
-                        $correctAnswer = $question->correct_answer ?? null;
-                        $isEmpty       = is_null($studentAnswer) || trim($studentAnswer) === '';
-
-                        if (in_array($question->question_type, ['mcq_2', 'mcq_4'])) {
-                            $totalMcqMarks += $question->marks;
-
-                            if ($isEmpty) {
-                                $unansweredCount++;
-                            } elseif ($correctAnswer && strtoupper(trim($studentAnswer)) === strtoupper(trim($correctAnswer))) {
-                                $correctCount++;
-                                $mcqMarks += $question->marks;
-                            } else {
-                                $wrongCount++;
-                            }
-
+                        if ($result) {
+                            // ✅ Use pre-computed values from aca_exam_results.
+                            // total_marks = sum of ASSIGNED questions only (e.g. 26), NOT $exam->total_marks (43).
+                            $correctCount         = $result->mcq_correct;
+                            $wrongCount           = $result->mcq_wrong;
+                            $mcqMarks             = $result->mcq_marks_obtained;
+                            $totalMcqMarks        = $result->mcq_total_marks;
+                            $totalSubjectiveMarks = $result->subjective_total_marks;
+                            $pendingReviewCount   = $result->subjective_total - $result->subjective_reviewed;
+                            $totalObtained        = $result->total_marks_obtained;
+                            $totalPossible        = $result->total_marks;   // ✅ correct denominator
+                            $percentage           = $result->percentage;
+                            $isPassed             = $result->is_pass;
                         } else {
-                            // Subjective
-                            if ($isEmpty) {
-                                $unansweredCount++;
-                            } elseif ($answer->reviewAnswer) {
-                                if ($answer->reviewAnswer->review == 1) {
-                                    $correctCount++;  // Reviewed as Correct
-                                } else {
-                                    $wrongCount++;    // Reviewed as Wrong
+                            // Fallback: compute on the fly if result row not yet created
+                            $correctCount = $wrongCount = $mcqMarks = $totalMcqMarks = 0;
+
+                            foreach ($answers as $answer) {
+                                $q       = $answer->question;
+                                $ans     = $answer->answer ?? null;
+                                $correct = $q->correct_answer ?? null;
+                                $isEmpty = is_null($ans) || trim($ans) === '';
+
+                                if (in_array($q->question_type, ['mcq_2', 'mcq_4'])) {
+                                    $totalMcqMarks += $q->marks;
+                                    if (!$isEmpty && $correct && strtolower(trim($ans)) === strtolower(trim($correct))) {
+                                        $correctCount++;
+                                        $mcqMarks += $q->marks;
+                                    } elseif (!$isEmpty) {
+                                        $wrongCount++;
+                                    }
                                 }
                             }
-                            // Not yet reviewed = pending, no count change
-                        }
-                    }
 
-                    $totalSubjectiveMarks = $subjectiveQuestions->sum('marks');
-                    $pendingReviewCount   = $subjectiveAnswers->count() - $reviewedAnswers->count();
-                    $totalObtained        = $mcqMarks + $subjectiveMarksObtained;
-                    // $totalObtained = $answeredQuestions->count() > 0
-                    //     ? round(($exam->total_marks / $answeredQuestions->count()) * $correctCount, 2)
-                    //     : 0;
-                    $totalPossible        = $exam->total_marks;
-                    $percentage           = $totalPossible > 0 ? round(($totalObtained / $totalPossible) * 100, 1) : 0;
-                    $isPassed             = $totalObtained >= ($exam->passing_marks ?? 0);
-                @endphp
+                            $totalSubjectiveMarks = $subjectiveQuestions->sum('marks');
+                            $pendingReviewCount   = $subjectiveAnswers->count() - $reviewedAnswers->count();
+                            $totalObtained        = $mcqMarks + $subjectiveMarksObtained;
+                            // ✅ Sum marks of ASSIGNED questions — never $exam->total_marks
+                            $totalPossible        = $allQuestions->sum('marks');
+                            $percentage           = $totalPossible > 0
+                                ? round(($totalObtained / $totalPossible) * 100, 1) : 0;
+                            $isPassed             = $totalObtained >= ($exam->passing_marks ?? 0);
+                        }
+
+                        // Unanswered count — count from actual answer rows (null or blank)
+                        $unansweredCount = $answers->filter(
+                            fn($a) => is_null($a->answer) || trim($a->answer) === ''
+                        )->count();
+                    @endphp
 
                     <ul class="list-group small mb-3">
 
-                        {{-- Exam Info --}}
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Course</span>
                             <strong class="text-end">{{ $exam->course->course_title }}</strong>
@@ -306,21 +313,20 @@
                         </li>
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Total Marks</span>
-                            <strong>{{ intval($exam->total_marks) }}</strong>
+                            {{-- ✅ $totalPossible = assigned questions sum, e.g. 26 not 43 --}}
+                            <strong>{{ intval($totalPossible) }}</strong>
                         </li>
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Passing Marks</span>
                             <strong>{{ intval($exam->passing_marks) }}</strong>
                         </li>
 
-                        {{-- Divider --}}
                         <li class="list-group-item bg-light py-1">
                             <small class="fw-semibold text-muted">Questions</small>
                         </li>
-
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Total Questions</span>
-                            <span class="badge bg-dark rounded-pill">{{ $answeredQuestions->count() }}</span>
+                            <span class="badge bg-dark rounded-pill">{{ $allQuestions->count() }}</span>
                         </li>
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Correct Answered</span>
@@ -335,11 +341,9 @@
                             <span class="badge bg-secondary rounded-pill">{{ $unansweredCount }}</span>
                         </li>
 
-                        {{-- Divider --}}
                         <li class="list-group-item bg-light py-1">
                             <small class="fw-semibold text-muted">Breakdown</small>
                         </li>
-
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Total MCQ</span>
                             <span class="badge bg-dark rounded-pill">{{ $mcqQuestions->count() }}</span>
@@ -349,11 +353,9 @@
                             <span class="badge bg-dark rounded-pill">{{ $subjectiveQuestions->count() }}</span>
                         </li>
 
-                        {{-- Divider --}}
                         <li class="list-group-item bg-light py-1">
                             <small class="fw-semibold text-muted">Marks</small>
                         </li>
-
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">MCQ Marks</span>
                             <strong>{{ $mcqMarks }} / {{ $totalMcqMarks }}</strong>
@@ -361,44 +363,42 @@
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Subjective Marks</span>
                             @if($subjectiveQuestions->count() === 0)
-                            <strong>N/A</strong>
+                                <strong>N/A</strong>
                             @elseif($allReviewed)
-                            <strong>{{ $subjectiveMarksObtained }} / {{ $totalSubjectiveMarks }}</strong>
+                                <strong>{{ $subjectiveMarksObtained }} / {{ $totalSubjectiveMarks }}</strong>
                             @else
-                            <span class="badge bg-warning text-dark">
-                                <i class="bi bi-hourglass-split me-1"></i>{{ $pendingReviewCount }} Pending
-                            </span>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-hourglass-split me-1"></i>{{ $pendingReviewCount }} Pending
+                                </span>
                             @endif
                         </li>
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Total Obtained</span>
-                            {{-- <strong>{{ $totalObtained }} / {{ $totalPossible }}</strong> --}}
-                            <strong>{{ number_format($totalObtained, 2) }} / {{ number_format($exam->total_marks, 2) }}</strong>
+                            {{-- ✅ $totalPossible = assigned questions marks sum --}}
+                            <strong>{{ number_format($totalObtained, 2) }} / {{ number_format($totalPossible, 2) }}</strong>
                         </li>
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Percentage</span>
                             <strong>{{ $percentage }}%</strong>
                         </li>
 
-                        {{-- Divider --}}
                         <li class="list-group-item bg-light py-1">
                             <small class="fw-semibold text-muted">Result</small>
                         </li>
-
                         <li class="list-group-item d-flex align-items-center justify-content-between">
                             <span class="text-muted">Status</span>
                             @if(!$allReviewed && $subjectiveQuestions->count() > 0)
-                            <span class="badge bg-warning text-dark">
-                                <i class="bi bi-hourglass-split me-1"></i>Pending Review
-                            </span>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-hourglass-split me-1"></i>Pending Review
+                                </span>
                             @elseif($isPassed)
-                            <span class="badge bg-success">
-                                <i class="bi bi-trophy me-1"></i>Passed
-                            </span>
+                                <span class="badge bg-success">
+                                    <i class="bi bi-trophy me-1"></i>Passed
+                                </span>
                             @else
-                            <span class="badge bg-danger">
-                                <i class="bi bi-x-circle me-1"></i>Failed
-                            </span>
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i>Failed
+                                </span>
                             @endif
                         </li>
 
@@ -411,7 +411,9 @@
                             <span>{{ $percentage }}%</span>
                         </div>
                         <div class="progress" style="height: 10px;">
-                            <div class="progress-bar {{ $allReviewed ? ($isPassed ? 'bg-success' : 'bg-danger') : 'bg-warning' }}" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar {{ $allReviewed ? ($isPassed ? 'bg-success' : 'bg-danger') : 'bg-warning' }}"
+                                 role="progressbar" style="width: {{ $percentage }}%"
+                                 aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100">
                             </div>
                         </div>
                         @if(!$allReviewed && $subjectiveQuestions->count() > 0)

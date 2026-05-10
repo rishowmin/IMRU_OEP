@@ -75,13 +75,31 @@
                             <strong>Q{{ $i + 1 }}:</strong> {{ $answer->question->question_text }}
                         </p>
 
-                        {{-- Student Answer --}}
-                        <div class="p-3 bg-light rounded border mb-3">
-                            <small class="text-muted d-block mb-1">
-                                <i class="bi bi-person me-1"></i>Student Answer:
-                            </small>
-                            <p class="mb-0">{{ $answer->answer ?? 'No answer provided.' }}</p>
+                        <div class="row">
+
+                            <div class="col-sm-6 mb-3">
+                                {{-- Student Answer --}}
+                                <div class="p-3 bg-light rounded border h-100">
+                                    <small class="text-muted fw-semibold d-block mb-1">
+                                        <i class="bi bi-person me-1"></i>Student Answer:
+                                    </small>
+                                    <p class="mb-0">{{ $answer->answer ?? 'No answer provided.' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                {{-- Correct Answer --}}
+                                <div class="p-3 bg-light rounded border border-success bg-success-subtle h-100">
+                                    <small class="text-success fw-semibold d-block mb-1">
+                                        <i class="bi bi-check2-circle me-1"></i>Correct Answer:
+                                    </small>
+                                    <p class="mb-0">{{ $answer->question->correct_answer ?? 'No correct answer provided.' }}</p>
+                                </div>
+                            </div>
+
                         </div>
+
+
 
                         <input type="hidden" name="reviews[{{ $i }}][exam_answer_id]" value="{{ $answer->id }}">
 

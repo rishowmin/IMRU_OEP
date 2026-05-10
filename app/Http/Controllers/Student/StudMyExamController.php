@@ -7,13 +7,23 @@ use App\Models\Academic\AcaEnrollment;
 use App\Models\Academic\AcaExam;
 use App\Models\Academic\AcaExamAnswer;
 use App\Models\Academic\AcaExamAttempt;
+use App\Models\Academic\AcaExamResult;
 use App\Models\Academic\AcaExamRuleMap;
+use App\Models\Academic\AcaQuestion;
+use App\Services\ExamGradingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\Academic\AcaQuestion;
+use Illuminate\Support\Facades\Log;
 
 class StudMyExamController extends Controller
 {
+    protected ExamGradingService $gradingService;
+
+    public function __construct(ExamGradingService $gradingService)
+    {
+        $this->gradingService = $gradingService;
+    }
+
     public function index()
     {
         $myCourseEnrollment = AcaEnrollment::where('student_id', auth()->id())
@@ -142,12 +152,11 @@ class StudMyExamController extends Controller
 
     public function storeAnswer(Request $request, AcaExam $exam)
     {
-        $examId = $exam->id;
-        $student = auth()->id();
-        $isStopped = $request->input('stopped', '0') === '1';
-        $stopReason = $request->input('stop_reason', null); // new field
+        $examId     = $exam->id;
+        $student    = auth()->id();
+        $isStopped  = $request->input('stopped', '0') === '1';
+        $stopReason = $request->input('stop_reason', null);
 
-        // Ensure student is enrolled
         $isEnrolled = AcaEnrollment::where('student_id', $student)
             ->where('course_id', $exam->course_id)
             ->exists();
@@ -157,8 +166,7 @@ class StudMyExamController extends Controller
                 ->with('error', 'You are not enrolled in this course.');
         }
 
-        // Validate exam is still ongoing
-        $now = now();
+        $now     = now();
         $startDT = Carbon::parse(
             $exam->exam_date->toDateString() . ' ' . Carbon::parse($exam->start_time)->format('H:i:s')
         );
@@ -171,7 +179,6 @@ class StudMyExamController extends Controller
                 ->with('error', 'Exam is not available for submission.');
         }
 
-        // Prevent re-submission
         $alreadySubmitted = AcaExamAnswer::where('student_id', $student)
             ->where('exam_id', $examId)
             ->exists();
@@ -181,68 +188,84 @@ class StudMyExamController extends Controller
                 ->with('error', 'You have already submitted this exam.');
         }
 
-        // Validate answers
         $request->validate([
             'answers'     => ['nullable', 'array'],
             'answers.*'   => ['nullable', 'string'],
             'stop_reason' => ['nullable', 'string'],
-            ]);
+        ]);
 
-        $answers = $request->input('answers', []);
-
-        // Security: only allow question IDs that belong to this exam
+        // ── Security: fetch all valid question IDs for this exam ──────────
         $validQuestionIds = AcaQuestion::where('exam_id', $examId)
             ->pluck('id')
+            ->map(fn($id) => (int) $id)
             ->toArray();
 
-        $answers = array_filter(
-            $answers,
-            fn($qId) => in_array((int) $qId, $validQuestionIds),
-            ARRAY_FILTER_USE_KEY
+        // ── The form submits ALL assigned question IDs as keys (via hidden inputs).
+        //    answered   → value = text/option
+        //    unanswered → value = "" (empty string from hidden input)
+        //    We store both; empty string is normalised to null.
+        $submittedAnswers = $request->input('answers', []);
+
+        // Only keep IDs that truly belong to this exam (security check)
+        $assignedQuestionIds = array_filter(
+            array_map('intval', array_keys($submittedAnswers)),
+            fn($id) => in_array($id, $validQuestionIds)
         );
 
         $records = [];
-        $now = now();
+        $now     = now();
 
-        foreach ($answers as $questionId => $answerText) {
+        foreach ($assignedQuestionIds as $questionId) {
+            $answerText = $submittedAnswers[$questionId] ?? null;
+
+            // Blank string (unanswered) → null
+            if (is_string($answerText) && trim($answerText) === '') {
+                $answerText = null;
+            }
+
             $records[] = [
                 'student_id'  => $student,
                 'exam_id'     => $examId,
-                'question_id' => (int) $questionId,
-                'answer'      => $answerText,
+                'question_id' => $questionId,
+                'answer'      => $answerText,   // null if unanswered
                 'created_at'  => $now,
                 'updated_at'  => $now,
             ];
         }
 
+        // Insert all 10 rows (answered + unanswered)
         AcaExamAnswer::insert($records);
 
         AcaExamAttempt::updateOrCreate(
-            [
-                'student_id' => $student,
-                'exam_id'    => $examId,
-            ],
-            [
-                'submitted_at' => $now,
-                'status'       => 'Old',
-                'is_active'    => true,
-            ]
+            ['student_id' => $student, 'exam_id' => $examId],
+            ['submitted_at' => $now, 'status' => 'Old', 'is_active' => true]
         );
 
+        // ✅ AUTO-GRADE immediately after submission
+        try {
+            $this->gradingService->gradeStudent($exam, $student);
+        } catch (\Throwable $e) {
+            Log::error('Auto-grading failed after submission', [
+                'exam_id'    => $exam->id,
+                'student_id' => $student,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
         if ($isStopped) {
-            $message = match($stopReason) {
-                'back_button'  => 'Exam stopped: You pressed the browser back button.',
-                'manual_stop'  => 'Exam stopped: You manually stopped the exam.',
-                'url_change'   => 'Exam stopped: You attempted to navigate away from the exam.',
-                'timer_expired'=> 'Exam auto-submitted: Your exam time has expired.',
-                default        => 'Exam stopped. Your answers have been recorded.',
+            $message = match ($stopReason) {
+                'back_button'   => 'Exam stopped: You pressed the browser back button.',
+                'manual_stop'   => 'Exam stopped: You manually stopped the exam.',
+                'url_change'    => 'Exam stopped: You attempted to navigate away from the exam.',
+                'timer_expired' => 'Exam auto-submitted: Your exam time has expired.',
+                default         => 'Exam stopped. Your answers have been recorded.',
             };
 
             return redirect()->route('student.myExams')->with('error', $message);
         }
 
         return redirect()->route('student.myExams')
-            ->with('success', 'Exam submitted successfully!');
+            ->with('success', 'Exam submitted successfully! Your result will be available once grading is complete.');
     }
 
     public function viewResult(AcaExam $exam)
@@ -270,7 +293,12 @@ class StudMyExamController extends Controller
                 ->with('error', 'You have not submitted this exam yet.');
         }
 
-        // Calculate review summary
+        // ✅ Load result from aca_exam_results — has correct total_marks
+        //    based on assigned questions only, NOT $exam->total_marks
+        $result = AcaExamResult::where('exam_id', $exam->id)
+            ->where('student_id', $student)
+            ->first();
+
         $subjectiveAnswers = $answers->filter(fn($a) =>
             in_array($a->question?->question_type, ['short_question', 'long_question'])
         );
@@ -280,15 +308,59 @@ class StudMyExamController extends Controller
         $subjectiveMarksObtained = $reviewedAnswers->sum(fn($a) => $a->reviewAnswer->marks_awarded ?? 0);
 
         $allReviewed = $subjectiveAnswers->count() > 0 &&
-                    $subjectiveAnswers->count() === $reviewedAnswers->count();
+                       $subjectiveAnswers->count() === $reviewedAnswers->count();
 
         return view('student.myExams.view_result', compact(
             'exam',
+            'result',                    // ✅ NEW — null-safe, blade handles fallback
             'answers',
             'subjectiveAnswers',
             'reviewedAnswers',
             'subjectiveMarksObtained',
             'allReviewed'
+        ));
+    }
+
+    public function myResult(AcaExam $exam)
+    {
+        $student = auth()->id();
+
+        $isEnrolled = AcaEnrollment::where('student_id', $student)
+            ->where('course_id', $exam->course_id)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'You are not enrolled in this course.');
+        }
+
+        $result = AcaExamResult::where('exam_id', $exam->id)
+            ->where('student_id', $student)
+            ->first();
+
+        if (!$result) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'Your result is not available yet.');
+        }
+
+        $rank = AcaExamResult::where('exam_id', $exam->id)
+            ->where('percentage', '>', $result->percentage)
+            ->count() + 1;
+
+        $totalStudents = AcaExamResult::where('exam_id', $exam->id)->count();
+
+        $answers = AcaExamAnswer::where('exam_id', $exam->id)
+            ->where('student_id', $student)
+            ->with(['question', 'reviewAnswer'])
+            ->orderBy('id')
+            ->get();
+
+        return view('student.myExams.my_result', compact(
+            'exam',
+            'result',
+            'answers',
+            'rank',
+            'totalStudents'
         ));
     }
 

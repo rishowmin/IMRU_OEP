@@ -68,6 +68,7 @@ class AcaExamSetController extends Controller
         $validated = $request->validate([
             'title'            => 'required|string|max:200',
             'topic'            => 'required|string|max:100',
+            'question_type'    => 'required|string|max:100',
             'total_questions'  => 'required|integer|min:5|max:200',
             'easy_percent'     => 'required|integer|min:0|max:100',
             'medium_percent'   => 'required|integer|min:0|max:100',
@@ -122,17 +123,58 @@ class AcaExamSetController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // Update Question Marks
+    // -------------------------------------------------------------------------
+
+    public function updateMarks(Request $request, AcaExamSet $examSet)
+    {
+        $request->validate([
+            'marks'   => ['required', 'array'],
+            'marks.*' => ['required', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        if ($examSet->published_exam_id) {
+            return back()->with('error', 'Cannot update marks — this exam set is already published.');
+        }
+
+        try {
+            $validIds    = array_flip($examSet->question_ids ?? []);
+            $customMarks = [];
+            $totalMarks  = 0;
+
+            foreach ($request->input('marks', []) as $questionId => $mark) {
+                if (!isset($validIds[(int) $questionId])) continue;
+
+                // ✅ Store as string key (JSON always stores keys as strings)
+                $customMarks[(string) $questionId] = (float) $mark;
+                $totalMarks += (float) $mark;
+            }
+
+            // ✅ Save to exam_set — never touch aca_question_libraries
+            $examSet->update([
+                'custom_marks' => $customMarks,
+                'total_marks'  => $totalMarks,
+                'updated_by'   => auth()->id(),
+            ]);
+
+            return back()->with('success', 'Marks saved. Total marks: ' . $totalMarks);
+
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to update marks: ' . $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Publish to aca_exams & aca_questions
     // -------------------------------------------------------------------------
 
     public function publishToExam(Request $request, AcaExamSet $examSet)
     {
         $request->validate([
-            'course_id'       => ['required', 'integer', 'exists:aca_courses,id'],
-            'exam_date'       => ['nullable', 'date'],
-            'start_time'      => ['nullable', 'date_format:H:i'],
-            'end_time'        => ['nullable', 'date_format:H:i'],
-            'total_questions' => ['nullable', 'integer', 'min:1', 'max:' . $examSet->total_questions],
+            'course_id'  => ['required', 'integer', 'exists:aca_courses,id'],
+            'exam_date'  => ['nullable', 'date'],
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time'   => ['nullable', 'date_format:H:i'],
         ]);
 
         if ($examSet->status !== 'active') {
@@ -146,17 +188,24 @@ class AcaExamSetController extends Controller
         try {
             DB::beginTransaction();
 
-            // $questions = $examSet->getQuestionsInOrder()->take($useCount);
-            $questions = $examSet->getQuestionsInOrder(); // no ->take()
-
+            $questions = $examSet->getQuestionsInOrder();
 
             $useCount   = $request->filled('total_questions')
                             ? (int) $request->total_questions
                             : $examSet->total_questions;
 
+            // ✅ Normalize custom_marks keys to string for reliable lookup
+            $customMarks = collect($examSet->custom_marks ?? [])
+                ->mapWithKeys(fn($mark, $id) => [(string) $id => (float) $mark])
+                ->toArray();
 
-            // Calculate total_marks from actual questions — not from request
-            $totalMarks = $questions->sum('marks');
+            // ✅ Total marks = only for the questions student will see (useCount)
+            // Take first $useCount questions for marks calculation
+            $studentQuestions = $questions->take($useCount);
+
+            $totalMarks = $studentQuestions->sum(function ($lib) use ($customMarks) {
+                return $customMarks[(string) $lib->id] ?? (float) ($lib->marks ?? 1);
+            });
 
             $exam = AcaExam::create([
                 'course_id'         => $request->course_id,
@@ -167,10 +216,10 @@ class AcaExamSetController extends Controller
                 'start_time'        => $request->start_time,
                 'end_time'          => $request->end_time,
                 'exam_duration_min' => $examSet->duration_minutes,
-                'total_marks'       => $totalMarks,                          // from questions
-                'passing_marks'     => round($totalMarks * 0.4, 2),          // 40% of actual marks
+                'total_marks'       => $totalMarks,
+                'passing_marks'     => round($totalMarks * 0.4, 2),
                 'total_questions'   => $useCount,
-                'comments'          => 'AI-generated exam. Easy: ' . $examSet->easy_count
+                'comments'          => 'AI-generated. Easy: ' . $examSet->easy_count
                                     . ', Medium: ' . $examSet->medium_count
                                     . ', Hard: ' . $examSet->hard_count . '.',
                 'is_active'         => true,
@@ -178,6 +227,10 @@ class AcaExamSetController extends Controller
             ]);
 
             foreach ($questions as $index => $lib) {
+
+                // ✅ THIS is the key line — use custom mark if admin set it, else library mark
+                $assignedMark = $customMarks[(string) $lib->id] ?? (float) ($lib->marks ?? 1);
+
                 $copiedFigure = null;
                 if ($lib->question_figure) {
                     $sourcePath = public_path('storage/question_figure/library/' . $lib->question_figure);
@@ -196,7 +249,7 @@ class AcaExamSetController extends Controller
                     'question_type'    => $lib->question_type,
                     'question_text'    => $lib->question_text,
                     'difficulty_level' => $lib->difficulty_level ?? 'medium',
-                    'marks'            => $lib->marks ?? 1,
+                    'marks'            => $assignedMark,   // ✅ custom mark used here
                     'evaluation_type'  => $lib->correct_answer ? 'automatic' : 'manual',
                     'option_a'         => $lib->option_a,
                     'option_b'         => $lib->option_b,

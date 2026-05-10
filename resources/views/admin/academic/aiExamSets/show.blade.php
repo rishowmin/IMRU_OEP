@@ -56,33 +56,61 @@
 <section class="section">
 
     {{-- Stats --}}
-    <div class="row mb-3">
-        <div class="col-6 col-md-3">
-            <div class="card text-center mb-0">
+    <div class="row g-2 mb-3 mb-md-0">
+        <div class="col-6 col-md-3 mb-0 mb-md-3">
+            <div class="card text-center mb-0 h-100">
+                <div class="card-body">
+                    <div class="fs-3 fw-bold text-theme">
+                        @if ($examSet->question_type === 'objective')
+                        Objective
+                        @elseif ($examSet->question_type === 'subjective')
+                        Subjective
+                        @elseif ($examSet->question_type === 'mcq_4')
+                        MCQ <small class="text-muted">(4)</small>
+                        @elseif ($examSet->question_type === 'mcq_2')
+                        MCQ <small class="text-muted fs-5">(2)</small>
+                        @elseif ($examSet->question_type === 'short_question')
+                        Short
+                        @elseif ($examSet->question_type === 'long_question')
+                        Long
+                        @else
+                        ALL
+                        @endif
+                    </div>
+                    <div class="text-muted small fw-semibold">Question Type</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3 mb-0 mb-md-3">
+            <div class="card text-center mb-0 h-100">
                 <div class="card-body">
                     <div class="fs-2 fw-bold text-primary">{{ $examSet->total_questions }}</div>
                     <div class="text-muted small fw-semibold">Questions</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card text-center mb-0">
+
+        <div class="col-4 col-md-2 mb-0 mb-md-3">
+            <div class="card text-center mb-0 h-100">
                 <div class="card-body">
                     <div class="fs-2 fw-bold text-success">{{ $examSet->easy_count }}</div>
                     <div class="text-muted small fw-semibold">Easy</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card text-center mb-0">
+
+        <div class="col-4 col-md-2 mb-0 mb-md-3">
+            <div class="card text-center mb-0 h-100">
                 <div class="card-body">
                     <div class="fs-2 fw-bold text-warning">{{ $examSet->medium_count }}</div>
                     <div class="text-muted small fw-semibold">Medium</div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card text-center mb-0">
+
+        <div class="col-4 col-md-2 mb-0 mb-md-3">
+            <div class="card text-center mb-0 h-100">
                 <div class="card-body">
                     <div class="fs-2 fw-bold text-danger">{{ $examSet->hard_count }}</div>
                     <div class="text-muted small fw-semibold">Hard</div>
@@ -91,7 +119,7 @@
         </div>
     </div>
 
-    <div class="row mb-3">
+    <div class="row g-2 mb-3">
         <div class="col-lg-12">
             @if($examSet->ai_reasoning)
             <div class="ai-reasoning-box">
@@ -105,7 +133,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-3">
 
         <div class="col-lg-8">
             <div class="card">
@@ -115,6 +143,12 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-list-check text-theme fs-5"></i>
                             <h5 class="mb-0 fw-bold text-theme">Selected Questions</h5>
+                            {{-- Total marks live counter --}}
+                            {{-- @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                            <span class="badge bg-primary ms-2">
+                                Total: <span id="liveTotalMarks">{{ $examSet->total_marks }}</span> marks
+                            </span>
+                            @endif --}}
                         </div>
                         <div class="btn-group w-50" role="group">
                             <button class="btn btn-sm btn-outline-secondary w-25 active" onclick="filterDiff('')" id="filter-all">All</button>
@@ -125,69 +159,101 @@
                     </div>
                 </div>
 
-                <div class="card-body p-3">
-                    <div id="question-list" class="d-flex flex-column gap-2">
-                        @forelse($questions as $index => $question)
-                        <div class="question-card border mb-2 overflow-hidden {{ $question->difficulty_level }}" data-difficulty="{{ $question->difficulty_level }}">
+                {{-- Marks edit form (only when active + not published) --}}
+                @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                <form id="marksForm"
+                    action="{{ route('admin.academic.aiExamSets.updateMarks', $examSet) }}"
+                    method="POST">
+                    @csrf
+                @endif
 
-                            {{-- Question header strip --}}
-                            <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-light">
+                    <div class="card-body p-3">
+                        <div id="question-list" class="d-flex flex-column gap-2">
+                            @forelse($questions as $index => $question)
+                            <div class="question-card border mb-2 overflow-hidden {{ $question->difficulty_level }}"
+                                data-difficulty="{{ $question->difficulty_level }}">
 
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-semibold text-dark small">Q{{ $index + 1 }}.</span>
-                                    <span class="badge rounded-pill
-                                        @if($question->difficulty_level === 'easy') bg-success
-                                        @elseif($question->difficulty_level === 'medium') bg-warning text-dark
-                                        @else bg-danger @endif">
-                                        {{ ucfirst($question->difficulty_level) }}
-                                    </span>
-                                    <span class="badge bg-info text-dark rounded-pill small">
-                                        @if($question->question_type == 'mcq_2')
-                                        MCQ (2 options)
-                                        @elseif($question->question_type == 'mcq_4')
-                                        MCQ (4 options)
-                                        @elseif ($question->question_type == 'short_question')
-                                        Short Question
-                                        @elseif ($question->question_type == 'long_question')
-                                        Long Question
+                                {{-- Question header strip --}}
+                                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-light">
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-semibold text-dark small">Q{{ $index + 1 }}.</span>
+                                        <span class="badge rounded-pill
+                                            @if($question->difficulty_level === 'easy') bg-success
+                                            @elseif($question->difficulty_level === 'medium') bg-warning text-dark
+                                            @else bg-danger @endif">
+                                            {{ ucfirst($question->difficulty_level) }}
+                                        </span>
+                                        <span class="badge bg-info text-dark rounded-pill small">
+                                            @if($question->question_type == 'mcq_2') MCQ (2 options)
+                                            @elseif($question->question_type == 'mcq_4') MCQ (4 options)
+                                            @elseif($question->question_type == 'short_question') Short Question
+                                            @elseif($question->question_type == 'long_question') Long Question
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    {{-- ✅ MARKS: editable if active, readonly if not --}}
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                                            {{-- Editable input --}}
+                                            <input type="number" name="marks[{{ $question->id }}]" class="form-control form-control-sm marks-input text-end" style="width: 70px;" value="{{ $question->marks ?? 1 }}" min="0" max="100" step="0.5" data-original="{{ $question->marks ?? 1 }}" oninput="recalcTotal()">
+                                        @else
+                                            {{-- Read-only display --}}
+                                            <span class="fw-semibold text-muted small">{{ $question->marks ?? 1 }}</span>
                                         @endif
-                                    </span>
+                                        <span class="text-muted small">mark{{ ($question->marks ?? 1) != 1 ? 's' : '' }}</span>
+                                    </div>
+
                                 </div>
 
-                                <span class="text-muted small fw-semibold">
-                                    {{ $question->marks ?? 1 }} mark{{ ($question->marks ?? 1) != 1 ? 's' : '' }}
-                                </span>
-                            </div>
+                                {{-- Question body --}}
+                                <div class="px-3 py-3 bg-body">
+                                    <p class="mb-0 fw-semibold lh-base">{!! $question->question_text !!}</p>
 
-                            {{-- Question body --}}
-                            <div class="px-3 py-3 bg-body">
-                                <p class="mb-0 fw-semibold lh-base">{!! $question->question_text !!}</p>
-
-                                @if($question->option_a)
-                                <div class="row g-2 mt-2">
-                                    @foreach(['a' => $question->option_a, 'b' => $question->option_b, 'c' => $question->option_c, 'd' => $question->option_d] as $key => $opt)
-                                    @if($opt)
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start gap-2 bg-body-secondary rounded-2 px-2 py-1 h-100">
-                                            <span class="badge bg-secondary-subtle text-secondary fw-bold">{{ strtoupper($key) }}</span>
-                                            <span class="small text-muted">{{ $opt }}</span>
+                                    @if($question->option_a)
+                                    <div class="row g-2 mt-2">
+                                        @foreach(['a' => $question->option_a, 'b' => $question->option_b, 'c' => $question->option_c, 'd' => $question->option_d] as $key => $opt)
+                                        @if($opt)
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start gap-2 bg-body-secondary rounded-2 px-2 py-1 h-100">
+                                                <span class="badge bg-secondary-subtle text-secondary fw-bold">{{ strtoupper($key) }}</span>
+                                                <span class="small text-muted">{{ $opt }}</span>
+                                            </div>
                                         </div>
+                                        @endif
+                                        @endforeach
                                     </div>
                                     @endif
-                                    @endforeach
                                 </div>
-                                @endif
-                            </div>
 
+                            </div>
+                            @empty
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No questions found in this exam set.
+                            </div>
+                            @endforelse
                         </div>
-                        @empty
-                        <div class="text-center text-muted py-5">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                            No questions found in this exam set.
-                        </div>
-                        @endforelse
                     </div>
-                </div>
+
+                    {{-- Save marks button (only when active) --}}
+                    @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Adjust marks per question then save before publishing.
+                        </small>
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-floppy me-1"></i> Save Marks
+                        </button>
+                    </div>
+                    @endif
+
+                {{-- Close form if active --}}
+                @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                </form>
+                @endif
 
             </div>
         </div>
@@ -219,8 +285,14 @@
 
                 <div class="card-footer py-1">
                     <div class="d-flex justify-content-between">
-                        <small class="text-muted">Total marks</small>
-                        <strong>{{ $examSet->total_marks }}</strong>
+                        <small class="text-muted">Total Marks</small>
+                        <strong>
+                            @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                            <span id="liveTotalMarks">{{ $examSet->total_marks }}</span> marks
+                            @else
+                            {{ $examSet->total_marks }} marks
+                            @endif
+                        </strong>
                     </div>
                     <div class="d-flex justify-content-between">
                         <small class="text-muted">Duration</small>
@@ -299,9 +371,9 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small">Total Questions</label>
+                            <label class="form-label fw-semibold small">Total Q. for Exam</label>
                             <input type="number" name="total_questions" class="form-control form-control-sm" min="1" max="{{ $examSet->total_questions }}">
-                            <small class="text-muted">{{ $examSet->total_questions }}</small>
+                            <small class="text-muted">{{ $examSet->total_questions }} questions generated</small>
                         </div>
 
                         <button type="button" class="btn btn-success btn-sm w-100 fw-semibold" id="openPublishModal">
@@ -350,7 +422,10 @@
 
 @endsection
 
+
+
 @section('scripts')
+
 <script>
     function filterDiff(diff) {
         document.querySelectorAll('#question-list .question-card').forEach(card => {
@@ -394,4 +469,28 @@
         document.getElementById('publishExamForm').submit();
     });
 </script>
+
+<script>
+    // Live total marks counter
+    function recalcTotal() {
+        const inputs = document.querySelectorAll('.marks-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        const el = document.getElementById('liveTotalMarks');
+        if (el) el.textContent = total.toFixed(total % 1 === 0 ? 0 : 1);
+    }
+
+    // Highlight changed marks inputs
+    document.querySelectorAll('.marks-input').forEach(input => {
+        input.addEventListener('input', function () {
+            const original = parseFloat(this.dataset.original);
+            const current  = parseFloat(this.value);
+            this.classList.toggle('border-warning', current !== original);
+            this.classList.toggle('text-warning',   current !== original);
+        });
+    });
+</script>
+
 @endsection

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Academic\AcaExamAttemptController;
 use App\Http\Controllers\Admin\Academic\AcaExamController;
 use App\Http\Controllers\Admin\Academic\AcaExamRuleController;
 use App\Http\Controllers\Admin\Academic\AcaExamSetController;
+use App\Http\Controllers\Admin\Academic\AcaPerformanceController;
 use App\Http\Controllers\Admin\Academic\AcaProctoringController;
 use App\Http\Controllers\Admin\Academic\AcaQuestionController;
 use App\Http\Controllers\Admin\Academic\AcaQuestionLibraryController;
@@ -160,9 +161,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::post('/store', 'store')->name('admin.academic.aiExamSets.store');
             Route::get('/show/id={examSet}', 'show')->name('admin.academic.aiExamSets.show');
             Route::delete('/id={examSet}', 'destroy')->name('admin.academic.aiExamSets.destroy');
-            
+
             Route::patch('/id={examSet}/status', 'updateStatus')->name('admin.academic.aiExamSets.status');
             Route::post('/id={examSet}/publish', 'publishToExam')->name('admin.academic.aiExamSets.publish');
+            Route::post('/id={examSet}/update-marks', 'updateMarks')->name('admin.academic.aiExamSets.updateMarks');
         });
 
         // Teacher
@@ -214,6 +216,16 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.reviewAnswer.store');
         });
 
+        // Performance & Grading
+        Route::prefix('performance')->controller(AcaPerformanceController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.performance.index');
+            Route::get('/exam/id={exam}', 'examAnalytics')->name('admin.academic.performance.examAnalytics');
+            Route::get('/exam/id={exam}/student/id={student}', 'studentReport')->name('admin.academic.performance.studentReport');
+            Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.performance.store');
+            Route::get('/exam/id={exam}/regrade', 'retriggerGrading')->name('admin.academic.performance.retriggerGrading');
+            Route::get('/exam/id={exam}/student/id={student}/regrade', 'studentReport')->name('admin.academic.performance.retriggerStudentGrading');
+        });
+
         // Proctoring Reports
         Route::prefix('proctoring')->controller(AcaProctoringController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.proctoring.index');
@@ -248,12 +260,13 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
     });
 
     // My Exams
-    Route::prefix('myExams')->controller(StudMyExamController::class)->group(function () {
+    Route::prefix('my-exams')->controller(StudMyExamController::class)->group(function () {
         Route::get('/', 'index')->name('student.myExams');
         Route::get('/details/id={exam}', 'show')->name('student.myExams.show');
         Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
         Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
         Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
+        Route::get('/my-result/id={exam}', 'myResult')->name('student.myExams.myResult');
         Route::get('/rules/id={exam}', 'examRules')->name('student.myExams.rule');
     });
 

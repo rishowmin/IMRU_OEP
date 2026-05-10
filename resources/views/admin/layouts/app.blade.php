@@ -60,6 +60,7 @@
     <script src="{{ asset('assets/admin/vendor/select2/dist/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendor/tinymce/tinymce.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendor/php-email-form/validate.js') }}"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script> --}}
 
     <!-- Main JS File -->
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>

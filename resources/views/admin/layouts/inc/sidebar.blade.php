@@ -172,6 +172,15 @@
         </li>
         {{-- End Review Answer Nav --}}
 
+        {{-- Start Performance Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.performance*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.performance.index') }}">
+                <i class="bi bi-graph-up"></i>
+                <span>Performance</span>
+            </a>
+        </li>
+        {{-- End Performance Nav --}}
+
         {{-- Start Proctoring Monitor Nav --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('admin.academic.proctoring*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.proctoring.index') }}">

@@ -21,17 +21,23 @@ class AiExamGeneratorService
 
     public function generate(array $config): AcaExamSet
     {
-        $questions = $this->fetchCandidateQuestions($config['topic']);
+        // Pass question_type to fetch
+        $questions = $this->fetchCandidateQuestions(
+            $config['topic'],
+            $config['question_type'] ?? 'All'
+        );
 
         if ($questions->isEmpty()) {
-            throw new \RuntimeException("No active questions found for topic: {$config['topic']}");
+            throw new \RuntimeException(
+                "No active questions found for topic: \"{$config['topic']}\" and type: \"{$config['question_type']}\"."
+            );
         }
 
         $targets = $this->calculateTargetCounts(
             $config['total_questions'],
             $config['easy_percent'],
             $config['medium_percent'],
-            $config['hard_percent']
+            $config['hard_percent'],
         );
 
         $aiResult = $this->callAiForSelection($questions, $targets, $config);
@@ -70,16 +76,28 @@ class AiExamGeneratorService
     // Private helpers
     // -------------------------------------------------------------------------
 
-    private function fetchCandidateQuestions(string $topic): Collection
+    private function fetchCandidateQuestions(string $topic, string $questionType): Collection
     {
         $query = AcaQuestionLibrary::where('is_active', true)
             ->whereNull('deleted_at')
             ->select(['id', 'topic', 'question_type', 'question_text',
-                      'difficulty_level', 'marks']);   // removed unused option columns
+                    'difficulty_level', 'marks']);
 
+        // Filter by topic
         if (!in_array($topic, ['General', 'All'])) {
             $query->where('topic', $topic);
         }
+
+        // Filter by question type
+        match($questionType) {
+            'mcq_4'         => $query->where('question_type', 'mcq_4'),
+            'mcq_2'         => $query->where('question_type', 'mcq_2'),
+            'short_question'=> $query->where('question_type', 'short_question'),
+            'long_question' => $query->where('question_type', 'long_question'),
+            'objective'     => $query->whereIn('question_type', ['mcq_4', 'mcq_2']),
+            'subjective'    => $query->whereIn('question_type', ['short_question', 'long_question']),
+            default         => null, // 'All' — no filter
+        };
 
         return $query->get();
     }
@@ -226,63 +244,88 @@ class AiExamGeneratorService
 
         $validIds = $questions->pluck('id')->flip();
 
-        // Strip any IDs the AI hallucinated
+        // Strip hallucinated IDs from all arrays
         foreach (['easy_ids', 'medium_ids', 'hard_ids', 'selected_ids'] as $key) {
             if (!isset($result[$key]) || !is_array($result[$key])) {
                 $result[$key] = [];
             }
-            $result[$key] = array_values(array_filter(
+            $result[$key] = array_values(array_unique(array_filter(
                 $result[$key],
                 fn($id) => isset($validIds[$id])
-            ));
+            )));
         }
 
-        // Enforce exact counts per difficulty — trim or top up from the question pool
+        // ── Build a master "already used" tracker ──────────────────────────────
+        // Collect all IDs currently assigned across all difficulty buckets
+        $usedIds = array_unique(array_merge(
+            $result['easy_ids'],
+            $result['medium_ids'],
+            $result['hard_ids']
+        ));
+
+        // ── Enforce exact counts per difficulty ────────────────────────────────
         foreach (['easy' => 'easy_ids', 'medium' => 'medium_ids', 'hard' => 'hard_ids'] as $diff => $key) {
             $needed  = $targets[$diff];
             $current = $result[$key];
 
             if (count($current) > $needed) {
-                // AI returned too many — just trim
-                $result[$key] = array_slice($current, 0, $needed);
+                // Too many — trim and release the extra IDs back to the pool
+                $released        = array_slice($current, $needed);
+                $result[$key]    = array_slice($current, 0, $needed);
+                $usedIds         = array_values(array_diff($usedIds, $released));
 
             } elseif (count($current) < $needed) {
-                // AI returned too few — top up from the pool, avoiding already-selected IDs
-                $alreadyUsed = array_merge($result['easy_ids'], $result['medium_ids'], $result['hard_ids']);
+                $shortage = $needed - count($current);
+
+                // Try same difficulty first, then any difficulty
                 $extras = $questions
                     ->where('difficulty_level', $diff)
-                    ->whereNotIn('id', $alreadyUsed)
+                    ->whereNotIn('id', $usedIds)      // ← excludes ALL already used IDs
                     ->shuffle()
-                    ->take($needed - count($current))
-                    ->pluck('id')
-                    ->toArray();
+                    ->take($shortage);
 
-                $result[$key] = array_merge($current, $extras);
+                // If still not enough, pull from any difficulty
+                if ($extras->count() < $shortage) {
+                    $remaining = $shortage - $extras->count();
+                    $moreExtras = $questions
+                        ->whereNotIn('id', $usedIds)
+                        ->whereNotIn('id', $extras->pluck('id')->toArray())
+                        ->shuffle()
+                        ->take($remaining);
+                    $extras = $extras->merge($moreExtras);
+                }
 
-                Log::info("[Groq] Sanitize: topped up '{$diff}' by " . count($extras) . " questions");
+                $extraIds     = $extras->pluck('id')->toArray();
+                $result[$key] = array_values(array_unique(array_merge($current, $extraIds)));
+                $usedIds      = array_values(array_unique(array_merge($usedIds, $extraIds)));
+
+                Log::info("[Groq] Sanitize: topped up '{$diff}' by " . count($extraIds) . " questions");
             }
         }
 
-        // Rebuild selected_ids from the corrected difficulty lists
-        $result['selected_ids'] = array_merge(
+        // ── Rebuild selected_ids — no duplicates guaranteed ───────────────────
+        $result['selected_ids'] = array_values(array_unique(array_merge(
             $result['easy_ids'],
             $result['medium_ids'],
             $result['hard_ids']
-        );
+        )));
 
-        // Recalculate total_marks from actual selected questions
-        $selectedQuestions = $questions->whereIn('id', $result['selected_ids']);
-        $result['total_marks'] = $selectedQuestions->sum('marks');
+        // ── Recalculate total_marks ───────────────────────────────────────────
+        $result['total_marks'] = $questions
+            ->whereIn('id', $result['selected_ids'])
+            ->sum('marks');
 
         Log::info('[Groq] Sanitized result', [
             'easy'   => count($result['easy_ids']),
             'medium' => count($result['medium_ids']),
             'hard'   => count($result['hard_ids']),
             'total'  => count($result['selected_ids']),
+            'unique' => count(array_unique($result['selected_ids'])), // should match total
         ]);
 
         return $result;
     }
+
     private function prepareQuestionsForPrompt(Collection $questions): array
     {
         return $questions->map(fn($q) => [
@@ -304,7 +347,7 @@ class AiExamGeneratorService
         return <<<PROMPT
         Select questions for an academic exam. Respond ONLY with valid JSON, no markdown.
 
-        EXAM: {$config['title']} | Topic: {$config['topic']} | Duration: {$config['duration_minutes']} min
+        EXAM: {$config['title']} | Topic: {$config['topic']} | Question Type: {$config['question_type']} | Duration: {$config['duration_minutes']} min
         NEED: {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard (total: {$total})
 
         QUESTIONS:
@@ -363,6 +406,7 @@ class AiExamGeneratorService
         return AcaExamSet::create([
             'title'            => $config['title'],
             'topic'            => $config['topic'],
+            'question_type'    => $config['question_type'],
             'total_questions'  => $config['total_questions'],
             'easy_count'       => count($aiResult['easy_ids']   ?? []),
             'medium_count'     => count($aiResult['medium_ids'] ?? []),
@@ -371,6 +415,7 @@ class AiExamGeneratorService
             'total_marks'      => $aiResult['total_marks'] ?? 0,
             'ai_reasoning'     => $aiResult['reasoning']   ?? null,
             'question_ids'     => $selectedIds,
+            'custom_marks'     => null,   // ← ADD THIS
             'status'           => 'draft',
             'created_by'       => auth()->id(),
         ]);

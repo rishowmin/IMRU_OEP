@@ -108,7 +108,11 @@ $canStart = false;
                     <div class="card-body px-4 py-3">
                         @if($exam->questions->count() > 0)
                         @foreach($exam->questions as $index => $question)
+
                         <div class="question-item border rounded-3 p-4 mb-3 bg-light bg-opacity-50">
+
+                            {{-- ADD this one line before the MCQ/textarea block in @foreach --}}
+                            <input type="hidden" name="answers[{{ $question->id }}]" value="">
 
                             {{-- Question Meta --}}
                             <div class="d-flex align-items-center gap-2 mb-3">

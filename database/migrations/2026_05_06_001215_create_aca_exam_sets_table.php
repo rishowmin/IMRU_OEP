@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('topic')->default('General');
+            $table->string('question_type')->default('All')->comment('e.g. all, objective, subjective, mcq_4, mcq_2, short_question, long_question');
             $table->unsignedInteger('total_questions');
             $table->unsignedInteger('easy_count')->default(0);
             $table->unsignedInteger('medium_count')->default(0);
@@ -26,6 +27,8 @@ return new class extends Migration
             // The selected question IDs as JSON array
             $table->json('question_ids')
                   ->comment('Ordered list of selected question IDs');
+            $table->json('custom_marks')->nullable()
+                  ->comment('Custom Marks for Each Questions');
 
             // Randomization seed per candidate (for reproducibility)
             $table->string('randomization_seed')->nullable();

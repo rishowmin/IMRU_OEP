@@ -62,7 +62,8 @@
 
                                 <div class="row mb-3">
 
-                                    <div class="col-md-12">
+                                    {{-- Exam Title --}}
+                                    <div class="col-md-8">
                                         <label for="title" class="form-label fw-bold"><small>Exam Title</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="e.g. Midterm Exam — Computer Networks">
@@ -78,6 +79,33 @@
                                         </div>
                                     </div>
 
+                                    {{-- Question Type --}}
+                                    <div class="col-md-4">
+                                        <label for="question_type" class="form-label fw-bold"><small>Question Type</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <select name="question_type" class="form-select @error('question_type') is-invalid @enderror" id="question-type-select">
+                                                <option value="All">All</option>
+                                                <option value="objective" {{ old('question_type') === 'objective' ? 'selected' : '' }}>Objective (MCQ 4 & 2 Options)</option>
+                                                <option value="subjective" {{ old('question_type') === 'subjective' ? 'selected' : '' }}>Subjective (Short & Long Questions)</option>
+                                                <option value="mcq_4" {{ old('question_type') === 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
+                                                <option value="mcq_2" {{ old('question_type') === 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
+                                                <option value="short_question" {{ old('question_type') === 'short_question' ? 'selected' : '' }}>Short Question</option>
+                                                <option value="long_question" {{ old('question_type') === 'long_question' ? 'selected' : '' }}>Long Question</option>
+
+                                            </select>
+                                        </div>
+
+                                        <div class="d-flex align-items-center">
+                                            @error('question_type')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    {{-- Topic / Subject --}}
                                     <div class="col-md-6">
                                         <label for="topic" class="form-label fw-bold"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
@@ -99,6 +127,7 @@
                                         </div>
                                     </div>
 
+                                    {{-- Total Questions --}}
                                     <div class="col-md-3">
                                         <label for="total_questions" class="form-label fw-bold"><small>Total Questions</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
@@ -115,6 +144,7 @@
                                         </div>
                                     </div>
 
+                                    {{-- Duration (min) --}}
                                     <div class="col-md-3">
                                         <label for="duration_minutes" class="form-label fw-bold"><small>Duration (min)</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">

@@ -15,6 +15,7 @@ class AcaExamSet extends Model
     protected $fillable = [
         'title',
         'topic',
+        'question_type',
         'total_questions',
         'easy_count',
         'medium_count',
@@ -23,6 +24,7 @@ class AcaExamSet extends Model
         'total_marks',
         'ai_reasoning',
         'question_ids',
+        'custom_marks',
         'randomization_seed',
         'status',
         'aca_created_by',
@@ -32,7 +34,8 @@ class AcaExamSet extends Model
     ];
 
     protected $casts = [
-        'question_ids' => 'array',
+        'question_ids'  => 'array',
+        'custom_marks'  => 'array',
     ];
 
     // -------------------------------------------------------------------------

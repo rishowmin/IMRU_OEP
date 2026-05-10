@@ -699,3 +699,162 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
     border: 2px solid #0d6efd !important;
     background: linear-gradient(135deg, #f0f4ff, #fff);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.stat-card {
+        border-left: 4px solid;
+        border-radius: 8px;
+    }
+
+    .stat-card.primary {
+        border-color: #0d6efd;
+    }
+
+    .stat-card.success {
+        border-color: #198754;
+    }
+
+    .stat-card.danger {
+        border-color: #dc3545;
+    }
+
+    .stat-card.warning {
+        border-color: #ffc107;
+    }
+
+    .stat-card.info {
+        border-color: #0dcaf0;
+    }
+
+    .difficulty-badge.Easy {
+        background: #d1e7dd;
+        color: #0a3622;
+    }
+
+    .difficulty-badge.Medium {
+        background: #fff3cd;
+        color: #664d03;
+    }
+
+    .difficulty-badge.Hard {
+        background: #ffe0b2;
+        color: #7f3700;
+    }
+
+    .difficulty-badge.Very.Hard {
+        background: #f8d7da;
+        color: #58151c;
+    }
+
+    .difficulty-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.grade-a-plus {
+    background-color: #198754;
+    color: #fff;
+}
+
+.grade-a {
+    background-color: #00BFFF;
+    color: #000;
+}
+
+.grade-a-minus {
+    background-color: #9370DB;
+    color: #fff;
+}
+
+.grade-b-plus {
+    background-color: #00BCD4;
+    color: #fff;
+}
+
+.grade-b {
+    background-color: #4169E1;
+    color: #fff;
+}
+
+.grade-b-minus {
+    background-color: #8E44AD;
+    color: #fff;
+}
+
+.grade-c-plus {
+    background-color: #ffce3c;
+    color: #000;
+}
+
+.grade-c {
+    background-color: #FF7F11;
+    color: #fff;
+}
+
+.grade-d {
+    background-color: #dc1489;
+    color: #fff;
+}
+
+.grade-f {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Optional common style */
+.grade-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+}
+
+
+
+
+
+
+
+.table-first {
+    --bs-table-bg: #fff1a4 !important;
+}
+
+.table-second {
+    --bs-table-bg: #e3e3e3 !important;
+}
+
+.table-third {
+    --bs-table-bg: #e7b685 !important;
+}
