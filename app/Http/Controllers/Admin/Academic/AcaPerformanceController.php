@@ -10,6 +10,7 @@ use App\Models\Academic\AcaQuestion;
 use App\Models\Student;
 use App\Services\ExamGradingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AcaPerformanceController extends Controller
@@ -154,46 +155,97 @@ class AcaPerformanceController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // 4. Re-trigger grading for entire exam
+    // 4. Re-grade ALL students for an exam
     // ──────────────────────────────────────────────────────────────────────
 
-    public function retriggerGrading(AcaExam $exam)
+    public function retriggerGrading(Request $request, AcaExam $exam)
     {
-        try {
-            $summary = $this->gradingService->gradeAllStudents($exam);
+        // Get all distinct students who submitted this exam
+        $studentIds = AcaExamAnswer::where('exam_id', $exam->id)
+            ->distinct('student_id')
+            ->pluck('student_id');
 
-            $message = "Grading complete. {$summary['success']} of {$summary['total']} students graded.";
+        $total   = $studentIds->count();
+        $success = 0;
+        $failed  = 0;
+        $errors  = [];
 
-            if ($summary['failed'] > 0) {
-                $message .= " {$summary['failed']} failed.";
-            }
-
+        if ($total === 0) {
             return redirect()
                 ->route('admin.academic.performance.examAnalytics', $exam->id)
-                ->with('success', $message);
-
-        } catch (\Throwable $e) {
-            return redirect()
-                ->route('admin.academic.performance.examAnalytics', $exam->id)
-                ->with('error', 'Grading failed: ' . $e->getMessage());
+                ->with('error', 'No submissions found for this exam. Nothing to grade.');
         }
+
+        foreach ($studentIds as $studentId) {
+            try {
+                $this->gradingService->gradeStudent($exam, $studentId);
+                $success++;
+            } catch (\Throwable $e) {
+                $failed++;
+                $errors[] = "Student #{$studentId}: " . $e->getMessage();
+                Log::error('retriggerGrading failed for student', [
+                    'exam_id'    => $exam->id,
+                    'student_id' => $studentId,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Build feedback message
+        if ($failed === 0) {
+            $message = "✅ Re-grading complete. All {$success} student(s) graded successfully.";
+            $type    = 'success';
+        } elseif ($success > 0) {
+            $message = "⚠️ Re-grading partially complete. {$success} succeeded, {$failed} failed.";
+            $type    = 'warning';
+        } else {
+            $message = "❌ Re-grading failed for all {$failed} student(s). Check logs for details.";
+            $type    = 'error';
+        }
+
+        return redirect()
+            ->route('admin.academic.performance.examAnalytics', $exam->id)
+            ->with($type, $message);
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // 5. Re-trigger grading for a single student
+    // 5. Re-grade ONE student
     // ──────────────────────────────────────────────────────────────────────
 
-    public function retriggerStudentGrading(AcaExam $exam, Student $student)
+    public function retriggerStudentGrading(Request $request, AcaExam $exam, Student $student)
     {
+        // Check this student has actually submitted
+        $hasSubmission = AcaExamAnswer::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->exists();
+
+        if (!$hasSubmission) {
+            return redirect()
+                ->route('admin.academic.performance.examAnalytics', $exam->id)
+                ->with('error', "No submission found for {$student->first_name} {$student->last_name}.");
+        }
+
         try {
-            $this->gradingService->gradeStudent($exam, $student);
+            $result = $this->gradingService->gradeStudent($exam, $student);
+
+            $message = "✅ {$student->first_name} {$student->last_name} re-graded successfully. "
+                     . "Score: {$result->percentage}% | Grade: {$result->grade} | "
+                     . ($result->is_pass ? 'Passed' : 'Failed');
 
             return redirect()
                 ->route('admin.academic.performance.studentReport', [$exam->id, $student->id])
-                ->with('success', 'Student result updated successfully.');
+                ->with('success', $message);
 
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Grading failed: ' . $e->getMessage());
+            Log::error('retriggerStudentGrading failed', [
+                'exam_id'    => $exam->id,
+                'student_id' => $student->id,
+                'error'      => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('admin.academic.performance.studentReport', [$exam->id, $student->id])
+                ->with('error', "❌ Re-grading failed: " . $e->getMessage());
         }
     }
 
@@ -203,9 +255,6 @@ class AcaPerformanceController extends Controller
 
     private function getQuestionDifficulty(AcaExam $exam): \Illuminate\Support\Collection
     {
-        // Only analyse questions that were actually assigned to at least one student.
-        // Since each student gets a random subset (e.g. 12 of 25), questions never
-        // assigned to anyone would show 0% and distort the difficulty report.
         $assignedQuestionIds = AcaExamAnswer::where('exam_id', $exam->id)
             ->distinct('question_id')
             ->pluck('question_id');
@@ -214,29 +263,19 @@ class AcaPerformanceController extends Controller
 
         $questions = AcaQuestion::whereIn('id', $assignedQuestionIds)->get();
 
-        // Per-question: how many distinct students received it?
-        // (Not every student gets the same 12, so the denominator varies per question)
         return $questions->map(function ($question) use ($exam) {
             $answers = AcaExamAnswer::where('exam_id', $exam->id)
                 ->where('question_id', $question->id)
                 ->with('reviewAnswer')
                 ->get();
 
-            // Students who actually received this question
             $receivedCount = $answers->count();
-
-            // Students who answered (non-blank)
-            $attempted = $answers->whereNotNull('answer')->where('answer', '!=', '')->count();
-
-            // Correct answers (via review)
-            $correct = $answers->filter(fn($a) =>
+            $attempted     = $answers->whereNotNull('answer')->where('answer', '!=', '')->count();
+            $correct       = $answers->filter(fn($a) =>
                 $a->reviewAnswer && $a->reviewAnswer->review == 1
             )->count();
 
-            // Correct rate: of those who attempted, how many got it right
-            $correctRate = $attempted > 0 ? round(($correct / $attempted) * 100, 1) : 0;
-
-            // Attempted rate: of those who received it, how many answered
+            $correctRate   = $attempted > 0 ? round(($correct / $attempted) * 100, 1) : 0;
             $attemptedRate = $receivedCount > 0 ? round(($attempted / $receivedCount) * 100, 1) : 0;
 
             $difficulty = match(true) {
