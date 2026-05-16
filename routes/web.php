@@ -222,16 +222,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/exam/id={exam}', 'examAnalytics')->name('admin.academic.performance.examAnalytics');
             Route::get('/exam/id={exam}/student/id={student}', 'studentReport')->name('admin.academic.performance.studentReport');
             Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.performance.store');
-            // Route::get('/exam/id={exam}/regrade', 'retriggerGrading')->name('admin.academic.performance.retriggerGrading');
-            // Route::get('/exam/id={exam}/student/id={student}/regrade', 'studentReport')->name('admin.academic.performance.retriggerStudentGrading');
-
-            // ✅ Re-grade ALL students — POST (was GET, wrong)
-            Route::post('/exam/id={exam}/regrade', 'retriggerGrading')
-                ->name('admin.academic.performance.retriggerGrading');
-
-            // ✅ Re-grade ONE student — POST (was GET pointing to wrong method)
-            Route::post('/exam/id={exam}/student/id={student}/regrade', 'retriggerStudentGrading')
-                ->name('admin.academic.performance.retriggerStudentGrading');
+            
+            Route::post('/exam/id={exam}/regrade', 'retriggerGrading')->name('admin.academic.performance.retriggerGrading');
+            Route::post('/exam/id={exam}/student/id={student}/regrade', 'retriggerStudentGrading')->name('admin.academic.performance.retriggerStudentGrading');
         });
 
         // Proctoring Reports

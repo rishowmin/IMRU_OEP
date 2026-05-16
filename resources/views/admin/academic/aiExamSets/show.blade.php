@@ -60,24 +60,8 @@
         <div class="col-6 col-md-3 mb-0 mb-md-3">
             <div class="card text-center mb-0 h-100">
                 <div class="card-body">
-                    <div class="fs-3 fw-bold text-theme">
-                        @if ($examSet->question_type === 'objective')
-                        Objective
-                        @elseif ($examSet->question_type === 'subjective')
-                        Subjective
-                        @elseif ($examSet->question_type === 'mcq_4')
-                        MCQ <small class="text-muted">(4)</small>
-                        @elseif ($examSet->question_type === 'mcq_2')
-                        MCQ <small class="text-muted fs-5">(2)</small>
-                        @elseif ($examSet->question_type === 'short_question')
-                        Short
-                        @elseif ($examSet->question_type === 'long_question')
-                        Long
-                        @else
-                        ALL
-                        @endif
-                    </div>
-                    <div class="text-muted small fw-semibold">Question Type</div>
+                    <div class="fs-2 fw-bold text-theme">{{ $examSet->total_questions }}</div>
+                    <div class="text-muted small fw-semibold">Questions</div>
                 </div>
             </div>
         </div>
@@ -85,8 +69,42 @@
         <div class="col-6 col-md-3 mb-0 mb-md-3">
             <div class="card text-center mb-0 h-100">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold text-primary">{{ $examSet->total_questions }}</div>
-                    <div class="text-muted small fw-semibold">Questions</div>
+                    @if ($examSet->question_type === 'objective')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">MCQ (4 & 2) Questions</div>
+                    @elseif ($examSet->question_type === 'subjective')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">Short & Long Questions</div>
+                    @elseif ($examSet->question_type === 'mcq_4')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">MCQ (4) Questions</div>
+                    @elseif ($examSet->question_type === 'mcq_2')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">MCQ (2) Questions</div>
+                    @elseif ($examSet->question_type === 'short_question')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">Short Questions</div>
+                    @elseif ($examSet->question_type === 'long_question')
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">Long Questions</div>
+                    @else
+                    <div class="fs-2 fw-bold text-primary">
+                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                    </div>
+                    <div class="text-muted small fw-semibold">Obj. & Sub. Questions</div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -13,6 +13,7 @@ use App\Models\Academic\AcaQuestion;
 use App\Services\ExamGradingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class StudMyExamController extends Controller
@@ -124,15 +125,17 @@ class StudMyExamController extends Controller
         );
 
         // Calculate remaining time
-        $now              = now();
         $secondsUntilEnd  = $now->diffInSeconds($endDT, false);
         $durationSeconds  = ($exam->exam_duration_min ?? 0) * 60;
         $remainingSeconds = min($secondsUntilEnd, $durationSeconds);
 
+        // Ratio-aware question selection
+        $questions = $this->selectProportionalQuestions($exam);
+
         // Load limited questions in random order
-        $exam->load(['questions' => function ($query) use ($exam) {
-            $query->inRandomOrder()->limit($exam->total_questions);
-        }]);
+        // $exam->load(['questions' => function ($query) use ($exam) {
+        //     $query->inRandomOrder()->limit($exam->total_questions);
+        // }]);
 
         // Load mapped active rules for this exam
         $mappedRules = AcaExamRuleMap::where('exam_id', $exam->id)
@@ -142,9 +145,12 @@ class StudMyExamController extends Controller
             ->filter(fn($map) => $map->rule)
             ->values();
 
+        // Manually set the loaded relation so the blade works unchanged
+        $exam->setRelation('questions', $questions);
+
         return view('student.myExams.answer_sheet', compact(
             'exam',
-            'attempt',          // ✅ Added
+            'attempt',
             'remainingSeconds',
             'mappedRules'
         ));
@@ -293,11 +299,20 @@ class StudMyExamController extends Controller
                 ->with('error', 'You have not submitted this exam yet.');
         }
 
-        // ✅ Load result from aca_exam_results — has correct total_marks
-        //    based on assigned questions only, NOT $exam->total_marks
         $result = AcaExamResult::where('exam_id', $exam->id)
             ->where('student_id', $student)
             ->first();
+
+        if (!$result) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'Your result is not available yet.');
+        }
+
+        $rank = AcaExamResult::where('exam_id', $exam->id)
+            ->where('percentage', '>', $result->percentage)
+            ->count() + 1;
+
+        $totalStudents = AcaExamResult::where('exam_id', $exam->id)->count();
 
         $subjectiveAnswers = $answers->filter(fn($a) =>
             in_array($a->question?->question_type, ['short_question', 'long_question'])
@@ -312,7 +327,9 @@ class StudMyExamController extends Controller
 
         return view('student.myExams.view_result', compact(
             'exam',
-            'result',                    // ✅ NEW — null-safe, blade handles fallback
+            'result',
+            'rank',
+            'totalStudents',
             'answers',
             'subjectiveAnswers',
             'reviewedAnswers',
@@ -377,5 +394,75 @@ class StudMyExamController extends Controller
         $rules        = $mappedRules->get('rule', collect());
 
         return view('student.myExams.exam_rules', compact('exam', 'instructions', 'rules'));
+    }
+
+    private function selectProportionalQuestions(AcaExam $exam): Collection
+    {
+        $need    = (int) $exam->total_questions;
+        $examSet = \App\Models\Academic\AcaExamSet::where('published_exam_id', $exam->id)->first();
+
+        $pool = AcaQuestion::where('exam_id', $exam->id)
+            ->where('is_active', true)
+            ->get();
+
+        if (!$examSet || $pool->count() <= $need) {
+            return $pool->shuffle()->take($need)->values();
+        }
+
+        $totalInPool = $pool->count();
+
+        $objectiveTypes  = ['mcq_4', 'mcq_2'];
+        $subjectiveTypes = ['short_question', 'long_question'];
+
+        // Scale qt1=12, qt2=8 out of 20  →  obj=6, sub=4 of 10
+        $typeTargets = $this->scaleRatios([
+            'obj' => $examSet->qt1_count,
+            'sub' => $examSet->qt2_count,
+        ], $totalInPool, $need);
+
+        $objTarget = $typeTargets['obj'];
+        $subTarget = $typeTargets['sub'];
+
+        $objPool = $pool->filter(fn($q) => in_array($q->question_type, $objectiveTypes))->shuffle()->values();
+        $subPool = $pool->filter(fn($q) => in_array($q->question_type, $subjectiveTypes))->shuffle()->values();
+
+        $objPicked = $objPool->take($objTarget);
+        $subPicked = $subPool->take($subTarget);
+
+        // If either pool ran short, fill from the other type's surplus
+        $shortfall = $need - $objPicked->count() - $subPicked->count();
+        if ($shortfall > 0) {
+            $usedIds  = $objPicked->pluck('id')->merge($subPicked->pluck('id'))->toArray();
+            $filler   = $pool->whereNotIn('id', $usedIds)->shuffle()->take($shortfall);
+            $selected = $objPicked->merge($subPicked)->merge($filler);
+        } else {
+            $selected = $objPicked->merge($subPicked);
+        }
+
+        return $selected->shuffle()->take($need)->values();
+    }
+
+    private function scaleRatios(array $counts, int $originalTotal, int $newTotal): array
+    {
+        if ($originalTotal === 0) {
+            $each = (int) floor($newTotal / max(count($counts), 1));
+            return array_map(fn() => $each, $counts);
+        }
+
+        $scaled    = [];
+        $allocated = 0;
+
+        foreach ($counts as $key => $count) {
+            $scaled[$key] = (int) floor(($count / $originalTotal) * $newTotal);
+            $allocated   += $scaled[$key];
+        }
+
+        $remainder = $newTotal - $allocated;
+        if ($remainder > 0) {
+            arsort($counts);
+            $scaled[array_key_first($counts)] += $remainder;
+        }
+
+        return $scaled;
     }
 }

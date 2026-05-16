@@ -370,16 +370,23 @@
                                         @if($result->grading_status === 'complete')
                                             <span class="badge bg-success">Complete</span>
                                         @elseif($result->grading_status === 'partial')
-                                            <span class="badge bg-warning text-dark">Partial</span>
+                                            <span class="badge bg-secondary text-dark">Partial</span>
                                         @else
-                                            <span class="badge bg-secondary">Pending</span>
+                                            <span class="badge bg-warning">Pending</span>
                                         @endif
                                     </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('admin.academic.performance.studentReport', [$exam->id, $result->student_id]) }}"
-                                        class="btn btn-xs btn-outline-primary btn-sm">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                    <td>
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            @if ($result->grading_status === 'pending')
+                                            <a href="{{ route('admin.academic.reviewAnswer.studentAnswers', [$exam->id, $result->student_id]) }}" class="btn btn-xs btn-outline-warning btn-sm" title="Review Answer">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            @endif
+                                            <a href="{{ route('admin.academic.performance.studentReport', [$exam->id, $result->student_id]) }}"
+                                            class="btn btn-xs btn-outline-primary btn-sm" title="View Result">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty

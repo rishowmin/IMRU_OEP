@@ -211,7 +211,7 @@
                                 @elseif($result->grading_status === 'partial')
                                 <span class="badge bg-warning text-dark">Partial</span>
                                 @else
-                                <span class="badge bg-secondary">Pending</span>
+                                <span class="badge bg-warning">Pending</span>
                                 @endif
                             </td>
                         </tr>
@@ -288,7 +288,7 @@
                                 @elseif(!$answer->answer)
                                     <span class="badge bg-secondary">Skipped</span>
                                 @else
-                                    <span class="badge bg-light text-dark border">Pending</span>
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                 @endif
                             </td>
                         </tr>

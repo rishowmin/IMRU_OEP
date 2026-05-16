@@ -163,46 +163,90 @@
 
                                 </div>
 
-                                {{-- Difficulty Mix --}}
                                 <hr class="my-4">
 
-                                <label class="form-label fw-semibold">Difficulty Balance <small class="text-muted fw-normal">[AI will select exactly this ratio from the question bank.]</small></label>
+                                <div class="row mb-4">
+                                    {{-- Question Type Mix --}}
+                                    <div class="col-md-6">
+                                        <div class="card border border-theme mb-0">
+                                            <div class="card-header">
+                                                <h6 class="mb-0 text-theme fw-semibold">Question Type Balance</h6>
+                                            </div>
 
-                                <div class="difficulty-row mb-2">
-                                    <div class="form-group">
-                                        <label for="easy_percent" class="form-label fw-bold text-success"><small>Easy (%)</small></label>
-                                        <input type="number" name="easy_percent" id="easy_pct" class="form-control border-success" value="{{ old('easy_percent', 30) }}" min="0" max="100" oninput="updateTotal()">
+                                            <div class="card-body pt-2">
+
+                                                <div class="question-type-row mb-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label fw-bold text-info mb-1 small"><small id="qtype1-label">Objective (%)</small></label>
+                                                        <input type="number" name="qtype1_percent" id="qt1_pct" class="form-control form-control-sm border-info" value="{{ old('qtype1_percent', 50) }}" min="0" max="100" oninput="updateQuestionTypeTotal()">
+                                                    </div>
+                                                    <div class="form-group" id="qtype2-group">
+                                                        <label class="form-label fw-bold text-primary mb-1 small"><small id="qtype2-label">Subjective (%)</small></label>
+                                                        <input type="number" name="qtype2_percent" id="qt2_pct" class="form-control form-control-sm border-primary" value="{{ old('qtype2_percent', 50) }}" min="0" max="100" oninput="updateQuestionTypeTotal()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <span id="qt-pct-total" class="qt-pct-total ok">✓ Total: 100%</span>
+                                                    <small class="text-muted ms-2">Must equal 100%</small>
+                                                </div>
+
+                                                <div id="qt-bar" style="height:10px;border-radius:6px;overflow:hidden;display:flex">
+                                                    <div id="bar-qt-1" style="background:#0dcaf0;width:50%;transition:width .3s"></div>
+                                                    <div id="bar-qt-2" style="background:#0d6efd;width:50%;transition:width .3s"></div>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="medium_percent" class="form-label fw-bold text-warning"><small>Medium (%)</small></label>
-                                        <input type="number" name="medium_percent" id="medium_pct" class="form-control border-warning" value="{{ old('medium_percent', 50) }}" min="0" max="100" oninput="updateTotal()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="hard_percent" class="form-label fw-bold text-danger"><small>Hard (%)</small></label>
-                                        <input type="number" name="hard_percent" id="hard_pct" class="form-control border-danger" value="{{ old('hard_percent', 20) }}" min="0" max="100" oninput="updateTotal()">
+
+                                    {{-- Difficulty Mix --}}
+                                    <div class="col-md-6">
+                                        <div class="card border border-theme mb-0">
+                                            <div class="card-header">
+                                                <h6 class="mb-0 text-theme fw-semibold">Difficulty Balance</h6>
+                                            </div>
+
+                                            <div class="card-body pt-2">
+
+                                                <div class="difficulty-row mb-2">
+                                                    <div class="form-group">
+                                                        <label for="easy_percent" class="form-label fw-bold text-success mb-1 small"><small>Easy (%)</small></label>
+                                                        <input type="number" name="easy_percent" id="easy_pct" class="form-control form-control-sm border-success" value="{{ old('easy_percent', 30) }}" min="0" max="100" oninput="updateDifficultyTotal()">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="medium_percent" class="form-label fw-bold text-warning mb-1 small"><small>Medium (%)</small></label>
+                                                        <input type="number" name="medium_percent" id="medium_pct" class="form-control form-control-sm border-warning" value="{{ old('medium_percent', 50) }}" min="0" max="100" oninput="updateDifficultyTotal()">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="hard_percent" class="form-label fw-bold text-danger mb-1 small"><small>Hard (%)</small></label>
+                                                        <input type="number" name="hard_percent" id="hard_pct" class="form-control form-control-sm border-danger" value="{{ old('hard_percent', 20) }}" min="0" max="100" oninput="updateDifficultyTotal()">
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <span id="difclt-pct-total" class="difclt-pct-total ok">✓ Total: 100%</span>
+                                                    <small class="text-muted ms-2">Must equal 100%</small>
+                                                </div>
+
+                                                <div id="diff-bar" style="height:10px;border-radius:6px;overflow:hidden;display:flex">
+                                                    <div id="bar-easy" style="background:#198754;width:30%;transition:width .3s"></div>
+                                                    <div id="bar-medium" style="background:#ffc107;width:50%;transition:width .3s"></div>
+                                                    <div id="bar-hard" style="background:#dc3545;width:20%;transition:width .3s"></div>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="mb-4">
-                                    <span id="pct-total" class="pct-total ok">✓ Total: 100%</span>
-                                    <small class="text-muted ms-2">Must equal 100%</small>
+                                <div class="form-submit-button">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">
+                                        <i class="bi bi-lightning-charge me-2"></i>
+                                        Generate with AI
+                                    </button>
+                                    <p class="text-center text-muted small mt-2 mb-0">This may take 5–10 seconds while AI selects questions.</p>
                                 </div>
-
-                                {{-- Visual breakdown bar --}}
-                                <div class="mb-4">
-                                    <div id="diff-bar" style="height:10px;border-radius:6px;overflow:hidden;display:flex">
-                                        <div id="bar-easy" style="background:#198754;width:30%;transition:width .3s"></div>
-                                        <div id="bar-medium" style="background:#ffc107;width:50%;transition:width .3s"></div>
-                                        <div id="bar-hard" style="background:#dc3545;width:20%;transition:width .3s"></div>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-                                    Generate with AI
-                                </button>
-                                <p class="text-center text-muted small mt-2 mb-0">This may take 5–10 seconds while AI selects questions.</p>
                             </form>
 
                         </div>
@@ -295,35 +339,101 @@
 @endsection
 
 
-
-
-
-
-
 @section('scripts')
 
 <script>
-function updateTotal() {
-    const e = parseInt(document.getElementById('easy_pct').value)||0;
-    const m = parseInt(document.getElementById('medium_pct').value)||0;
-    const h = parseInt(document.getElementById('hard_pct').value)||0;
-    const total = e + m + h;
-    const el = document.getElementById('pct-total');
-    el.textContent = (total === 100 ? '✓' : '✗') + ' Total: ' + total + '%';
-    el.className = 'pct-total ' + (total === 100 ? 'ok' : 'fail');
-    document.getElementById('submit-btn').disabled = total !== 100;
-    document.getElementById('bar-easy').style.width   = e + '%';
-    document.getElementById('bar-medium').style.width = m + '%';
-    document.getElementById('bar-hard').style.width   = h + '%';
-}
+    const SINGLE_TYPES = ['mcq_4', 'mcq_2', 'short_question', 'long_question'];
 
-document.getElementById('exam-form').addEventListener('submit', function() {
-    const btn = document.getElementById('submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI is selecting questions...';
-});
+    const SINGLE_TYPE_LABELS = {
+        'mcq_4':          'MCQ 4 (%)',
+        'mcq_2':          'MCQ 2 (%)',
+        'short_question': 'Short Q. (%)',
+        'long_question':  'Long Q. (%)',
+    };
 
-updateTotal();
+    const QTYPE_LABELS = {
+        'All':            ['Objective (%)',      'Subjective (%)'],
+        'objective':      ['MCQ 4 (%)', 'MCQ 2 (%)'],
+        'subjective':     ['Short Q. (%)', 'Long Q. (%)'],
+    };
+
+    function syncQtypeLabels() {
+        const val      = document.getElementById('question-type-select').value;
+        const qt1Input = document.getElementById('qt1_pct');
+        const qt2Input = document.getElementById('qt2_pct');
+        const qt2Group = document.getElementById('qtype2-group');
+        const qtBar2   = document.getElementById('bar-qt-2');
+
+        if (SINGLE_TYPES.includes(val)) {
+            document.getElementById('qtype1-label').textContent = SINGLE_TYPE_LABELS[val];
+            qt1Input.value    = 100;
+            qt1Input.readOnly = true;
+
+            qt2Input.value    = 0;
+            qt2Input.readOnly = true;          // ✅ readOnly submits, disabled doesn't
+            qt2Input.type     = 'hidden';      // ✅ hide visually but still submits
+            qt2Group.style.display = 'none';
+
+            document.getElementById('bar-qt-1').style.width = '100%';
+            document.getElementById('bar-qt-2').style.width = '0%';
+
+            const el = document.getElementById('qt-pct-total');
+            el.textContent = '✓ Total: 100%';
+            el.className   = 'fw-semibold text-success';
+
+        } else {
+            const labels = QTYPE_LABELS[val] ?? ['Type 1 (%)', 'Type 2 (%)'];
+            document.getElementById('qtype1-label').textContent = labels[0];
+            document.getElementById('qtype2-label').textContent = labels[1];
+
+            qt2Input.type     = 'number';      // ✅ restore type
+            qt2Input.readOnly = false;
+            qt2Group.style.display = '';
+
+            updateQuestionTypeTotal();
+        }
+    }
+
+    function updateQuestionTypeTotal() {
+        const val   = document.getElementById('question-type-select').value;
+        const isSingle = SINGLE_TYPES.includes(val);
+        const qt1   = isSingle ? 100 : (parseInt(document.getElementById('qt1_pct').value) || 0);
+        const qt2   = isSingle ? 0   : (parseInt(document.getElementById('qt2_pct').value) || 0);
+        const total = qt1 + qt2;
+        const el = document.getElementById('qt-pct-total');
+        el.textContent = (total === 100 ? '✓' : '✗') + ' Total: ' + total + '%';
+        el.className   = 'qt-pct-total ' + (total === 100 ? 'ok' : 'fail');
+        document.getElementById('submit-btn').disabled = !isSingle && (total !== 100);
+        document.getElementById('bar-qt-1').style.width = qt1 + '%';
+        document.getElementById('bar-qt-2').style.width = qt2 + '%';
+    }
+
+    document.getElementById('question-type-select').addEventListener('change', syncQtypeLabels);
+
+    function updateDifficultyTotal() {
+        const e     = parseInt(document.getElementById('easy_pct').value)   || 0;
+        const m     = parseInt(document.getElementById('medium_pct').value) || 0;
+        const h     = parseInt(document.getElementById('hard_pct').value)   || 0;
+        const total = e + m + h;
+        const el    = document.getElementById('difclt-pct-total');
+        el.textContent = (total === 100 ? '✓' : '✗') + ' Total: ' + total + '%';
+        el.className   = 'difclt-pct-total ' + (total === 100 ? 'ok' : 'fail');
+        document.getElementById('submit-btn').disabled = (total !== 100);
+        document.getElementById('bar-easy').style.width   = e + '%';
+        document.getElementById('bar-medium').style.width = m + '%';
+        document.getElementById('bar-hard').style.width   = h + '%';
+    }
+
+    document.getElementById('exam-form').addEventListener('submit', function () {
+        const btn = document.getElementById('submit-btn');
+        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI is selecting questions...';
+    });
+
+    // Init on page load
+    syncQtypeLabels();
+    updateQuestionTypeTotal();
+    updateDifficultyTotal();
 </script>
 
 @endsection

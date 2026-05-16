@@ -21,11 +21,9 @@ class AiExamGeneratorService
 
     public function generate(array $config): AcaExamSet
     {
-        // Pass question_type to fetch
-        $questions = $this->fetchCandidateQuestions(
-            $config['topic'],
-            $config['question_type'] ?? 'All'
-        );
+        $questionType = $config['question_type'] ?? 'All';
+
+        $questions = $this->fetchCandidateQuestions($config['topic'], $questionType);
 
         if ($questions->isEmpty()) {
             throw new \RuntimeException(
@@ -33,43 +31,24 @@ class AiExamGeneratorService
             );
         }
 
-        $targets = $this->calculateTargetCounts(
+        $diffTargets = $this->calculateTargetCounts(
             $config['total_questions'],
             $config['easy_percent'],
             $config['medium_percent'],
             $config['hard_percent'],
         );
 
-        $aiResult = $this->callAiForSelection($questions, $targets, $config);
+        // Calculate question type targets (qt1/qt2)
+        $qtTargets = $this->calculateQtTargets(
+            $config['total_questions'],
+            $questionType,
+            $config['qtype1_percent'] ?? 100,
+            $config['qtype2_percent'] ?? 0,
+        );
 
-        return $this->persistExamSet($config, $targets, $aiResult);
-    }
+        $aiResult = $this->callAiForSelection($questions, $diffTargets, $qtTargets, $config);
 
-    public function generateCandidateInstance(AcaExamSet $examSet, string $candidateId): array
-    {
-        $questionIds = $examSet->question_ids;
-
-        $seed = crc32($examSet->id . $candidateId);
-        mt_srand($seed);
-        shuffle($questionIds);
-
-        $optionShuffles = [];
-        $questions = AcaQuestionLibrary::whereIn('id', $questionIds)->get()->keyBy('id');
-
-        foreach ($questionIds as $qid) {
-            $q = $questions[$qid] ?? null;
-            if ($q && in_array($q->question_type, ['mcq', 'multiple_choice'])) {
-                $options = ['a', 'b', 'c', 'd'];
-                mt_srand($seed + $qid);
-                shuffle($options);
-                $optionShuffles[$qid] = $options;
-            }
-        }
-
-        return [
-            'question_order'  => $questionIds,
-            'option_shuffles' => $optionShuffles,
-        ];
+        return $this->persistExamSet($config, $diffTargets, $qtTargets, $aiResult);
     }
 
     // -------------------------------------------------------------------------
@@ -115,39 +94,86 @@ class AiExamGeneratorService
         ];
     }
 
-    private function callAiForSelection(Collection $questions, array $targets, array $config): array
+    private function calculateQtTargets(int $total, string $questionType, int $qt1Pct, int $qt2Pct): array
+    {
+        $qt1Count = (int) round($total * $qt1Pct / 100);
+        $qt2Count = $total - $qt1Count;
+
+        $map = match($questionType) {
+            'All'        => [
+                'qt1_types' => ['mcq_4', 'mcq_2'],
+                'qt2_types' => ['short_question', 'long_question'],
+            ],
+            'objective'  => [
+                'qt1_types' => ['mcq_4'],
+                'qt2_types' => ['mcq_2'],
+            ],
+            'subjective' => [
+                'qt1_types' => ['short_question'],
+                'qt2_types' => ['long_question'],
+            ],
+            default      => [  // single type — all qt1
+                'qt1_types' => [$questionType],
+                'qt2_types' => [],
+            ],
+        };
+
+        return [
+            'qt1_count' => $qt1Count,
+            'qt2_count' => $qt2Count,
+            'qt1_types' => $map['qt1_types'],
+            'qt2_types' => $map['qt2_types'],
+        ];
+    }
+
+    private function callAiForSelection(Collection $questions, array $diffTargets, array $qtTargets, array $config): array
     {
         try {
             if (empty($this->apiKey)) {
                 Log::error('[Groq] API key is empty.');
-                return $this->fallbackRandomSelection($questions, $targets);
+                return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
             }
 
-            // ── KEY FIX: Pre-select candidates per difficulty before sending to AI ──
-            // Instead of sending ALL 250 questions, send only a smart subset.
-            // This prevents token limit issues and speeds up the response.
             $multiplier = 3; // send 3x the needed count per difficulty for variety
             $candidates = collect();
+            $usedIds    = [];
 
-            foreach (['easy', 'medium', 'hard'] as $diff) {
-                $needed = $targets[$diff];
-                $pool   = $questions->where('difficulty_level', $diff)->shuffle()->take($needed * $multiplier);
+            foreach (['qt1', 'qt2'] as $qtKey) {
+                $qtCount = $qtTargets["{$qtKey}_count"];
+                $qtTypes = $qtTargets["{$qtKey}_types"];
 
-                // If not enough of this difficulty, top up from adjacent
-                if ($pool->count() < $needed) {
-                    Log::info("[Groq] Not enough '{$diff}' questions, topping up from other difficulties.");
-                    $extras = $questions->whereNotIn('id', $pool->pluck('id'))
-                        ->shuffle()
-                        ->take($needed - $pool->count());
-                    $pool = $pool->merge($extras);
+                if ($qtCount === 0 || empty($qtTypes)) continue;
+
+                $qtPool = $questions->whereIn('question_type', $qtTypes)
+                                    ->whereNotIn('id', $usedIds);
+
+                // From this qt pool, try to maintain difficulty ratio
+                foreach (['easy', 'medium', 'hard'] as $diff) {
+                    $diffRatio  = $diffTargets[$diff] / max(array_sum($diffTargets), 1);
+                    $needed     = (int) round($qtCount * $diffRatio);
+                    $pool       = $qtPool->where('difficulty_level', $diff)
+                                         ->shuffle()
+                                         ->take($needed * $multiplier);
+                    $candidates = $candidates->merge($pool);
+                    $usedIds    = array_merge($usedIds, $pool->pluck('id')->toArray());
                 }
 
-                $candidates = $candidates->merge($pool);
+                // Top up if we didn't get enough from this qt type
+                $stillNeeded = ($qtCount * $multiplier) - $candidates->count();
+                if ($stillNeeded > 0) {
+                    $extras     = $qtPool->whereNotIn('id', $usedIds)->shuffle()->take($stillNeeded);
+                    $candidates = $candidates->merge($extras);
+                    $usedIds    = array_merge($usedIds, $extras->pluck('id')->toArray());
+                }
             }
+
+            // Deduplicate candidates
+            $candidates = $candidates->unique('id')->values();
 
             $prompt = $this->buildPrompt(
                 $this->prepareQuestionsForPrompt($candidates),
-                $targets,
+                $diffTargets,
+                $qtTargets,
                 $config
             );
 
@@ -155,8 +181,9 @@ class AiExamGeneratorService
                 'model'          => $this->model,
                 'key_hint'       => substr($this->apiKey, 0, 8) . '...' . substr($this->apiKey, -4),
                 'total_in_bank'  => $questions->count(),
-                'sent_to_ai'     => $candidates->count(),   // ← much smaller now
-                'targets'        => $targets,
+                'sent_to_ai'     => $candidates->count(),
+                'diff_targets'  => $diffTargets,
+                'qt_targets'    => ['qt1' => $qtTargets['qt1_count'], 'qt2' => $qtTargets['qt2_count']],
             ]);
 
             $response = Http::withHeaders([
@@ -182,7 +209,7 @@ class AiExamGeneratorService
                     'http_status' => $response->status(),
                     'body'        => $response->body(),
                 ]);
-                return $this->fallbackRandomSelection($questions, $targets);
+                return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
             }
 
             Log::info('[Groq] HTTP response received', ['http_status' => $response->status()]);
@@ -191,32 +218,33 @@ class AiExamGeneratorService
 
             if (empty($text)) {
                 Log::error('[Groq] Empty text in response', ['full_response' => $response->json()]);
-                return $this->fallbackRandomSelection($questions, $targets);
+                return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
             }
 
             // Strip markdown fences
             $text = preg_replace('/^```json\s*/i', '', trim($text));
             $text = preg_replace('/\s*```$/i', '', $text);
-
             $decoded = json_decode(trim($text), true);
 
             if (!is_array($decoded)) {
-                Log::error('[Groq] JSON decode failed', [
-                    'raw_text'   => substr($text, 0, 500),
-                    'json_error' => json_last_error_msg(),
-                ]);
-                return $this->fallbackRandomSelection($questions, $targets);
+                Log::error('[Groq] JSON decode failed', ['raw_text' => substr($text, 0, 500)]);
+                return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
             }
 
-            $decoded = $this->sanitizeAiResult($decoded, $questions, $targets);
+            $decoded = $this->sanitizeAiResult($decoded, $questions, $diffTargets);
 
             if ($decoded === null) {
                 Log::error('[Groq] Result could not be sanitized');
-                return $this->fallbackRandomSelection($questions, $targets);
+                return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
             }
 
+            $decoded = $this->sanitizeQtCounts($decoded, $questions, $qtTargets);
+
+            // Count qt1/qt2 from actual selected questions (already set by sanitizeQtCounts)
             Log::info('[Groq] ✅ Success', [
                 'selected_count' => count($decoded['selected_ids']),
+                'qt1_count'      => $decoded['qt1_count'],
+                'qt2_count'      => $decoded['qt2_count'],
                 'reasoning'      => $decoded['reasoning'] ?? null,
             ]);
 
@@ -224,18 +252,14 @@ class AiExamGeneratorService
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             Log::error('[Groq] Connection failed', ['error' => $e->getMessage()]);
-            return $this->fallbackRandomSelection($questions, $targets);
-
+            return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
         } catch (\Exception $e) {
-            Log::error('[Groq] Unexpected exception', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return $this->fallbackRandomSelection($questions, $targets);
+            Log::error('[Groq] Unexpected exception', ['error' => $e->getMessage()]);
+            return $this->fallbackRandomSelection($questions, $diffTargets, $qtTargets);
         }
     }
 
-    private function sanitizeAiResult(array $result, Collection $questions, array $targets): ?array
+    private function sanitizeAiResult(array $result, Collection $questions, array $diffTargets): ?array
     {
         if (empty($result['selected_ids']) || !is_array($result['selected_ids'])) {
             Log::warning('[Groq] Sanitize: selected_ids missing');
@@ -265,7 +289,7 @@ class AiExamGeneratorService
 
         // ── Enforce exact counts per difficulty ────────────────────────────────
         foreach (['easy' => 'easy_ids', 'medium' => 'medium_ids', 'hard' => 'hard_ids'] as $diff => $key) {
-            $needed  = $targets[$diff];
+            $needed  = $diffTargets[$diff];
             $current = $result[$key];
 
             if (count($current) > $needed) {
@@ -326,6 +350,105 @@ class AiExamGeneratorService
         return $result;
     }
 
+    private function sanitizeQtCounts(array $result, Collection $questions, array $qtTargets): array
+    {
+        $qt1Types = $qtTargets['qt1_types'];
+        $qt2Types = $qtTargets['qt2_types'];
+        $qt1Need  = $qtTargets['qt1_count'];
+        $qt2Need  = $qtTargets['qt2_count'];
+
+        // Nothing to enforce for single types
+        if (empty($qt2Types) || $qt2Need === 0) {
+            $result['qt1_count'] = count($result['selected_ids']);
+            $result['qt2_count'] = 0;
+            return $result;
+        }
+
+        // Bucket current selected into qt1 / qt2 / other
+        $selectedIds = $result['selected_ids'];
+        $keyed       = $questions->whereIn('id', $selectedIds)->keyBy('id');
+
+        $qt1Ids  = [];
+        $qt2Ids  = [];
+
+        foreach ($selectedIds as $id) {
+            $q = $keyed[$id] ?? null;
+            if (!$q) continue;
+            if (in_array($q->question_type, $qt1Types)) {
+                $qt1Ids[] = $id;
+            } elseif (in_array($q->question_type, $qt2Types)) {
+                $qt2Ids[] = $id;
+            }
+        }
+
+        // ── Fix qt1 ───────────────────────────────────────────────────────────────
+        if (count($qt1Ids) > $qt1Need) {
+            // Too many qt1 — move excess to replacement from qt2 pool
+            $excess    = array_slice($qt1Ids, $qt1Need);
+            $qt1Ids    = array_slice($qt1Ids, 0, $qt1Need);
+            $usedIds   = array_merge($qt1Ids, $qt2Ids);
+
+            // Replace excess qt1 with qt2 questions
+            $replacements = $questions
+                ->whereIn('question_type', $qt2Types)
+                ->whereNotIn('id', $usedIds)
+                ->shuffle()
+                ->take(count($excess));
+
+            foreach ($replacements as $r) {
+                $qt2Ids[] = $r->id;
+            }
+
+            // Remove excess qt1 from selected, add replacements
+            $selectedIds = array_merge(
+                array_diff($selectedIds, $excess),
+                $replacements->pluck('id')->toArray()
+            );
+
+            Log::info('[Groq] Qt sanitize: moved ' . count($excess) . ' qt1→qt2');
+
+        } elseif (count($qt1Ids) < $qt1Need) {
+            // Too few qt1 — replace some qt2 with qt1 questions
+            $shortage  = $qt1Need - count($qt1Ids);
+            $usedIds   = array_merge($qt1Ids, $qt2Ids);
+
+            $replacements = $questions
+                ->whereIn('question_type', $qt1Types)
+                ->whereNotIn('id', $usedIds)
+                ->shuffle()
+                ->take($shortage);
+
+            $toRemoveFromQt2 = array_slice($qt2Ids, 0, count($replacements));
+            $qt2Ids          = array_diff($qt2Ids, $toRemoveFromQt2);
+            $qt1Ids          = array_merge($qt1Ids, $replacements->pluck('id')->toArray());
+
+            $selectedIds = array_merge(
+                array_diff($selectedIds, $toRemoveFromQt2),
+                $replacements->pluck('id')->toArray()
+            );
+
+            Log::info('[Groq] Qt sanitize: added ' . count($replacements) . ' qt1 (was short)');
+        }
+
+        // ── Rebuild selected_ids cleanly ──────────────────────────────────────────
+        $result['selected_ids'] = array_values(array_unique($selectedIds));
+
+        // Recount from actual selected
+        $finalSelected        = $questions->whereIn('id', $result['selected_ids']);
+        $result['qt1_count']  = $finalSelected->whereIn('question_type', $qt1Types)->count();
+        $result['qt2_count']  = $finalSelected->whereIn('question_type', $qt2Types)->count();
+        $result['total_marks']= $finalSelected->sum('marks');
+
+        Log::info('[Groq] Qt sanitized', [
+            'qt1_need'  => $qt1Need,
+            'qt2_need'  => $qt2Need,
+            'qt1_final' => $result['qt1_count'],
+            'qt2_final' => $result['qt2_count'],
+        ]);
+
+        return $result;
+    }
+
     private function prepareQuestionsForPrompt(Collection $questions): array
     {
         return $questions->map(fn($q) => [
@@ -333,69 +456,103 @@ class AiExamGeneratorService
             'difficulty_level' => $q->difficulty_level,
             'question_type'    => $q->question_type,
             'marks'            => $q->marks,
-            // ── KEY FIX: Truncate question text to 100 chars ──
-            // Sending full question text for 250 questions = huge token usage
             'preview'          => mb_substr(strip_tags($q->question_text), 0, 100),
         ])->values()->toArray();
     }
 
-    private function buildPrompt(array $questions, array $targets, array $config): string
+    private function buildPrompt(array $questions, array $diffTargets, array $qtTargets, array $config): string
     {
-        $questionsJson = json_encode($questions);   // no JSON_PRETTY_PRINT — saves tokens
-        $total = $targets['easy'] + $targets['medium'] + $targets['hard'];
+        $questionsJson = json_encode($questions);
+        $total  = $diffTargets['easy'] + $diffTargets['medium'] + $diffTargets['hard'];
+        $qt1Types = implode(', ', $qtTargets['qt1_types']);
+        $qt2Types = implode(', ', $qtTargets['qt2_types']);
 
         return <<<PROMPT
-        Select questions for an academic exam. Respond ONLY with valid JSON, no markdown.
+Select questions for an academic exam. Respond ONLY with valid JSON, no markdown.
 
-        EXAM: {$config['title']} | Topic: {$config['topic']} | Question Type: {$config['question_type']} | Duration: {$config['duration_minutes']} min
-        NEED: {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard (total: {$total})
+EXAM: {$config['title']} | Topic: {$config['topic']} | Duration: {$config['duration_minutes']} min
+TOTAL NEEDED: {$total}
 
-        QUESTIONS:
-        {$questionsJson}
+DIFFICULTY TARGETS:
+- Easy: {$diffTargets['easy']}
+- Medium: {$diffTargets['medium']}
+- Hard: {$diffTargets['hard']}
 
-        RULES:
-        1. Select EXACTLY {$targets['easy']} easy, {$targets['medium']} medium, {$targets['hard']} hard
-        2. If a difficulty is short, use nearest available and note in reasoning
-        3. Prefer variety in question_type
-        4. No duplicate or very similar previews
+QUESTION TYPE TARGETS:
+- Type 1 [{$qt1Types}]: {$qtTargets['qt1_count']} questions
+- Type 2 [{$qt2Types}]: {$qtTargets['qt2_count']} questions
 
-        RESPOND WITH ONLY THIS JSON:
-        {"selected_ids":[integer IDs in exam order],"easy_ids":[IDs],"medium_ids":[IDs],"hard_ids":[IDs],"total_marks":integer,"reasoning":"brief explanation"}
-        PROMPT;
+AVAILABLE QUESTIONS:
+{$questionsJson}
+
+RULES:
+1. Select EXACTLY {$diffTargets['easy']} easy, {$diffTargets['medium']} medium, {$diffTargets['hard']} hard
+2. Select EXACTLY {$qtTargets['qt1_count']} questions from type [{$qt1Types}] and {$qtTargets['qt2_count']} from [{$qt2Types}]
+3. If targets cannot be met exactly, get as close as possible and note in reasoning
+4. No duplicate or very similar question previews
+
+RESPOND WITH ONLY THIS JSON:
+{"selected_ids":[integer IDs in exam order],"easy_ids":[IDs],"medium_ids":[IDs],"hard_ids":[IDs],"total_marks":integer,"reasoning":"brief explanation"}
+PROMPT;
     }
 
-    private function fallbackRandomSelection(Collection $questions, array $targets): array
+    private function fallbackRandomSelection(Collection $questions, array $diffTargets, array $qtTargets): array
     {
         $selected = collect();
+        $usedIds  = [];
 
-        foreach (['easy', 'medium', 'hard'] as $diff) {
-            $pool = $questions->where('difficulty_level', $diff)->shuffle()->take($targets[$diff]);
+        foreach (['qt1', 'qt2'] as $qtKey) {
+            $needed = $qtTargets["{$qtKey}_count"];
+            $types  = $qtTargets["{$qtKey}_types"];
+            if ($needed === 0 || empty($types)) continue;
 
-            if ($pool->count() < $targets[$diff]) {
-                $extras = $questions
-                    ->whereNotIn('id', $selected->pluck('id'))
-                    ->whereNotIn('id', $pool->pluck('id'))
+            $alreadySelected = $selected->pluck('id')->toArray();
+
+            $qtPool = $questions
+                ->whereIn('question_type', $types)
+                ->whereNotIn('id', $alreadySelected);
+
+            $bucketSelected = collect();
+
+            // Maintain difficulty ratio within this qt bucket
+            foreach (['easy', 'medium', 'hard'] as $diff) {
+                $diffTotal = max(array_sum($diffTargets), 1);
+                $take      = (int) round($needed * $diffTargets[$diff] / $diffTotal);
+                $pool      = $qtPool
+                    ->where('difficulty_level', $diff)
+                    ->whereNotIn('id', $bucketSelected->pluck('id')->toArray())
                     ->shuffle()
-                    ->take($targets[$diff] - $pool->count());
-                $pool = $pool->merge($extras);
+                    ->take($take);
+                $bucketSelected = $bucketSelected->merge($pool);
             }
 
-            $selected = $selected->merge($pool);
+            // Top up if short
+            if ($bucketSelected->count() < $needed) {
+                $extras = $qtPool
+                    ->whereNotIn('id', $bucketSelected->pluck('id')->toArray())
+                    ->shuffle()
+                    ->take($needed - $bucketSelected->count());
+                $bucketSelected = $bucketSelected->merge($extras);
+            }
+
+            $selected = $selected->merge($bucketSelected);
         }
 
-        $selectedIds = $selected->pluck('id')->shuffle()->values()->toArray();
+        $selectedIds = $selected->unique('id')->pluck('id')->shuffle()->values()->toArray();
 
         return [
             'selected_ids' => $selectedIds,
             'easy_ids'     => $selected->where('difficulty_level', 'easy')->pluck('id')->values()->toArray(),
             'medium_ids'   => $selected->where('difficulty_level', 'medium')->pluck('id')->values()->toArray(),
             'hard_ids'     => $selected->where('difficulty_level', 'hard')->pluck('id')->values()->toArray(),
+            'qt1_count'    => $selected->whereIn('question_type', $qtTargets['qt1_types'])->count(),
+            'qt2_count'    => $selected->whereIn('question_type', $qtTargets['qt2_types'])->count(),
             'total_marks'  => $selected->sum('marks'),
             'reasoning'    => 'Fallback: questions were selected randomly due to AI service unavailability.',
         ];
     }
 
-    private function persistExamSet(array $config, array $targets, array $aiResult): AcaExamSet
+    private function persistExamSet(array $config, array $diffTargets, array $qtTargets, array $aiResult): AcaExamSet
     {
         $selectedIds = $aiResult['selected_ids'] ?? [];
 
@@ -411,13 +568,18 @@ class AiExamGeneratorService
             'easy_count'       => count($aiResult['easy_ids']   ?? []),
             'medium_count'     => count($aiResult['medium_ids'] ?? []),
             'hard_count'       => count($aiResult['hard_ids']   ?? []),
+            'qt1_count'        => $aiResult['qt1_count'] ?? 0,
+            'qt2_count'        => $aiResult['qt2_count'] ?? 0,
             'duration_minutes' => $config['duration_minutes'],
             'total_marks'      => $aiResult['total_marks'] ?? 0,
             'ai_reasoning'     => $aiResult['reasoning']   ?? null,
             'question_ids'     => $selectedIds,
-            'custom_marks'     => null,   // ← ADD THIS
+            'custom_marks'     => null,
             'status'           => 'draft',
             'created_by'       => auth()->id(),
         ]);
     }
 }
+
+
+

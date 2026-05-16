@@ -20,6 +20,8 @@ class AcaExamSet extends Model
         'easy_count',
         'medium_count',
         'hard_count',
+        'qt1_count',
+        'qt2_count',
         'duration_minutes',
         'total_marks',
         'ai_reasoning',
@@ -62,6 +64,9 @@ class AcaExamSet extends Model
             'easy'   => ['count' => $this->easy_count,   'pct' => round($this->easy_count   / $total * 100)],
             'medium' => ['count' => $this->medium_count, 'pct' => round($this->medium_count / $total * 100)],
             'hard'   => ['count' => $this->hard_count,   'pct' => round($this->hard_count   / $total * 100)],
+
+            'qt1'   => ['count' => $this->qt1_count,   'pct' => round($this->qt1_count   / $total * 100)],
+            'qt2'   => ['count' => $this->qt2_count,   'pct' => round($this->qt2_count   / $total * 100)],
         ];
     }
 

@@ -17,12 +17,14 @@ return new class extends Migration
             $table->unsignedInteger('easy_count')->default(0);
             $table->unsignedInteger('medium_count')->default(0);
             $table->unsignedInteger('hard_count')->default(0);
+            $table->unsignedInteger('qt1_count')->default(0);
+            $table->unsignedInteger('qt2_count')->default(0);
             $table->unsignedInteger('duration_minutes')->default(60);
             $table->unsignedInteger('total_marks')->default(0);
 
             // AI reasoning stored for transparency/audit
             $table->text('ai_reasoning')->nullable()
-                  ->comment('Gemini\'s explanation of how it selected/balanced questions');
+                  ->comment('Gorq\'s explanation of how it selected/balanced questions');
 
             // The selected question IDs as JSON array
             $table->json('question_ids')

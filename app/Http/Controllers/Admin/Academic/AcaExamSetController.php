@@ -65,6 +65,9 @@ class AcaExamSetController extends Controller
 
     public function store(Request $request)
     {
+        $singleTypes = ['mcq_4', 'mcq_2', 'short_question', 'long_question'];
+        $isSingle    = in_array($request->question_type, $singleTypes);
+
         $validated = $request->validate([
             'title'            => 'required|string|max:200',
             'topic'            => 'required|string|max:100',
@@ -73,15 +76,31 @@ class AcaExamSetController extends Controller
             'easy_percent'     => 'required|integer|min:0|max:100',
             'medium_percent'   => 'required|integer|min:0|max:100',
             'hard_percent'     => 'required|integer|min:0|max:100',
+            'qtype1_percent'   => 'required|integer|min:0|max:100',
+            'qtype2_percent'   => $isSingle ? 'nullable|integer' : 'required|integer|min:0|max:100',
             'duration_minutes' => 'required|integer|min:10|max:300',
         ]);
 
-        // Ensure percentages add up to 100
+        // For single types, force qt values
+        if ($isSingle) {
+            $validated['qtype1_percent'] = 100;
+            $validated['qtype2_percent'] = 0;
+        }
+
+        // Validate difficulty percentages
         $pctSum = $validated['easy_percent'] + $validated['medium_percent'] + $validated['hard_percent'];
         if ($pctSum !== 100) {
-            return back()
-                ->withInput()
-                ->withErrors(['easy_percent' => "Difficulty percentages must add up to 100 (currently {$pctSum})."]);;
+            return back()->withInput()
+                ->withErrors(['easy_percent' => "Difficulty percentages must add up to 100 (currently {$pctSum})."]);
+        }
+
+        // Validate question type percentages — skip for single types
+        if (!$isSingle) {
+            $qtSum = $validated['qtype1_percent'] + $validated['qtype2_percent'];
+            if ($qtSum !== 100) {
+                return back()->withInput()
+                    ->withErrors(['qtype1_percent' => "Question type percentages must add up to 100 (currently {$qtSum})."]);
+            }
         }
 
         try {
@@ -92,8 +111,7 @@ class AcaExamSetController extends Controller
                 ->with('success', "Exam set \"{$examSet->title}\" generated successfully using AI!");
 
         } catch (\RuntimeException $e) {
-            return back()
-                ->withInput()
+            return back()->withInput()
                 ->withErrors(['ai' => $e->getMessage()]);
         }
     }
@@ -249,8 +267,9 @@ class AcaExamSetController extends Controller
                     'question_type'    => $lib->question_type,
                     'question_text'    => $lib->question_text,
                     'difficulty_level' => $lib->difficulty_level ?? 'medium',
-                    'marks'            => $assignedMark,   // ✅ custom mark used here
-                    'evaluation_type'  => $lib->correct_answer ? 'automatic' : 'manual',
+                    'marks'            => $assignedMark,
+                    // 'evaluation_type'  => $lib->correct_answer ? 'automatic' : 'manual',
+                    'evaluation_type' => $this->resolveEvaluationType($lib->question_type, $lib->correct_answer),
                     'option_a'         => $lib->option_a,
                     'option_b'         => $lib->option_b,
                     'option_c'         => $lib->option_c,
@@ -279,6 +298,22 @@ class AcaExamSetController extends Controller
             DB::rollBack();
             return back()->with('error', 'Publishing failed: ' . $e->getMessage());
         }
+    }
+
+    private function resolveEvaluationType(string $questionType, $correctAnswer): string
+    {
+        // MCQ types — automatic if correct answer exists
+        if (in_array($questionType, ['mcq_4', 'mcq_2'])) {
+            return $correctAnswer ? 'automatic' : 'manual';
+        }
+
+        // Short/Long questions — always manual (teacher grades)
+        if (in_array($questionType, ['short_question', 'long_question'])) {
+            return 'manual';
+        }
+
+        // Fallback
+        return $correctAnswer ? 'automatic' : 'manual';
     }
 
     // -------------------------------------------------------------------------
