@@ -22,10 +22,9 @@ class AcaExamRulesSeeder extends Seeder
             ['type' => 'instruction', 'key' => 'internet_connection','title' => 'Internet Connection',  'description' => 'Ensure a stable internet connection before starting the exam.',                                                             'order' => 4],
 
             // Rules
-            ['type' => 'rule', 'key' => 'back_button',          'title' => 'Back Button',           'description' => 'Do not press the browser back button during the exam. It will stop your exam immediately.',                               'order' => 1],
-            ['type' => 'rule', 'key' => 'tab_switching',           'title' => 'Tab Switching',            'description' => 'Do not switch tabs or open any other browser tab during the exam. Your exam will be auto-submitted.',                     'order' => 2],
-            ['type' => 'rule', 'key' => 'browser_maximized',   'title' => 'Browser Maximized',     'description' => 'Keep your browser maximized throughout the exam. Minimizing or restoring the window will automatically stop your exam.',   'order' => 3],
-            ['type' => 'rule', 'key' => 'webcam_required',         'title' => 'Webcam Required',           'description' => 'You must have a working webcam connected and enabled before starting the exam.',                             'order' => 4],
+            ['type' => 'rule', 'key' => 'tab_switching',           'title' => 'Tab Switching',            'description' => 'Do not switch tabs, minimize or restore the browser, or open any other browser tab during the exam. It will count as a violation.',                                 'order' => 1],
+            ['type' => 'rule', 'key' => 'fullscreen_required',     'title' => 'Fullscreen Required',      'description' => 'During the exam, your browser must remain in fullscreen mode at all times. Exiting fullscreen will be recorded as a violation and reported to your instructor.',    'order' => 3],
+            ['type' => 'rule', 'key' => 'webcam_required',         'title' => 'Webcam Required',          'description' => 'You must have a working webcam connected and enabled before starting the exam. If you do not give access, it will count as a violation',                            'order' => 3],
         ];
 
         foreach ($rules as $rule) {

@@ -222,9 +222,6 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/exam/id={exam}', 'examAnalytics')->name('admin.academic.performance.examAnalytics');
             Route::get('/exam/id={exam}/student/id={student}', 'studentReport')->name('admin.academic.performance.studentReport');
             Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('admin.academic.performance.store');
-            
-            Route::post('/exam/id={exam}/regrade', 'retriggerGrading')->name('admin.academic.performance.retriggerGrading');
-            Route::post('/exam/id={exam}/student/id={student}/regrade', 'retriggerStudentGrading')->name('admin.academic.performance.retriggerStudentGrading');
         });
 
         // Proctoring Reports

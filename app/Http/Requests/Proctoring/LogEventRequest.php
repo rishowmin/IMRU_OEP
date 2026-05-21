@@ -15,7 +15,7 @@ class LogEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'event_type' => ['required', 'string', 'in:tab_switch,copy_attempt,paste_attempt,face_not_detected,multiple_faces,looking_away'],
+            'event_type' => ['required', 'string', 'in:tab_switch,copy_attempt,paste_attempt,face_not_detected,multiple_faces,looking_away,fullscreen_required'],
             'severity'   => ['nullable', 'string', 'in:low,medium,high'],
             'metadata'   => ['nullable', 'array'],
         ];

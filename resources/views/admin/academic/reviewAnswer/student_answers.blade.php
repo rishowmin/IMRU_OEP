@@ -195,3 +195,31 @@
 
 </section>
 @endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('select[name^="reviews["]').forEach(function (select) {
+            // Find the sibling marks input within the same .row container
+            const row = select.closest('.row.g-3');
+            const marksInput = row.querySelector('input[name*="[marks_awarded]"]');
+            const maxMarks = parseFloat(marksInput?.getAttribute('max') ?? 0);
+
+            function syncMarks() {
+                if (!marksInput) return;
+                if (select.value === '1') {
+                    marksInput.value = maxMarks;
+                } else {
+                    marksInput.value = 0;
+                }
+            }
+
+            // Auto-fill on change
+            select.addEventListener('change', syncMarks);
+
+            // Also auto-fill on page load if a value is already selected
+            syncMarks();
+        });
+    });
+</script>
+@endsection

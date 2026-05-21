@@ -176,10 +176,6 @@
         {{-- Right: Result Summary --}}
         <div class="col-lg-4">
             <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="card-title fw-semibold mb-0 p-0">Result Summary</h6>
-                </div>
-
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush small mb-0">
                         <li class="list-group-item d-flex align-items-center justify-content-between">

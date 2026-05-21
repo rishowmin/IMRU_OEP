@@ -260,11 +260,12 @@ class StudMyExamController extends Controller
 
         if ($isStopped) {
             $message = match ($stopReason) {
-                'back_button'   => 'Exam stopped: You pressed the browser back button.',
-                'manual_stop'   => 'Exam stopped: You manually stopped the exam.',
-                'url_change'    => 'Exam stopped: You attempted to navigate away from the exam.',
-                'timer_expired' => 'Exam auto-submitted: Your exam time has expired.',
-                default         => 'Exam stopped. Your answers have been recorded.',
+                'back_button'       => 'Exam stopped: You pressed the browser back button.',
+                'manual_stop'       => 'Exam stopped: You manually stopped the exam.',
+                'url_change'        => 'Exam stopped: You attempted to navigate away from the exam.',
+                'timer_expired'     => 'Exam auto-submitted: Your exam time has expired.',
+                'fullscreen_exited' => 'Exam warning: You exited fullscreen mode during the exam.',
+                default             => 'Exam stopped. Your answers have been recorded.',
             };
 
             return redirect()->route('student.myExams')->with('error', $message);
@@ -335,49 +336,6 @@ class StudMyExamController extends Controller
             'reviewedAnswers',
             'subjectiveMarksObtained',
             'allReviewed'
-        ));
-    }
-
-    public function myResult(AcaExam $exam)
-    {
-        $student = auth()->id();
-
-        $isEnrolled = AcaEnrollment::where('student_id', $student)
-            ->where('course_id', $exam->course_id)
-            ->exists();
-
-        if (!$isEnrolled) {
-            return redirect()->route('student.myExams')
-                ->with('error', 'You are not enrolled in this course.');
-        }
-
-        $result = AcaExamResult::where('exam_id', $exam->id)
-            ->where('student_id', $student)
-            ->first();
-
-        if (!$result) {
-            return redirect()->route('student.myExams')
-                ->with('error', 'Your result is not available yet.');
-        }
-
-        $rank = AcaExamResult::where('exam_id', $exam->id)
-            ->where('percentage', '>', $result->percentage)
-            ->count() + 1;
-
-        $totalStudents = AcaExamResult::where('exam_id', $exam->id)->count();
-
-        $answers = AcaExamAnswer::where('exam_id', $exam->id)
-            ->where('student_id', $student)
-            ->with(['question', 'reviewAnswer'])
-            ->orderBy('id')
-            ->get();
-
-        return view('student.myExams.my_result', compact(
-            'exam',
-            'result',
-            'answers',
-            'rank',
-            'totalStudents'
         ));
     }
 

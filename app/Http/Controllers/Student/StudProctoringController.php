@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 
 class StudProctoringController extends Controller
 {
-    // ── Student: Log Tab Switch ────────────────────────────────────
+    // Student: Log Tab Switch
 
     public function logTabSwitch(LogTabSwitchRequest  $request, AcaExamAttempt $attempt): JsonResponse
     {
@@ -26,11 +26,9 @@ class StudProctoringController extends Controller
         AcaExamTabSwitchLog::create([
             'attempt_id'  => $attempt->id,
             'switched_at' => now(),
-            // 'returned_at' => $request->returned_at ?? null,
             'returned_at' => now(),
             'duration_ms' => $request->duration_ms ?? null,
             'switch_count'=> $switchCount,
-            // 'updated_by'  => auth('student')->id(),
             'updated_by' => auth()->id(),
         ]);
 
@@ -44,7 +42,6 @@ class StudProctoringController extends Controller
                                     : AcaExamProctoringEvent::SEVERITY_LOW),
             'metadata'    => ['switch_count' => $switchCount],
             'detected_at' => now(),
-            // 'updated_by'  => auth('student')->id(),
             'updated_by' => auth()->id(),
         ]);
 

@@ -28,19 +28,10 @@
                             </nav>
                         </div>
                         <div class="card-header-right">
-                            {{-- Re-trigger grading --}}
-                            <form method="POST" action="{{ route('admin.academic.performance.retriggerStudentGrading', [$exam->id, $student->id]) }}" onsubmit="return confirm('Re-grade this student?')">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-warning btn-sm">
-                                    <i class="bi bi-arrow-repeat"></i>
-                                    <span class="ms-1">Re-Grade Student</span>
-                                </button>
-
-                                <a href="{{ route('admin.academic.performance.examAnalytics', $exam->id) }}" class="btn btn-outline-theme btn-sm">
-                                    <i class="bi bi-arrow-left-square"></i>
-                                    <span class="ms-1">Back to List</span>
-                                </a>
-                            </form>
+                            <a href="{{ route('admin.academic.performance.examAnalytics', $exam->id) }}" class="btn btn-outline-theme btn-sm">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back to List</span>
+                            </a>
                         </div>
                     </div>
                 </div>

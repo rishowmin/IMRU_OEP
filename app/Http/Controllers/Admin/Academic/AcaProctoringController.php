@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 
 class AcaProctoringController extends Controller
 {
-    // ── Admin: List All Flagged Attempts ───────────────────────────
+    // Admin: List All Flagged Attempts
 
     public function index()
     {
@@ -32,7 +32,7 @@ class AcaProctoringController extends Controller
         return view('admin.academic.proctoring.index', compact('attempts', 'serialNo'));
     }
 
-    // ── Admin: Full Report ─────────────────────────────────────────
+    // Admin: Full Report
 
     public function getReport(AcaExamAttempt $attempt)
     {
@@ -48,7 +48,7 @@ class AcaProctoringController extends Controller
         return view('admin.academic.proctoring.report', compact('attempt'));
     }
 
-    // ── Admin: Summary ─────────────────────────────────────────────
+    // Admin: Summary
 
     public function getSummary(AcaExamAttempt $attempt): JsonResponse
     {

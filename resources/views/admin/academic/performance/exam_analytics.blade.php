@@ -27,19 +27,10 @@
                             </nav>
                         </div>
                         <div class="card-header-right">
-                            {{-- Re-trigger grading --}}
-                            <form method="POST" action="{{ route('admin.academic.performance.retriggerGrading', $exam) }}" onsubmit="return confirm('Re-grade all students for this exam?')">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-warning btn-sm">
-                                    <i class="bi bi-arrow-repeat"></i>
-                                    <span class="ms-1">Re-Grade All</span>
-                                </button>
-
-                                <a href="{{ route('admin.academic.performance.index') }}" class="btn btn-outline-theme btn-sm">
-                                    <i class="bi bi-arrow-left-square"></i>
-                                    <span class="ms-1">Back to List</span>
-                                </a>
-                            </form>
+                            <a href="{{ route('admin.academic.performance.index') }}" class="btn btn-outline-theme btn-sm">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back to List</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -60,14 +51,6 @@
                             <div class="fs-3 fw-bold text-theme">{{ $exam->exam_title }}</div>
                             <small class="text-muted">{{ $exam->exam_code ?? 'N/A' }}</small>
                         </span>
-
-                        {{-- Re-trigger grading --}}
-                        <form method="POST" action="{{ route('admin.academic.performance.retriggerGrading', $exam) }}" onsubmit="return confirm('Re-grade all students for this exam?')" title="Re-Grade All">
-                            @csrf
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="bi bi-arrow-repeat"></i>
-                            </button>
-                        </form>
                     </div>
 
                     <ul class="list-group list-group-flush small mt-2 mb-0">
@@ -333,22 +316,9 @@
                                     </td>
                                     <td class="text-center">
                                         {{ $result->mcq_marks_obtained }}/{{ $result->mcq_total_marks }}
-                                        <small class="d-block text-muted">
-                                            <span class="text-success me-1">✓{{ $result->mcq_correct }}</span>
-                                            <span class="text-danger me-1">✗{{ $result->mcq_wrong }}</span>
-                                            @if($result->mcq_unanswered > 0)
-                                            <span class="text-secondery">–{{ $result->mcq_unanswered }}</span>
-                                            @else
-                                            <span class="text-secondery">–0</span>
-                                            @endif
-                                        </small>
                                     </td>
                                     <td class="text-center">
                                         {{ $result->subjective_marks_obtained }}/{{ $result->subjective_total_marks }}
-                                        <small class="d-block text-muted">
-                                            <span class="text-success me-1">✓{{ $result->subjective_reviewed }}</span>
-                                            <span class="text-danger">✗{{ $result->subjective_total - $result->subjective_reviewed }}</span>
-                                        </small>
                                     </td>
                                     <td class="text-center fw-bold">
                                         {{ $result->total_marks_obtained }}/{{ $result->total_marks }}

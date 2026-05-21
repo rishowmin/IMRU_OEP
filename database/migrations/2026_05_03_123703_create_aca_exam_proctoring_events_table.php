@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('aca_exam_proctoring_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attempt_id')->constrained('aca_exam_attempts')->cascadeOnDelete();
-            $table->string('event_type')->comment('tab_switch, copy_attempt, paste_attempt, face_not_detected, multiple_faces, looking_away');
+            $table->string('event_type')->comment('tab_switch, fullscreen_required, webcam_required, copy_attempt, paste_attempt, face_not_detected, multiple_faces, looking_away');
             $table->string('severity')->default('low')->comment('low, medium, high');
             $table->json('metadata')->nullable()->comment('Extra AI details');
             $table->timestamp('detected_at');

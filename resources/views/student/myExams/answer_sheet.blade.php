@@ -357,74 +357,74 @@ $canStart = false;
 {{-- SCRIPT 3: Timer + Progress + MCQ Highlight                 --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    const totalQuestions = {{ $exam->questions->count() }};
-    let timeLeft         = {{ $remainingSeconds ?? 0 }};
-    const timerEl        = document.getElementById('exam_timer');
-    const answeredEl     = document.getElementById('answeredBadge');
-    const progressBar    = document.getElementById('progressBar');
-    const progressLbl    = document.getElementById('progressLabel');
+        const totalQuestions = {{ $exam->questions->count() }};
+        let timeLeft         = {{ $remainingSeconds ?? 0 }};
+        const timerEl        = document.getElementById('exam_timer');
+        const answeredEl     = document.getElementById('answeredBadge');
+        const progressBar    = document.getElementById('progressBar');
+        const progressLbl    = document.getElementById('progressLabel');
 
-    // Timer
-    function updateTimer() {
-        if (timeLeft <= 0) {
-            timerEl.innerHTML = '<i class="bi bi-stopwatch me-1"></i>Time Up!';
-            timerEl.classList.replace('bg-success', 'bg-danger');
-            submitExam(false, 'timer_expired');
-            return;
-        }
-        const h = Math.floor(timeLeft / 3600);
-        const m = Math.floor((timeLeft % 3600) / 60);
-        const s = timeLeft % 60;
-        timerEl.innerHTML = `<i class="bi bi-stopwatch me-1"></i>${String(h).padStart(2,'0')}h : ${String(m).padStart(2,'0')}m : ${String(s).padStart(2,'0')}s`;
-        if (timeLeft <= 300) timerEl.classList.replace('bg-success', 'bg-danger');
-        timeLeft--;
-    }
-    updateTimer();
-    setInterval(updateTimer, 1000);
-
-    // Answered counter + progress bar
-    function updateAnsweredCount() {
-        let answered = 0;
-        document.querySelectorAll('.question-item').forEach(function (item) {
-            const radios   = item.querySelectorAll('input[type="radio"]');
-            const textarea = item.querySelector('textarea');
-            if (radios.length > 0) {
-                if (item.querySelector('input[type="radio"]:checked')) answered++;
-            } else if (textarea && textarea.value.trim() !== '') {
-                answered++;
+        // Timer
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                timerEl.innerHTML = '<i class="bi bi-stopwatch me-1"></i>Time Up!';
+                timerEl.classList.replace('bg-success', 'bg-danger');
+                submitExam(false, 'timer_expired');
+                return;
             }
-        });
-        answeredEl.innerHTML = `<i class="bi bi-ui-checks me-1"></i>${answered} / ${totalQuestions} Answered`;
-        const pct = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
-        progressBar.style.width = pct + '%';
-        progressBar.setAttribute('aria-valuenow', pct);
-        progressLbl.textContent = pct + '%';
-    }
-    document.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', updateAnsweredCount));
-    document.querySelectorAll('textarea').forEach(t => t.addEventListener('input', updateAnsweredCount));
-    updateAnsweredCount();
+            const h = Math.floor(timeLeft / 3600);
+            const m = Math.floor((timeLeft % 3600) / 60);
+            const s = timeLeft % 60;
+            timerEl.innerHTML = `<i class="bi bi-stopwatch me-1"></i>${String(h).padStart(2,'0')}h : ${String(m).padStart(2,'0')}m : ${String(s).padStart(2,'0')}s`;
+            if (timeLeft <= 300) timerEl.classList.replace('bg-success', 'bg-danger');
+            timeLeft--;
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
 
-    // MCQ label highlight
-    document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            document.querySelectorAll(`input[name="${this.name}"]`).forEach(function (r) {
-                r.closest('label')?.classList.remove('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
+        // Answered counter + progress bar
+        function updateAnsweredCount() {
+            let answered = 0;
+            document.querySelectorAll('.question-item').forEach(function (item) {
+                const radios   = item.querySelectorAll('input[type="radio"]');
+                const textarea = item.querySelector('textarea');
+                if (radios.length > 0) {
+                    if (item.querySelector('input[type="radio"]:checked')) answered++;
+                } else if (textarea && textarea.value.trim() !== '') {
+                    answered++;
+                }
             });
-            this.closest('label')?.classList.add('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
+            answeredEl.innerHTML = `<i class="bi bi-ui-checks me-1"></i>${answered} / ${totalQuestions} Answered`;
+            const pct = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
+            progressBar.style.width = pct + '%';
+            progressBar.setAttribute('aria-valuenow', pct);
+            progressLbl.textContent = pct + '%';
+        }
+        document.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', updateAnsweredCount));
+        document.querySelectorAll('textarea').forEach(t => t.addEventListener('input', updateAnsweredCount));
+        updateAnsweredCount();
+
+        // MCQ label highlight
+        document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll(`input[name="${this.name}"]`).forEach(function (r) {
+                    r.closest('label')?.classList.remove('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
+                });
+                this.closest('label')?.classList.add('border-success', 'bg-success', 'bg-opacity-10', 'text-success');
+            });
         });
-    });
 
-    // Submit / Stop modal buttons
-    document.getElementById('confirmSubmitExam').addEventListener('click', function () {
-        submitExam(false, '');
-    });
-    document.getElementById('confirmStopExam').addEventListener('click', function () {
-        submitExam(true, document.getElementById('stopReasonFlag').value || 'manual_stop');
-    });
+        // Submit / Stop modal buttons
+        document.getElementById('confirmSubmitExam').addEventListener('click', function () {
+            submitExam(false, '');
+        });
+        document.getElementById('confirmStopExam').addEventListener('click', function () {
+            submitExam(true, document.getElementById('stopReasonFlag').value || 'manual_stop');
+        });
 
-});
+    });
 </script>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    {{-- ── Always Active: Copy / Paste / Cut Restriction ─────── --}}
+    // Always Active: Copy / Paste / Cut Restriction
     (function () {
         ['copy', 'paste', 'cut'].forEach(function (action) {
             document.addEventListener(action, function (e) {
@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     })();
 
-    {{-- Always Active: Back Button Restriction ────────────────────────────────── --}}
+    // Always Active: Back Button Restriction
     (function () {
         history.pushState(null, null, location.href);
 
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
     @foreach($mappedRules as $map)
     @php $ruleKey = $map->rule->key ?? ''; @endphp
 
-    {{-- ── Rule: Tab Switching + Browser Maximized ────────────── --}}
+    // Rule: Tab Switching + Browser Maximized
     @if($ruleKey === 'tab_switching')
     (function () {
         let tabSwitchCount = 0;
@@ -599,7 +599,157 @@ document.addEventListener('DOMContentLoaded', function () {
     })();
     @endif
 
-    {{-- ── Rule: Webcam Required ───────────────────────────── --}}
+    // Rule: Fullscreen Required
+    @if($ruleKey === 'fullscreen_required')
+    (function () {
+
+        // Fullscreen Helpers
+        function enterFullscreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen)            el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.mozRequestFullScreen)    el.mozRequestFullScreen();
+            console.log('[Fullscreen] Entered.');
+        }
+
+        function isFullscreen() {
+            return !!(
+                document.fullscreenElement       ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement
+            );
+        }
+
+        // Initial Fullscreen Prompt
+        const fsPrompt = document.createElement('div');
+        fsPrompt.id    = 'fs_prompt';
+        fsPrompt.style.cssText = `
+            position       : fixed;
+            inset          : 0;
+            background     : rgba(0,0,0,0.92);
+            z-index        : 999999;
+            display        : flex;
+            flex-direction : column;
+            align-items    : center;
+            justify-content: center;
+            color          : white;
+            font-family    : inherit;
+        `;
+        fsPrompt.innerHTML = `
+            <div style="text-align:center; max-width:420px; padding:30px;">
+                <div style="font-size:48px; margin-bottom:16px;">🖥️</div>
+                <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Required</h4>
+                <p style="color:#ccc; margin-bottom:24px; line-height:1.6;">
+                    This exam must be taken in fullscreen mode.
+                    Click the button below to enter fullscreen and begin your exam.
+                </p>
+                <button id="enter_fs_btn" style="
+                    background    : #198754; color: white;
+                    border        : none; padding: 12px 32px;
+                    border-radius : 8px; font-size: 16px;
+                    font-weight   : 600; cursor: pointer;
+                ">
+                    🔒 Enter Fullscreen & Start Exam
+                </button>
+                <p style="color:#888; font-size:12px; margin-top:16px;">
+                    Press <strong>F11</strong> or click the button above
+                </p>
+            </div>
+        `;
+        document.body.appendChild(fsPrompt);
+
+        document.getElementById('enter_fs_btn').addEventListener('click', function () {
+            enterFullscreen();
+            fsPrompt.remove();
+        });
+
+        // Fullscreen Exit Warning
+        function showFullscreenWarning() {
+            document.querySelector('#fs_warning')?.remove();
+
+            const warn = document.createElement('div');
+            warn.id    = 'fs_warning';
+            warn.style.cssText = `
+                position       : fixed;
+                inset          : 0;
+                background     : rgba(220,53,69,0.97);
+                z-index        : 999999;
+                display        : flex;
+                flex-direction : column;
+                align-items    : center;
+                justify-content: center;
+                color          : white;
+                font-family    : inherit;
+            `;
+            warn.innerHTML = `
+                <div style="text-align:center; max-width:420px; padding:30px;">
+                    <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
+                    <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Exited!</h4>
+                    <p style="color:#ffe0e0; margin-bottom:8px; line-height:1.6;">
+                        You exited fullscreen mode. This violation has been recorded.
+                    </p>
+                    <p style="color:#ffe0e0; margin-bottom:24px; line-height:1.6;">
+                        Please return to fullscreen to continue your exam.
+                    </p>
+                    <button id="reenter_fs_btn" style="
+                        background    : white; color: #dc3545;
+                        border        : none; padding: 12px 32px;
+                        border-radius : 8px; font-size: 16px;
+                        font-weight   : 700; cursor: pointer;
+                    ">
+                        🔒 Return to Fullscreen
+                    </button>
+                    <p style="color:#ffaaaa; font-size:12px; margin-top:16px;">
+                        Repeated violations will be reported to your instructor.
+                    </p>
+                </div>
+            `;
+            document.body.appendChild(warn);
+
+            document.getElementById('reenter_fs_btn').addEventListener('click', function () {
+                enterFullscreen();
+                warn.remove();
+            });
+        }
+
+        // Detect Fullscreen Exit
+        document.addEventListener('fullscreenchange',       onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+        document.addEventListener('mozfullscreenchange',    onFullscreenChange);
+
+        function onFullscreenChange() {
+            if (!isFullscreen()) {
+                console.log('[Fullscreen] Exited.');
+
+                // ✅ Log to DB
+                logProctoring(PROCTOR.event, {
+                    event_type : 'fullscreen_required',
+                    severity   : 'high',
+                    metadata   : { reason: 'fullscreen_exited' },
+                });
+
+                showFullscreenWarning();
+            }
+        }
+
+        // Re-enter fullscreen when student returns to tab
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden && !isFullscreen()) {
+                showFullscreenWarning();
+            }
+        });
+
+        // Stop fullscreen on exam submit
+        document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
+            if (document.exitFullscreen)            document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            console.log('[Fullscreen] Exited on submit.');
+        });
+
+    })();
+    @endif
+
+    // Rule: Webcam Required
     @if($ruleKey === 'webcam_required')
     (function () {
         let stream              = null;
