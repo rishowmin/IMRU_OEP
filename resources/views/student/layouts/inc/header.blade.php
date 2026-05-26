@@ -2,7 +2,7 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-        <a href="index.html" class="logo d-flex align-items-center">
+        <a href="{{ route('student.dashboard') }}" class="logo d-flex align-items-center">
             <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="">
             {{-- <span class="d-none d-lg-block">IMRU Online Examination Portal</span> --}}
         </a>
@@ -103,4 +103,4 @@
     </nav><!-- End Icons Navigation -->
 
 </header>
-<!-- End Header -->
+<!-- ======= End Header ======= -->

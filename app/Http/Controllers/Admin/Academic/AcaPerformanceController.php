@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\AcaEnrollment;
 use App\Models\Academic\AcaExam;
 use App\Models\Academic\AcaExamAnswer;
 use App\Models\Academic\AcaExamResult;
@@ -24,16 +25,24 @@ class AcaPerformanceController extends Controller
     public function index()
     {
         $exams = AcaExam::with('course')
-            ->withCount([
-                'examAnswers as total_submissions' => fn($q) => $q->distinct('student_id'),
-            ])
             ->orderBy('exam_date', 'desc')
             ->get()
             ->map(function ($exam) {
+
+                // ✅ COUNT DISTINCT student_id — counts unique students who submitted,
+                //    not total answer rows (which is one row per question per student).
+                $exam->total_submissions = AcaExamAnswer::where('exam_id', $exam->id)
+                    ->distinct('student_id')
+                    ->count('student_id');
+
+                // Count students enrolled in this exam's course
+                $exam->total_enrolled = AcaEnrollment::where('course_id', $exam->course_id)
+                    ->count();
+
                 $exam->result_summary = AcaExamResult::where('exam_id', $exam->id)
                     ->selectRaw("
-                        COUNT(*) as total_graded,
-                        SUM(CASE WHEN grading_status = 'complete' THEN 1 ELSE 0 END) as complete,
+                        COUNT(*) as total_result_rows,
+                        SUM(CASE WHEN grading_status = 'complete' THEN 1 ELSE 0 END) as total_graded,
                         SUM(CASE WHEN grading_status = 'partial'  THEN 1 ELSE 0 END) as partial,
                         SUM(CASE WHEN grading_status = 'pending'  THEN 1 ELSE 0 END) as pending,
                         AVG(percentage) as avg_percentage,
@@ -41,6 +50,7 @@ class AcaPerformanceController extends Controller
                         MIN(percentage) as min_percentage
                     ")
                     ->first();
+
                 return $exam;
             });
 

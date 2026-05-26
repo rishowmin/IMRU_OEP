@@ -7,5 +7,5 @@
         Developed by <a href="https://github.com/rishowmin" target="_blank">Muhammad Raisul Islam, IIT, JU</a>
     </div>
 </footer>
-<!-- End Footer -->
+<!-- ======= End Footer ======= -->
 

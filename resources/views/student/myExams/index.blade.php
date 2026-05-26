@@ -7,38 +7,42 @@
 @include('student.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-person-badge"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <div class="btn-group" role="group" aria-label="Basic outlined example">
-                            <button type="button" class="btn btn-outline-theme btn-sm active" id="gridViewBtn" title="Grid View">
-                                <i class="bi bi-grid"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-theme btn-sm" id="listViewBtn" title="List View">
-                                <i class="bi bi-list-ul"></i>
-                            </button>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-clipboard"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                <button type="button" class="btn btn-outline-theme btn-sm active" id="gridViewBtn" title="Grid View">
+                                    <i class="bi bi-grid"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-theme btn-sm" id="listViewBtn" title="List View">
+                                    <i class="bi bi-list-ul"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
+
+<section class="section">
 
     <div class="row">
         <div class="col-lg-12">
@@ -207,7 +211,7 @@
             {{-- ==================== TABLE VIEW ==================== --}}
             <div id="listView" style="display: none;">
                 <div class="card shadow-sm">
-                    <div class="card-body">
+                    <div class="card-body p-0">
 
                         <table class="table table-sm small mb-0" id="myExamTable">
                             <thead class="small">

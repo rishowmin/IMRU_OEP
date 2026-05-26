@@ -19,6 +19,14 @@
             </a>
         </li>
 
+        {{-- My Results --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('student.myResults*') ? '' : 'collapsed' }}" href="{{ route('student.myResults') }}">
+                <i class="bi bi-trophy"></i>
+                <span>My Results</span>
+            </a>
+        </li>
+
     </ul>
 
 </aside>

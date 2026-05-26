@@ -132,11 +132,6 @@ class StudMyExamController extends Controller
         // Ratio-aware question selection
         $questions = $this->selectProportionalQuestions($exam);
 
-        // Load limited questions in random order
-        // $exam->load(['questions' => function ($query) use ($exam) {
-        //     $query->inRandomOrder()->limit($exam->total_questions);
-        // }]);
-
         // Load mapped active rules for this exam
         $mappedRules = AcaExamRuleMap::where('exam_id', $exam->id)
             ->where('is_active', true)

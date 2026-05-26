@@ -3,6 +3,7 @@
 namespace App\Models\Academic;
 
 use App\Models\Academic\AcaEnrollment;
+use App\Models\Academic\AcaExam;
 use App\Models\Admin;
 use App\Models\Student;
 use App\Models\Teacher;
@@ -56,6 +57,11 @@ class AcaCourse extends Model
         return $this->belongsTo(Admin::class, 'updated_by');
     }
 
+    public function instructor()
+    {
+        return $this->belongsTo(Teacher::class, 'aca_created_by');
+    }
+
     public function students()
     {
         return $this->hasMany(Student::class, 'student_id');
@@ -64,5 +70,10 @@ class AcaCourse extends Model
     public function enrollments()
     {
         return $this->hasMany(AcaEnrollment::class, 'course_id');
+    }
+
+    public function exams()
+    {
+        return $this->hasMany(AcaExam::class, 'course_id');
     }
 }

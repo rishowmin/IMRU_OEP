@@ -1,4 +1,4 @@
-@extends('student.layouts.app')
+@extends('student.layouts.exam')
 @section('title', 'Answer Sheet')
 
 @section('content')
@@ -34,84 +34,129 @@ $canStart = false;
 }
 @endphp
 
-<section class="section py-3">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-clipboard-check"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="badge bg-secondary text-white fw-normal px-3 py-2 rounded-pill small" id="answeredBadge">
-                                <i class="bi bi-ui-checks me-1"></i>0 / {{ $exam->questions->count() }} Answered
-                            </span>
-                            <span class="badge bg-success text-white fw-semibold px-3 py-2 rounded-pill" id="exam_timer">
-                                <i class="bi bi-stopwatch me-1"></i>00h : 00m : 00s
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+<section class="section container-fluid">
 
     <form method="POST" action="{{ route('student.myExams.store', $exam->id) }}" id="examAnswerForm">
         @csrf
         <input type="hidden" name="stopped" id="stoppedFlag" value="0">
         <input type="hidden" name="stop_reason" id="stopReasonFlag" value="">
 
-        <div class="row g-3 align-items-start">
+        <div class="row g-3 justify-content-center">
 
-            {{-- LEFT: Questions --}}
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
+            {{-- RIGHT: Exam Summary --}}
+            <div class="col-lg-3">
 
-                    {{-- Card Header --}}
-                    <div class="card-header bg-white border-bottom py-3 px-4">
+                {{-- Exam Summary --}}
+                <div class="card mb-0 h-100">
+                    <div class="card-header bg-white border-bottom">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div>
-                                <h5 class="fw-bold text-dark mb-0">{{ $exam->exam_title }}</h5>
-                                <small class="text-muted">{{ $exam->exam_code }}</small>
-                            </div>
+                            <h6 class="fw-bold text-dark mb-0">
+                                <i class="bi bi-clipboard-data me-2"></i>Exam Summary
+                            </h6>
+
                             <span class="badge rounded-pill {{ $statusClass }} px-3 py-2">
                                 <i class="bi {{ $statusIconClass }} me-1"></i>{{ $status }}
                             </span>
                         </div>
                     </div>
 
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-book me-2"></i></span>
+                                <span class="text-dark text-truncate">{{ $exam->course->course_title }}</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-tag me-2"></i></span>
+                                <span class="text-dark">{{ $exam->exam_type ?? 'General' }}</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-calendar3 me-2"></i></span>
+                                <span class="text-dark">{{ $exam->exam_date->format('d M Y') }}</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-clock me-2"></i></span>
+                                <span class="text-dark">
+                                    {{ $exam->start_time?->format('h:i A') ?? 'N/A' }}
+                                    <span class="text-muted fw-normal">–</span>
+                                    {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-stopwatch me-2"></i></span>
+                                <span class="text-dark">{{ $exam->exam_duration_min ?? 0 }} mins</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-question-circle me-2"></i></span>
+                                <span class="text-dark">{{ $exam->total_questions ?? 0 }} questions</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-patch-check me-2"></i></span>
+                                <span class="text-dark">{{ intval($exam->total_marks) }} marks</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="text-muted text-bold"><i class="bi bi-check2-circle me-2"></i></span>
+                                <span class="text-dark">{{ intval($exam->passing_marks) ?? 'N/A' }} marks</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-footer d-grid gap-2">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
+                                <i class="bi bi-send me-1"></i>Submit
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
+                                <i class="bi bi-stop-circle me-1"></i>Stop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- LEFT: Questions --}}
+            <div class="col-lg-9">
+                <div class="card mb-0 h-100">
+
+                    {{-- Card Header --}}
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clipboard me-1"></i>{{ $exam->exam_title }}</h5>
+                                <small class="text-muted">[{{ $exam->exam_code }}]</small>
+                            </div>
+                            <div class="card-header-right">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge bg-secondary text-white fw-normal px-3 py-2 rounded-pill small" id="answeredBadge">
+                                        <i class="bi bi-ui-checks me-1"></i>0 / {{ $exam->questions->count() }} Answered
+                                    </span>
+                                    <span class="badge bg-success text-white fw-semibold px-3 py-2 rounded-pill" id="exam_timer">
+                                        <i class="bi bi-stopwatch me-1"></i>00h : 00m : 00s
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Progress bar --}}
-                    <div class="px-4 pt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div>
+                        {{-- <div class="d-flex justify-content-between align-items-center mb-1">
                             <small class="text-muted fw-semibold">Exam Progress</small>
                             <small class="text-muted" id="progressLabel">0%</small>
-                        </div>
-                        <div class="progress rounded-pill" style="height: 6px;">
-                            <div class="progress-bar bg-success rounded-pill" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div> --}}
+                        <div class="progress" style="height: 6px; border-radius: 0;">
+                            <div class="progress-bar bg-success" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
 
                     {{-- Questions --}}
-                    <div class="card-body px-4 py-3">
+                    <div class="card-body">
                         @if($exam->questions->count() > 0)
+
                         @foreach($exam->questions as $index => $question)
+                        <div class="question-item d-none" data-q-index="{{ $index }}">
 
-                        <div class="question-item border rounded-3 p-4 mb-3 bg-light bg-opacity-50">
-
-                            {{-- ADD this one line before the MCQ/textarea block in @foreach --}}
                             <input type="hidden" name="answers[{{ $question->id }}]" value="">
 
                             {{-- Question Meta --}}
@@ -167,11 +212,12 @@ $canStart = false;
 
                             {{-- Short / Long Answer --}}
                             @elseif(in_array($question->question_type, ['short_question', 'long_question']))
-                            <textarea class="form-control bg-white border rounded-3" name="answers[{{ $question->id }}]" id="q{{ $question->id }}_answer" rows="{{ $question->question_type == 'short_question' ? 3 : 6 }}" placeholder="Write your answer here…"></textarea>
+                            <textarea class="form-control bg-white border rounded-3" name="answers[{{ $question->id }}]" id="q{{ $question->id }}_answer" rows="{{ $question->question_type == 'short_question' ? 3 : 4 }}" placeholder="Write your answer here…"></textarea>
                             @endif
 
                         </div>
                         @endforeach
+
                         @else
                         <div class="text-center py-5 text-muted">
                             <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted opacity-50"></i>
@@ -180,93 +226,19 @@ $canStart = false;
                         @endif
                     </div>
 
-                    {{-- Card Footer: Actions --}}
-                    <div class="card-footer bg-white border-top px-4 py-3">
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-danger w-50 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
-                                <i class="bi bi-stop-circle me-1"></i>Stop Exam
+                    {{-- Card Footer: Stepper Navigation --}}
+                    <div class="card-footer bg-white border-top">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-4" id="prevQuestionBtn" disabled>
+                                <i class="bi bi-arrow-left me-1"></i>Previous
                             </button>
-                            <button type="button" class="btn btn-success w-50" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
-                                <i class="bi bi-send me-1"></i>Submit Answers
+                            <span class="text-muted small" id="stepperLabel">Question 1 of {{ $exam->questions->count() }}</span>
+                            <button type="button" class="btn btn-primary btn-sm px-4" id="nextQuestionBtn">
+                                Next<i class="bi bi-arrow-right ms-1"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {{-- RIGHT: Exam Summary --}}
-            <div class="col-lg-4">
-
-                {{-- Exam Summary --}}
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-header bg-white border-bottom py-3 px-4">
-                        <h6 class="fw-bold text-dark mb-0">
-                            <i class="bi bi-clipboard-data me-2"></i>Exam Summary
-                        </h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush small">
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-book me-2"></i>Course</span>
-                                <span class="fw-semibold text-end text-dark">
-                                    <h6 class="mb-0 text-truncate">{{ $exam->course->course_title }}</h6>
-                                    <small class="text-muted fw-normal">[{{ $exam->course->course_code }}]</small>
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-tag me-2"></i>Exam Type</span>
-                                <span class="fw-semibold text-dark">{{ $exam->exam_type ?? 'General' }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-bookmark me-2"></i>Status</span>
-                                <span class="badge rounded-pill {{ $statusClass }} px-3">
-                                    <i class="bi {{ $statusIconClass }} me-1"></i>{{ $status }}
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-calendar3 me-2"></i>Exam Date</span>
-                                <span class="fw-semibold text-dark">{{ $exam->exam_date->format('d M Y') }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-clock me-2"></i>Time</span>
-                                <span class="fw-semibold text-dark">
-                                    {{ $exam->start_time?->format('h:i A') ?? 'N/A' }}
-                                    <span class="text-muted fw-normal">–</span>
-                                    {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-stopwatch me-2"></i>Duration</span>
-                                <span class="fw-semibold text-dark">{{ $exam->exam_duration_min ?? 0 }} mins</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-question-circle me-2"></i>Questions</span>
-                                <span class="fw-semibold text-dark">{{ $exam->total_questions ?? 0 }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-patch-check me-2"></i>Total Marks</span>
-                                <span class="fw-semibold text-dark">{{ intval($exam->total_marks) }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                                <span class="text-muted"><i class="bi bi-check2-circle me-2"></i>Passing Marks</span>
-                                <span class="fw-semibold text-dark">{{ intval($exam->passing_marks) ?? 'N/A' }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                {{-- Sticky Action Buttons --}}
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body d-grid gap-2 p-3">
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
-                            <i class="bi bi-send me-1"></i>Submit Answers
-                        </button>
-                        <button type="button" class="btn btn-outline-danger stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
-                            <i class="bi bi-stop-circle me-1"></i>Stop Exam
-                        </button>
-                    </div>
-                </div>
-
             </div>
 
         </div>
@@ -364,7 +336,7 @@ $canStart = false;
         const timerEl        = document.getElementById('exam_timer');
         const answeredEl     = document.getElementById('answeredBadge');
         const progressBar    = document.getElementById('progressBar');
-        const progressLbl    = document.getElementById('progressLabel');
+        const progressLbl    = document.getElementById('progressLabel') ?? { textContent: '' };
 
         // Timer
         function updateTimer() {
@@ -417,10 +389,10 @@ $canStart = false;
         });
 
         // Submit / Stop modal buttons
-        document.getElementById('confirmSubmitExam').addEventListener('click', function () {
+        document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
             submitExam(false, '');
         });
-        document.getElementById('confirmStopExam').addEventListener('click', function () {
+        document.getElementById('confirmStopExam')?.addEventListener('click', function () {
             submitExam(true, document.getElementById('stopReasonFlag').value || 'manual_stop');
         });
 
@@ -428,251 +400,264 @@ $canStart = false;
 </script>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
-{{-- SCRIPT 4: Copy / Paste / Cut + Back Button Restriction      --}}
+{{-- SCRIPT 6: Question Stepper                                  --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Always Active: Copy / Paste / Cut Restriction
-    (function () {
-        ['copy', 'paste', 'cut'].forEach(function (action) {
-            document.addEventListener(action, function (e) {
-                e.preventDefault();
-                logProctoring(PROCTOR.clipboard, { action_type: action });
-                showProctoringWarning(`⚠️ ${action.charAt(0).toUpperCase() + action.slice(1)} is not allowed during the exam.`);
-                console.log('[Clipboard] Blocked:', action);
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const questions   = document.querySelectorAll('.question-item');
+        const totalQ      = questions.length;
+        let currentIndex  = 0;
+
+        const prevBtn     = document.getElementById('prevQuestionBtn');
+        const nextBtn     = document.getElementById('nextQuestionBtn');
+        const stepperLbl  = document.getElementById('stepperLabel');
+
+        function showQuestion(index) {
+            questions.forEach(function (q, i) {
+                q.classList.toggle('d-none', i !== index);
             });
-        });
 
-        // Block right-click
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-            showProctoringWarning('⚠️ Right-click is disabled during the exam.');
-        });
+            stepperLbl.textContent = `Question ${index + 1} of ${totalQ}`;
 
-        // Block keyboard shortcuts
-        document.addEventListener('keydown', function (e) {
-            const blocked = [
-                // e.ctrlKey && e.key === 'c',
-                // e.ctrlKey && e.key === 'v',
-                // e.ctrlKey && e.key === 'x',
-                e.ctrlKey && e.key === 'u',
-                e.ctrlKey && e.key === 's',
-                e.key === 'F12',
-                e.ctrlKey && e.shiftKey && e.key === 'I',
-                e.ctrlKey && e.shiftKey && e.key === 'J',
-            ];
-            if (blocked.some(Boolean)) {
-                e.preventDefault();
-                showProctoringWarning('⚠️ This action is not allowed during the exam.');
+            prevBtn.disabled = (index === 0);
+
+            if (index === totalQ - 1) {
+                nextBtn.innerHTML  = '<i class="bi bi-send me-1"></i>Submit Answers';
+                nextBtn.classList.replace('btn-primary', 'btn-success');
+            } else {
+                nextBtn.innerHTML  = 'Next<i class="bi bi-arrow-right ms-1"></i>';
+                nextBtn.classList.replace('btn-success', 'btn-primary');
             }
-        });
-    })();
+        }
 
-    // Always Active: Back Button Restriction
-    (function () {
-        history.pushState(null, null, location.href);
+        // Show first question on load
+        showQuestion(0);
 
-        window.addEventListener('popstate', function () {
-            history.pushState(null, null, location.href);
-            document.getElementById('stopReasonFlag').value = 'back_button';
-            new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
-        });
-
-        document.addEventListener('click', function (e) {
-            const link = e.target.closest('a');
-            if (link && link.href && !link.href.startsWith('javascript') && !link.getAttribute('data-bs-toggle') && !formSubmitting) {
-                e.preventDefault();
-                document.getElementById('stopReasonFlag').value = 'url_change';
-                new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
+        prevBtn.addEventListener('click', function () {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showQuestion(currentIndex);
             }
         });
 
-        window.addEventListener('beforeunload', function () {
-            if (!formSubmitting) {
-                navigator.sendBeacon(
-                    '{{ route("student.myExams.store", $exam->id) }}',
-                    new URLSearchParams({
-                        _token     : '{{ csrf_token() }}',
-                        stopped    : '1',
-                        stop_reason: 'url_change',
-                    })
-                );
+        nextBtn.addEventListener('click', function () {
+            if (currentIndex < totalQ - 1) {
+                currentIndex++;
+                showQuestion(currentIndex);
+            } else {
+                // Last question — open submit modal
+                var submitModal = new bootstrap.Modal(document.getElementById('submit_exam_confirm_modal'));
+                submitModal.show();
             }
         });
-    })();
 
-});
+        // Clicking a dot/number in the progress badge can also jump (optional enhancement)
+        // Already works because updateAnsweredCount() scans all .question-item regardless of d-none
+
+    });
 </script>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
-{{-- SCRIPT 5: Exam Rules + Proctoring Monitoring               --}}
+{{-- SCRIPT 5: Copy / Paste / Cut + Back Button Restriction      --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    @foreach($mappedRules as $map)
-    @php $ruleKey = $map->rule->key ?? ''; @endphp
-
-    // Rule: Tab Switching + Browser Maximized
-    @if($ruleKey === 'tab_switching')
-    (function () {
-        let tabSwitchCount = 0;
-        let tabSwitchedAt  = null;
-
-        const screenWidth  = window.screen.width;
-        const screenHeight = window.screen.height;
-
-        function checkMaximized() {
-            return window.outerWidth  >= screenWidth  * 0.95
-                && window.outerHeight >= screenHeight * 0.95;
-        }
-
-        document.addEventListener('visibilitychange', function () {
-
-            if (document.hidden) {
-
-                // Window minimized
-                if (window.outerHeight === 0) {
-                    console.log('[Browser] Window minimized.');
-
-                    // ✅ Log to DB
-                    logProctoring(PROCTOR.event, {
-                        event_type : 'tab_switch',
-                        severity   : 'medium',
-                        metadata   : { reason: 'browser_minimized' },
-                    });
-
-                    // ⚠️ Warn only, do NOT submit
-                    showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
-                    return;
-                }
-
-                // Tab switched
-                tabSwitchCount++;
-                tabSwitchedAt = Date.now();
-
-                // ✅ Log to DB
-                logProctoring(PROCTOR.tabSwitch);
-
-                console.log('[Tab Switch] Left tab. Count:', tabSwitchCount);
-
-                // ⚠️ Warn only, do NOT submit
-                showProctoringWarning(`⚠️ Warning: Tab switching is not allowed! (${tabSwitchCount} violation${tabSwitchCount > 1 ? 's' : ''} recorded)`);
-
-            } else {
-
-                // Student returned
-                const duration_ms = tabSwitchedAt ? Date.now() - tabSwitchedAt : null;
-
-                // ✅ Log return + duration to DB
-                logProctoring(PROCTOR.tabSwitch, {
-                    returned_at : new Date().toISOString(),
-                    duration_ms : duration_ms,
+    document.addEventListener('DOMContentLoaded', function () {
+        // Always Active: Copy / Paste / Cut Restriction
+        (function () {
+            ['copy', 'paste', 'cut'].forEach(function (action) {
+                document.addEventListener(action, function (e) {
+                    e.preventDefault();
+                    logProctoring(PROCTOR.clipboard, { action_type: action });
+                    showProctoringWarning(`⚠️ ${action.charAt(0).toUpperCase() + action.slice(1)} is not allowed during the exam.`);
+                    console.log('[Clipboard] Blocked:', action);
                 });
+            });
 
-                tabSwitchedAt = null;
-                console.log('[Tab Switch] Returned. Duration:', duration_ms, 'ms');
+            // Block right-click
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                showProctoringWarning('⚠️ Right-click is disabled during the exam.');
+            });
+
+            // Block keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                const blocked = [
+                    // e.ctrlKey && e.key === 'c',
+                    // e.ctrlKey && e.key === 'v',
+                    // e.ctrlKey && e.key === 'x',
+                    e.ctrlKey && e.key === 'u',
+                    e.ctrlKey && e.key === 's',
+                    e.key === 'F12',
+                    e.ctrlKey && e.shiftKey && e.key === 'I',
+                    e.ctrlKey && e.shiftKey && e.key === 'J',
+                ];
+                if (blocked.some(Boolean)) {
+                    e.preventDefault();
+                    showProctoringWarning('⚠️ This action is not allowed during the exam.');
+                }
+            });
+        })();
+
+        // Always Active: Back Button Restriction
+        (function () {
+            history.pushState(null, null, location.href);
+
+            window.addEventListener('popstate', function () {
+                history.pushState(null, null, location.href);
+                document.getElementById('stopReasonFlag').value = 'back_button';
+                new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
+            });
+
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (link && link.href && !link.href.startsWith('javascript') && !link.getAttribute('data-bs-toggle') && !formSubmitting) {
+                    e.preventDefault();
+                    document.getElementById('stopReasonFlag').value = 'url_change';
+                    new bootstrap.Modal(document.getElementById('stop_exam_confirm_modal')).show();
+                }
+            });
+
+            window.addEventListener('beforeunload', function () {
+                if (!formSubmitting) {
+                    navigator.sendBeacon(
+                        '{{ route("student.myExams.store", $exam->id) }}',
+                        new URLSearchParams({
+                            _token     : '{{ csrf_token() }}',
+                            stopped    : '1',
+                            stop_reason: 'url_change',
+                        })
+                    );
+                }
+            });
+        })();
+
+    });
+</script>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- SCRIPT 6: Exam Rules + Proctoring Monitoring               --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        @foreach($mappedRules as $map)
+        @php $ruleKey = $map->rule->key ?? ''; @endphp
+
+        // Rule: Tab Switching + Browser Maximized
+        @if($ruleKey === 'tab_switching')
+        (function () {
+            let tabSwitchCount = 0;
+            let tabSwitchedAt  = null;
+
+            const screenWidth  = window.screen.width;
+            const screenHeight = window.screen.height;
+
+            function checkMaximized() {
+                return window.outerWidth  >= screenWidth  * 0.95
+                    && window.outerHeight >= screenHeight * 0.95;
             }
-        });
 
-        // Window resize
-        let resizeTimeout;
-        window.addEventListener('resize', function () {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function () {
-                if (!checkMaximized()) {
-                    console.log('[Browser] Window no longer maximized.');
+            document.addEventListener('visibilitychange', function () {
+
+                if (document.hidden) {
+
+                    // Window minimized
+                    if (window.outerHeight === 0) {
+                        console.log('[Browser] Window minimized.');
+
+                        // ✅ Log to DB
+                        logProctoring(PROCTOR.event, {
+                            event_type : 'tab_switch',
+                            severity   : 'medium',
+                            metadata   : { reason: 'browser_minimized' },
+                        });
+
+                        // ⚠️ Warn only, do NOT submit
+                        showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
+                        return;
+                    }
+
+                    // Tab switched
+                    tabSwitchCount++;
+                    tabSwitchedAt = Date.now();
 
                     // ✅ Log to DB
-                    logProctoring(PROCTOR.event, {
-                        event_type : 'tab_switch',
-                        severity   : 'low',
-                        metadata   : { reason: 'window_not_maximized' },
-                    });
+                    logProctoring(PROCTOR.tabSwitch);
+
+                    console.log('[Tab Switch] Left tab. Count:', tabSwitchCount);
 
                     // ⚠️ Warn only, do NOT submit
-                    showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
+                    showProctoringWarning(`⚠️ Warning: Tab switching is not allowed! (${tabSwitchCount} violation${tabSwitchCount > 1 ? 's' : ''} recorded)`);
+
+                } else {
+
+                    // Student returned
+                    const duration_ms = tabSwitchedAt ? Date.now() - tabSwitchedAt : null;
+
+                    // ✅ Log return + duration to DB
+                    logProctoring(PROCTOR.tabSwitch, {
+                        returned_at : new Date().toISOString(),
+                        duration_ms : duration_ms,
+                    });
+
+                    tabSwitchedAt = null;
+                    console.log('[Tab Switch] Returned. Duration:', duration_ms, 'ms');
                 }
-            }, 300);
-        });
+            });
 
-    })();
-    @endif
+            // Window resize
+            let resizeTimeout;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function () {
+                    if (!checkMaximized()) {
+                        console.log('[Browser] Window no longer maximized.');
 
-    // Rule: Fullscreen Required
-    @if($ruleKey === 'fullscreen_required')
-    (function () {
+                        // ✅ Log to DB
+                        logProctoring(PROCTOR.event, {
+                            event_type : 'tab_switch',
+                            severity   : 'low',
+                            metadata   : { reason: 'window_not_maximized' },
+                        });
 
-        // Fullscreen Helpers
-        function enterFullscreen() {
-            const el = document.documentElement;
-            if (el.requestFullscreen)            el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            else if (el.mozRequestFullScreen)    el.mozRequestFullScreen();
-            console.log('[Fullscreen] Entered.');
-        }
+                        // ⚠️ Warn only, do NOT submit
+                        showProctoringWarning('⚠️ Warning: Please keep your browser maximized during the exam.');
+                    }
+                }, 300);
+            });
 
-        function isFullscreen() {
-            return !!(
-                document.fullscreenElement       ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement
-            );
-        }
+        })();
+        @endif
 
-        // Initial Fullscreen Prompt
-        const fsPrompt = document.createElement('div');
-        fsPrompt.id    = 'fs_prompt';
-        fsPrompt.style.cssText = `
-            position       : fixed;
-            inset          : 0;
-            background     : rgba(0,0,0,0.92);
-            z-index        : 999999;
-            display        : flex;
-            flex-direction : column;
-            align-items    : center;
-            justify-content: center;
-            color          : white;
-            font-family    : inherit;
-        `;
-        fsPrompt.innerHTML = `
-            <div style="text-align:center; max-width:420px; padding:30px;">
-                <div style="font-size:48px; margin-bottom:16px;">🖥️</div>
-                <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Required</h4>
-                <p style="color:#ccc; margin-bottom:24px; line-height:1.6;">
-                    This exam must be taken in fullscreen mode.
-                    Click the button below to enter fullscreen and begin your exam.
-                </p>
-                <button id="enter_fs_btn" style="
-                    background    : #198754; color: white;
-                    border        : none; padding: 12px 32px;
-                    border-radius : 8px; font-size: 16px;
-                    font-weight   : 600; cursor: pointer;
-                ">
-                    🔒 Enter Fullscreen & Start Exam
-                </button>
-                <p style="color:#888; font-size:12px; margin-top:16px;">
-                    Press <strong>F11</strong> or click the button above
-                </p>
-            </div>
-        `;
-        document.body.appendChild(fsPrompt);
+        // Rule: Fullscreen Required
+        @if($ruleKey === 'fullscreen_required')
+        (function () {
 
-        document.getElementById('enter_fs_btn').addEventListener('click', function () {
-            enterFullscreen();
-            fsPrompt.remove();
-        });
+            // Fullscreen Helpers
+            function enterFullscreen() {
+                const el = document.documentElement;
+                if (el.requestFullscreen)            el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                else if (el.mozRequestFullScreen)    el.mozRequestFullScreen();
+                console.log('[Fullscreen] Entered.');
+            }
 
-        // Fullscreen Exit Warning
-        function showFullscreenWarning() {
-            document.querySelector('#fs_warning')?.remove();
+            function isFullscreen() {
+                return !!(
+                    document.fullscreenElement       ||
+                    document.webkitFullscreenElement ||
+                    document.mozFullScreenElement
+                );
+            }
 
-            const warn = document.createElement('div');
-            warn.id    = 'fs_warning';
-            warn.style.cssText = `
+            // Initial Fullscreen Prompt
+            const fsPrompt = document.createElement('div');
+            fsPrompt.id    = 'fs_prompt';
+            fsPrompt.style.cssText = `
                 position       : fixed;
                 inset          : 0;
-                background     : rgba(220,53,69,0.97);
+                background     : rgba(0,0,0,0.92);
                 z-index        : 999999;
                 display        : flex;
                 flex-direction : column;
@@ -681,192 +666,238 @@ document.addEventListener('DOMContentLoaded', function () {
                 color          : white;
                 font-family    : inherit;
             `;
-            warn.innerHTML = `
+            fsPrompt.innerHTML = `
                 <div style="text-align:center; max-width:420px; padding:30px;">
-                    <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
-                    <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Exited!</h4>
-                    <p style="color:#ffe0e0; margin-bottom:8px; line-height:1.6;">
-                        You exited fullscreen mode. This violation has been recorded.
+                    <div style="font-size:48px; margin-bottom:16px;">🖥️</div>
+                    <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Required</h4>
+                    <p style="color:#ccc; margin-bottom:24px; line-height:1.6;">
+                        This exam must be taken in fullscreen mode.
+                        Click the button below to enter fullscreen and begin your exam.
                     </p>
-                    <p style="color:#ffe0e0; margin-bottom:24px; line-height:1.6;">
-                        Please return to fullscreen to continue your exam.
-                    </p>
-                    <button id="reenter_fs_btn" style="
-                        background    : white; color: #dc3545;
+                    <button id="enter_fs_btn" style="
+                        background    : #198754; color: white;
                         border        : none; padding: 12px 32px;
                         border-radius : 8px; font-size: 16px;
-                        font-weight   : 700; cursor: pointer;
+                        font-weight   : 600; cursor: pointer;
                     ">
-                        🔒 Return to Fullscreen
+                        🔒 Enter Fullscreen & Start Exam
                     </button>
-                    <p style="color:#ffaaaa; font-size:12px; margin-top:16px;">
-                        Repeated violations will be reported to your instructor.
+                    <p style="color:#888; font-size:12px; margin-top:16px;">
+                        Press <strong>F11</strong> or click the button above
                     </p>
                 </div>
             `;
-            document.body.appendChild(warn);
+            document.body.appendChild(fsPrompt);
 
-            document.getElementById('reenter_fs_btn').addEventListener('click', function () {
+            document.getElementById('enter_fs_btn').addEventListener('click', function () {
                 enterFullscreen();
-                warn.remove();
+                fsPrompt.remove();
             });
-        }
 
-        // Detect Fullscreen Exit
-        document.addEventListener('fullscreenchange',       onFullscreenChange);
-        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-        document.addEventListener('mozfullscreenchange',    onFullscreenChange);
+            // Fullscreen Exit Warning
+            function showFullscreenWarning() {
+                document.querySelector('#fs_warning')?.remove();
 
-        function onFullscreenChange() {
-            if (!isFullscreen()) {
-                console.log('[Fullscreen] Exited.');
+                const warn = document.createElement('div');
+                warn.id    = 'fs_warning';
+                warn.style.cssText = `
+                    position       : fixed;
+                    inset          : 0;
+                    background     : rgba(220,53,69,0.97);
+                    z-index        : 999999;
+                    display        : flex;
+                    flex-direction : column;
+                    align-items    : center;
+                    justify-content: center;
+                    color          : white;
+                    font-family    : inherit;
+                `;
+                warn.innerHTML = `
+                    <div style="text-align:center; max-width:420px; padding:30px;">
+                        <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
+                        <h4 style="font-weight:700; margin-bottom:10px;">Fullscreen Exited!</h4>
+                        <p style="color:#ffe0e0; margin-bottom:8px; line-height:1.6;">
+                            You exited fullscreen mode. This violation has been recorded.
+                        </p>
+                        <p style="color:#ffe0e0; margin-bottom:24px; line-height:1.6;">
+                            Please return to fullscreen to continue your exam.
+                        </p>
+                        <button id="reenter_fs_btn" style="
+                            background    : white; color: #dc3545;
+                            border        : none; padding: 12px 32px;
+                            border-radius : 8px; font-size: 16px;
+                            font-weight   : 700; cursor: pointer;
+                        ">
+                            🔒 Return to Fullscreen
+                        </button>
+                        <p style="color:#ffaaaa; font-size:12px; margin-top:16px;">
+                            Repeated violations will be reported to your instructor.
+                        </p>
+                    </div>
+                `;
+                document.body.appendChild(warn);
+
+                document.getElementById('reenter_fs_btn').addEventListener('click', function () {
+                    enterFullscreen();
+                    warn.remove();
+                });
+            }
+
+            // Detect Fullscreen Exit
+            document.addEventListener('fullscreenchange',       onFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+            document.addEventListener('mozfullscreenchange',    onFullscreenChange);
+
+            function onFullscreenChange() {
+                if (!isFullscreen()) {
+                    console.log('[Fullscreen] Exited.');
+
+                    // ✅ Log to DB
+                    logProctoring(PROCTOR.event, {
+                        event_type : 'fullscreen_required',
+                        severity   : 'high',
+                        metadata   : { reason: 'fullscreen_exited' },
+                    });
+
+                    showFullscreenWarning();
+                }
+            }
+
+            // Re-enter fullscreen when student returns to tab
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden && !isFullscreen()) {
+                    showFullscreenWarning();
+                }
+            });
+
+            // Stop fullscreen on exam submit
+            document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
+                if (document.exitFullscreen)            document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                console.log('[Fullscreen] Exited on submit.');
+            });
+
+        })();
+        @endif
+
+        // Rule: Webcam Required
+        @if($ruleKey === 'webcam_required')
+        (function () {
+            let stream              = null;
+            let webcamCheckInterval = null;
+            let snapshotInterval    = null;
+
+            const overlay       = document.createElement('div');
+            overlay.id          = 'webcam_overlay';
+            overlay.style.cssText = `
+                position: fixed; bottom: 16px; left: 16px; z-index: 9999;
+                background: #000; border-radius: 10px; overflow: hidden;
+                width: 160px; height: 120px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 2px solid #198754;
+            `;
+
+            const video           = document.createElement('video');
+            video.autoplay        = true;
+            video.muted           = true;
+            video.playsInline     = true;
+            video.style.cssText   = 'width:100%;height:100%;object-fit:cover;';
+
+            const badge           = document.createElement('div');
+            badge.style.cssText   = `
+                position: absolute; top: 6px; left: 6px;
+                background: #198754; color: #fff;
+                font-size: 11px; padding: 2px 7px;
+                border-radius: 20px; font-weight: 500;
+            `;
+            badge.innerHTML = '&#128247; Live';
+
+            overlay.appendChild(video);
+            overlay.appendChild(badge);
+            document.body.appendChild(overlay);
+
+            function onDenied(reason) {
+                badge.style.background = '#dc3545';
+                badge.textContent      = 'Webcam Off';
 
                 // ✅ Log to DB
                 logProctoring(PROCTOR.event, {
-                    event_type : 'fullscreen_required',
+                    event_type : 'face_not_detected',
                     severity   : 'high',
-                    metadata   : { reason: 'fullscreen_exited' },
+                    metadata   : { reason: reason },
                 });
 
-                showFullscreenWarning();
+                console.log('[Webcam] Denied:', reason);
+
+                // ⚠️ Warn only, do NOT submit
+                showProctoringWarning('⚠️ Warning: Webcam access is required. Please enable your camera.');
             }
-        }
 
-        // Re-enter fullscreen when student returns to tab
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden && !isFullscreen()) {
-                showFullscreenWarning();
+            async function captureSnapshot() {
+                if (!stream || !stream.active) return;
+                try {
+                    const track    = stream.getVideoTracks()[0];
+                    const capture  = new ImageCapture(track);
+                    const blob     = await capture.takePhoto();
+                    const formData = new FormData();
+                    formData.append('image', blob, 'snapshot.jpg');
+
+                    const res = await fetch(PROCTOR.webcam, {
+                        method  : 'POST',
+                        headers : { 'X-CSRF-TOKEN': CSRF_TOKEN },
+                        body    : formData,
+                    });
+                    console.log('[Webcam] Snapshot sent. Status:', res.status);
+                } catch (err) {
+                    console.error('[Webcam] Snapshot failed:', err);
+                }
             }
-        });
 
-        // Stop fullscreen on exam submit
-        document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
-            if (document.exitFullscreen)            document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            console.log('[Fullscreen] Exited on submit.');
-        });
+            function startWebcam() {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(function (s) {
+                        stream          = s;
+                        video.srcObject = s;
+                        badge.innerHTML        = '&#128247; Live';
+                        badge.style.background = '#198754';
+                        console.log('[Webcam] Started successfully.');
 
-    })();
-    @endif
+                        captureSnapshot();
+                        snapshotInterval = setInterval(captureSnapshot, 30000);
 
-    // Rule: Webcam Required
-    @if($ruleKey === 'webcam_required')
-    (function () {
-        let stream              = null;
-        let webcamCheckInterval = null;
-        let snapshotInterval    = null;
+                        webcamCheckInterval = setInterval(function () {
+                            const tracks = stream.getVideoTracks();
+                            if (!stream.active || !tracks.length || tracks[0].readyState === 'ended') {
+                                clearInterval(webcamCheckInterval);
+                                clearInterval(snapshotInterval);
+                                onDenied('webcam_disconnected');
+                            }
+                        }, 3000);
+                    })
+                    .catch(function (err) {
+                        console.error('[Webcam] Access denied:', err);
+                        onDenied('webcam_denied');
+                    });
+            }
 
-        const overlay       = document.createElement('div');
-        overlay.id          = 'webcam_overlay';
-        overlay.style.cssText = `
-            position: fixed; bottom: 16px; left: 16px; z-index: 9999;
-            background: #000; border-radius: 10px; overflow: hidden;
-            width: 160px; height: 120px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 2px solid #198754;
-        `;
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                onDenied('webcam_not_supported');
+            } else {
+                startWebcam();
+            }
 
-        const video           = document.createElement('video');
-        video.autoplay        = true;
-        video.muted           = true;
-        video.playsInline     = true;
-        video.style.cssText   = 'width:100%;height:100%;object-fit:cover;';
-
-        const badge           = document.createElement('div');
-        badge.style.cssText   = `
-            position: absolute; top: 6px; left: 6px;
-            background: #198754; color: #fff;
-            font-size: 11px; padding: 2px 7px;
-            border-radius: 20px; font-weight: 500;
-        `;
-        badge.innerHTML = '&#128247; Live';
-
-        overlay.appendChild(video);
-        overlay.appendChild(badge);
-        document.body.appendChild(overlay);
-
-        function onDenied(reason) {
-            badge.style.background = '#dc3545';
-            badge.textContent      = 'Webcam Off';
-
-            // ✅ Log to DB
-            logProctoring(PROCTOR.event, {
-                event_type : 'face_not_detected',
-                severity   : 'high',
-                metadata   : { reason: reason },
+            document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
+                clearInterval(snapshotInterval);
+                clearInterval(webcamCheckInterval);
+                stream?.getTracks().forEach(t => t.stop());
+                console.log('[Webcam] Stopped on submit.');
             });
 
-            console.log('[Webcam] Denied:', reason);
+        })();
+        @endif
 
-            // ⚠️ Warn only, do NOT submit
-            showProctoringWarning('⚠️ Warning: Webcam access is required. Please enable your camera.');
-        }
+        @endforeach
 
-        async function captureSnapshot() {
-            if (!stream || !stream.active) return;
-            try {
-                const track    = stream.getVideoTracks()[0];
-                const capture  = new ImageCapture(track);
-                const blob     = await capture.takePhoto();
-                const formData = new FormData();
-                formData.append('image', blob, 'snapshot.jpg');
-
-                const res = await fetch(PROCTOR.webcam, {
-                    method  : 'POST',
-                    headers : { 'X-CSRF-TOKEN': CSRF_TOKEN },
-                    body    : formData,
-                });
-                console.log('[Webcam] Snapshot sent. Status:', res.status);
-            } catch (err) {
-                console.error('[Webcam] Snapshot failed:', err);
-            }
-        }
-
-        function startWebcam() {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                .then(function (s) {
-                    stream          = s;
-                    video.srcObject = s;
-                    badge.innerHTML        = '&#128247; Live';
-                    badge.style.background = '#198754';
-                    console.log('[Webcam] Started successfully.');
-
-                    captureSnapshot();
-                    snapshotInterval = setInterval(captureSnapshot, 30000);
-
-                    webcamCheckInterval = setInterval(function () {
-                        const tracks = stream.getVideoTracks();
-                        if (!stream.active || !tracks.length || tracks[0].readyState === 'ended') {
-                            clearInterval(webcamCheckInterval);
-                            clearInterval(snapshotInterval);
-                            onDenied('webcam_disconnected');
-                        }
-                    }, 3000);
-                })
-                .catch(function (err) {
-                    console.error('[Webcam] Access denied:', err);
-                    onDenied('webcam_denied');
-                });
-        }
-
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            onDenied('webcam_not_supported');
-        } else {
-            startWebcam();
-        }
-
-        document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
-            clearInterval(snapshotInterval);
-            clearInterval(webcamCheckInterval);
-            stream?.getTracks().forEach(t => t.stop());
-            console.log('[Webcam] Stopped on submit.');
-        });
-
-    })();
-    @endif
-
-    @endforeach
-
-});
+    });
 </script>
 
 @endsection

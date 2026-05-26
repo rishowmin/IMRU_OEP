@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Academic;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\AcaEnrollment;
 use App\Models\Academic\AcaExam;
 use App\Models\Academic\AcaExamAnswer;
 use App\Models\Academic\AcaReviewAnswer;
@@ -26,17 +27,50 @@ class AcaReviewAnswerController extends Controller
         })
         ->whereHas('examAnswers')
         ->with(['course'])
-        ->withCount([
-            'examAnswers as total_submissions' => function ($q) {
-                $q->distinct('student_id');
-            },
-        ])
-        ->get();
+        ->get()
+        ->each(function ($exam) {
 
-        $exams->each(function ($exam) {
-            $exam->reviewed_count = AcaReviewAnswer::whereHas('examAnswer', fn($q) =>
-                $q->where('exam_id', $exam->id)
-            )->distinct('exam_answers_id')->count();
+            // ── 1. Enrolled students for this course ──────────────────────
+            $exam->total_enrolled = AcaEnrollment::where('course_id', $exam->course_id)
+                ->count();
+
+            // ── 2. Distinct students who submitted ────────────────────────
+            $studentIds = AcaExamAnswer::where('exam_id', $exam->id)
+                ->distinct('student_id')
+                ->pluck('student_id');
+
+            $exam->total_submissions = $studentIds->count();
+
+            // ── 3. Per-student subjective review status ───────────────────
+            $fullyReviewed   = 0;
+            $partialReviewed = 0;
+            $withSubjective  = 0;
+
+            foreach ($studentIds as $studentId) {
+                $subjectiveAnswers = AcaExamAnswer::where('exam_id', $exam->id)
+                    ->where('student_id', $studentId)
+                    ->whereHas('question', fn($q) =>
+                        $q->whereIn('question_type', ['short_question', 'long_question'])
+                    )
+                    ->with('reviewAnswer')
+                    ->get();
+
+                $totalSubjective = $subjectiveAnswers->count();
+                if ($totalSubjective === 0) continue;
+
+                $withSubjective++;
+                $reviewed = $subjectiveAnswers->filter(fn($a) => $a->reviewAnswer !== null)->count();
+
+                if ($reviewed >= $totalSubjective) {
+                    $fullyReviewed++;
+                } elseif ($reviewed > 0) {
+                    $partialReviewed++;
+                }
+            }
+
+            $exam->students_with_subjective = $withSubjective;
+            $exam->fully_reviewed_count     = $fullyReviewed;
+            $exam->partial_reviewed_count   = $partialReviewed;
         });
 
         return view('admin.academic.reviewAnswer.index', compact('exams'));

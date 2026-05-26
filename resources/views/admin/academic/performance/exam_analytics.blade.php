@@ -54,25 +54,25 @@
                     </div>
 
                     <ul class="list-group list-group-flush small mt-2 mb-0">
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
-                            <span class="fw-semibold">Course</span>
-                            <span>{{ $exam->course->course_title }} <small class="text-muted">[{{ $exam->course->course_code ?? 'N/A' }}]</small></span>
+                        <li class="list-group-item border-0 px-0 py-1">
+                            <span class="fw-semibold"><i class="bi bi-book me-2"></i></span>
+                            <span>{{ $exam->course->course_title }}</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
-                            <span class="fw-semibold">Exam Date</span>
+                        <li class="list-group-item border-0 px-0 py-1">
+                            <span class="fw-semibold"><i class="bi bi-calendar3 me-2"></i></span>
                             <span>{{ $exam->exam_date->format('d M Y') ?? 'N/A' }}</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
-                            <span class="fw-semibold">Duration</span>
+                        <li class="list-group-item border-0 px-0 py-1">
+                            <span class="fw-semibold"><i class="bi bi-stopwatch me-2"></i></span>
                             <span>{{ $exam->exam_duration_min ?? 'N/A' }} mins</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
-                            <span class="fw-semibold">Marks</span>
-                            <span>{{ intval($exam->total_marks) ?? 'N/A' }}</span>
+                        <li class="list-group-item border-0 px-0 py-1">
+                            <span class="fw-semibold"><i class="bi bi-patch-check me-2"></i></span>
+                            <span>{{ intval($exam->total_marks) ?? 'N/A' }} marks</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-1">
-                            <span class="fw-semibold">Total Questions</span>
-                            <span>{{ $exam->total_questions ?? 'N/A' }}</span>
+                        <li class="list-group-item border-0 px-0 py-1">
+                            <span class="fw-semibold"><i class="bi bi-question-circle me-2"></i></span>
+                            <span>{{ $exam->total_questions ?? 'N/A' }} questions</span>
                         </li>
                     </ul>
                 </div>
@@ -194,16 +194,16 @@
         <div class="col-md-12">
             <div class="card mb-0">
                 <div class="card-header">
-                    <h5 class="mb-0 fw-bold text-theme">
+                    <h6 class="mb-0 fw-bold text-theme">
                         <i class="bi bi-lightbulb me-1"></i>
                         Question-wise Difficulty Analysis
-                    </h5>
+                    </h6>
                 </div>
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-sm align-middle mb-0 small" id="qWiseDifficultTable">
-                            <thead>
+                            <thead class="small">
                                 <tr>
                                     <th>#</th>
                                     <th>Question</th>
@@ -216,7 +216,7 @@
                                     <th class="text-center">Difficulty</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="small">
                                 @forelse($questionDifficulty as $i => $q)
                                 <tr>
                                     <td class="text-muted">{{ $i + 1 }}</td>
@@ -259,117 +259,117 @@
         <div class="col-md-12">
             <div class="card mb-0">
                 <div class="card-header">
-                    <h5 class="mb-0 fw-bold text-theme">
+                    <h6 class="mb-0 fw-bold text-theme">
                         <i class="bi bi-trophy me-1"></i>
                         Students Leaderboard
-                    </h5>
+                    </h6>
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0 small" id="studentLeaderboardTable">
-                            <thead>
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Student</th>
-                                    <th class="text-center">MCQ Marks</th>
-                                    <th class="text-center">Subj. Marks</th>
-                                    <th class="text-center">Total</th>
-                                    <th class="text-center">%</th>
-                                    <th class="text-center">Grade</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center">Grading</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($results as $result)
-                                @php
-                                    $rowClass = match($result->rank) {
-                                        1       => 'table-first', // gold
-                                        2       => 'table-second', // silver
-                                        3       => 'table-third', // bronze
-                                        default => '',
-                                    };
-                                    $rankIcon = match($result->rank) {
-                                        1       => '🥇',
-                                        2       => '🥈',
-                                        3       => '🥉',
-                                        default => '',
-                                    };
-                                @endphp
-                                <tr class="{{ $rowClass }}">
-                                    <td class="text-center">
-                                        @if($result->rank <= 3)
-                                            <span class="fw-bold">{{ $rankIcon }} #{{ $result->rank }}</span>
+                    <table class="table table-sm align-middle mb-0 small" id="studentLeaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Student</th>
+                                <th class="text-center">MCQ Marks</th>
+                                <th class="text-center">Subj. Marks</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">%</th>
+                                <th class="text-center">Grade</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Grading</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($results as $result)
+                            @php
+                            $rowClass = match($result->rank) {
+                            1 => 'table-first', // gold
+                            2 => 'table-second', // silver
+                            3 => 'table-third', // bronze
+                            default => '',
+                            };
+                            $rankIcon = match($result->rank) {
+                            1 => '🥇',
+                            2 => '🥈',
+                            3 => '🥉',
+                            default => '',
+                            };
+                            @endphp
+                            <tr class="{{ $rowClass }}">
+                                <td class="text-center">
+                                    @if($result->rank <= 3) <span class="fw-bold">{{ $rankIcon }} #{{ $result->rank }}</span>
                                         @else
-                                            <span class="text-muted">#{{ $result->rank }}</span>
+                                        <span class="text-muted">#{{ $result->rank }}</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">
-                                            {{ $result->student->first_name ?? '' }} {{ $result->student->last_name ?? 'N/A' }}
-                                        </div>
-                                        <small class="text-muted">
-                                            ID # {{ $result->student->info->student_id_no ?? $result->student->id }}
-                                        </small>
-                                    </td>
-                                    <td class="text-center">
-                                        {{ $result->mcq_marks_obtained }}/{{ $result->mcq_total_marks }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ $result->subjective_marks_obtained }}/{{ $result->subjective_total_marks }}
-                                    </td>
-                                    <td class="text-center fw-bold">
-                                        {{ $result->total_marks_obtained }}/{{ $result->total_marks }}
-                                    </td>
-                                    <td class="text-center fw-bold text-{{ $result->percentage >= 40 ? 'success' : 'danger' }}">
-                                        {{ intval($result->percentage) }}%
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="{{ $result->grade_badge_class }}">{{ $result->grade }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        @if($result->is_pass)
-                                            <span class="badge bg-success">Pass</span>
-                                        @else
-                                            <span class="badge bg-danger">Fail</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ $result->student->first_name ?? '' }} {{ $result->student->last_name ?? 'N/A' }}
+                                    </div>
+                                    <small class="text-muted">
+                                        ID # {{ $result->student->info->student_id_no ?? $result->student->id }}
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-semibold">{{ intval($result->mcq_marks_obtained) }}</span>
+                                    <small class="d-block text-muted">out of {{ intval($result->mcq_total_marks) }}</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-semibold">{{ intval($result->subjective_marks_obtained) }}</span>
+                                    <small class="d-block text-muted">out of {{ intval($result->subjective_total_marks) }}</small>
+                                </td>
+                                <td class="text-center fw-bold">
+                                    <span>{{ intval($result->total_marks_obtained) }}</span>
+                                    <small class="d-block text-muted">out of {{ intval($result->total_marks) }}</small>
+                                </td>
+                                <td class="text-center fw-bold text-{{ $result->percentage >= 40 ? 'success' : 'danger' }}">
+                                    {{ intval($result->percentage) }}%
+                                </td>
+                                <td class="text-center">
+                                    <span class="{{ $result->grade_badge_class }}">{{ $result->grade }}</span>
+                                </td>
+                                <td class="text-center">
+                                    @if($result->is_pass)
+                                    <span class="badge bg-success">Pass</span>
+                                    @else
+                                    <span class="badge bg-danger">Fail</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($result->grading_status === 'complete')
+                                    <span class="badge bg-success">Complete</span>
+                                    @elseif($result->grading_status === 'partial')
+                                    <span class="badge bg-secondary text-dark">Partial</span>
+                                    @else
+                                    <span class="badge bg-warning">Pending</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        @if ($result->grading_status === 'pending')
+                                        <a href="{{ route('admin.academic.reviewAnswer.studentAnswers', [$exam->id, $result->student_id]) }}" class="btn btn-xs btn-outline-theme btn-sm" title="Review Answer" target="_blank">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
                                         @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($result->grading_status === 'complete')
-                                            <span class="badge bg-success">Complete</span>
-                                        @elseif($result->grading_status === 'partial')
-                                            <span class="badge bg-secondary text-dark">Partial</span>
-                                        @else
-                                            <span class="badge bg-warning">Pending</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center justify-content-center gap-1">
-                                            @if ($result->grading_status === 'pending')
-                                            <a href="{{ route('admin.academic.reviewAnswer.studentAnswers', [$exam->id, $result->student_id]) }}" class="btn btn-xs btn-outline-warning btn-sm" title="Review Answer">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            @endif
-                                            <a href="{{ route('admin.academic.performance.studentReport', [$exam->id, $result->student_id]) }}"
-                                            class="btn btn-xs btn-outline-primary btn-sm" title="View Result">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">
-                                        No results yet. Click "Re-Grade All" to compute results.
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                        <a href="{{ route('admin.academic.performance.studentReport', [$exam->id, $result->student_id]) }}" class="btn btn-xs btn-outline-primary btn-sm" title="View Result">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">
+                                    No results yet. Click "Re-Grade All" to compute results.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+
             </div>
         </div>
     </div>
@@ -469,7 +469,7 @@
 <script>
     const qwdTable = new DataTable('#qWiseDifficultTable', {
         paging: true,
-        pageLength: 10,
+        pageLength: 5,
         lengthChange: false,
         searching: false,
         scrollX: false,

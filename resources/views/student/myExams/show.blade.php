@@ -1,5 +1,5 @@
 @extends('student.layouts.app')
-@section('title', 'My Exam Details')
+@section('title', 'Exam Details')
 
 @section('content')
 
@@ -7,35 +7,39 @@
 @include('student.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-person-badge"></i>
-                            <span class="ms-1">@yield('title')</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('student.myExams') }}">My Exams</a></li>
-                                <li class="breadcrumb-item active">@yield('title')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('student.myExams') }}" class="btn btn-outline-theme btn-sm">
-                            <i class="bi bi-arrow-left-square"></i>
-                            <span class="ms-1">Back to My Exams</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-card-heading"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="{{ route('student.myExams') }}">My Exams</a></li>
+                                    <li class="breadcrumb-item active">@yield('title')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('student.myExams') }}" class="btn btn-outline-theme btn-sm">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back to My Exams</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
+
+<section class="section">
 
     @php
         $now = now();

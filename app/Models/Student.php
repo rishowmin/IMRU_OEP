@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\Academic\Course;
-use App\Models\Academic\Enrollment;
-use App\Models\Academic\ExamAnswer;
+use App\Models\Academic\AcaCourse;
+use App\Models\Academic\AcaEnrollment;
+use App\Models\Academic\AcaExamAnswer;
+use App\Models\Academic\AcaExamAttempt;
+use App\Models\Academic\AcaExamResult;
 use App\Models\StudentInfo;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -79,17 +81,27 @@ class Student extends Authenticatable
 
     public function courses()
     {
-        return $this->hasMany(Course::class, 'course_id');
+        return $this->belongsToMany(AcaCourse::class, 'aca_enrollments', 'student_id', 'course_id');
     }
 
     public function enrollments()
     {
-        return $this->hasMany(Enrollment::class, 'student_id');
+        return $this->hasMany(AcaEnrollment::class, 'student_id');
     }
 
     public function examAnswers()
     {
-        return $this->hasMany(ExamAnswer::class, 'exam_id');
+        return $this->hasMany(AcaExamAnswer::class, 'exam_id');
+    }
+
+    public function examAttempts()
+    {
+        return $this->hasMany(AcaExamAttempt::class, 'student_id');
+    }
+
+    public function examResults()
+    {
+        return $this->hasMany(AcaExamResult::class, 'student_id');
     }
 
     public function info()

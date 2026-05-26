@@ -37,18 +37,43 @@
     <link href="{{ asset('assets/admin/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/admin/css/custom.css') }}" rel="stylesheet">
 
+    <style>
+        .footer {
+            margin-left: 0 !important;
+            background-color: #ffffff;
+        }
+    </style>
+
     {{-- @livewireStyles --}}
-    @yield('styles')
   </head>
 
 <body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top px-4">
+        <div class="d-flex align-items-baseline justify-content-center py-1">
+            <a href="{{ route('student.dashboard') }}" class="logo text-center">
+                <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="" class="m-0">
+            </a>
+        </div>
+    </header>
+    <!-- ======= End Header ======= -->
 
-    @include('student.layouts.inc.header')
-    @include('student.layouts.inc.sidebar')
-    <main id="main" class="main">
+    {{-- @include('student.layouts.inc.header') --}}
+    <main id="main" class="main ms-0">
         @yield('content')
     </main>
-    @include('student.layouts.inc.footer')
+    {{-- @include('student.layouts.inc.footer') --}}
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer fixed-bottom px-4 py-2">
+        <div class="copyright">
+            &copy; Copyright <strong><span>IMRU</span></strong>. All Rights Reserved
+        </div>
+        <div class="credits">
+            Developed by <a href="https://github.com/rishowmin" target="_blank">Muhammad Raisul Islam, IIT, JU</a>
+        </div>
+    </footer>
+    <!-- ======= End Footer ======= -->
 
 
     <!-- Vendor JS Files -->

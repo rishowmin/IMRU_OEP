@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudDashboardController;
 use App\Http\Controllers\Student\StudMyExamController;
+use App\Http\Controllers\Student\StudMyResultController;
 use App\Http\Controllers\Student\StudProctoringController;
 use App\Http\Controllers\Teacher\TechCourseController;
 use App\Http\Controllers\Teacher\TechDashboardController;
@@ -274,6 +275,11 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
         Route::post('/clipboard/id={attempt}',   'logClipboard')->name('student.proctoring.clipboard');
         Route::post('/webcam/id={attempt}',      'logWebcam')->name('student.proctoring.webcam');
         Route::post('/event/id={attempt}',       'logEvent')->name('student.proctoring.event');
+    });
+
+    // My Results
+    Route::prefix('my-results')->controller(StudMyResultController::class)->group(function () {
+        Route::get('/', 'index')->name('student.myResults');
     });
 
 });
