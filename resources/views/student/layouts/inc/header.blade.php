@@ -56,7 +56,7 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('student.myProfile', auth('student')->user()->id) }}">
                             <i class="bi bi-person"></i>
                             <span>My Profile</span>
                         </a>
@@ -66,9 +66,9 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="bi bi-gear"></i>
-                            <span>Account Settings</span>
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('student.misc.documentation') }}">
+                            <i class="bi bi-question-circle"></i>
+                            <span>Documentation</span>
                         </a>
                     </li>
                     <li>
@@ -76,9 +76,9 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="bi bi-question-circle"></i>
-                            <span>Documentation</span>
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('student.misc.flowchart') }}">
+                            <i class="bi bi-diagram-2"></i>
+                            <span>Flow Chart</span>
                         </a>
                     </li>
                     <li>
@@ -90,8 +90,8 @@
                             @csrf
                             <a class="dropdown-item d-flex align-items-center" href="{{ route('student.logout') }}" onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
+                                <i class="bi bi-power"></i>
+                                <span>Logout</span>
                             </a>
                         </form>
                     </li>

@@ -37,7 +37,6 @@
     <link href="{{ asset('assets/admin/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/admin/css/custom.css') }}" rel="stylesheet">
 
-    {{-- @livewireStyles --}}
     @yield('styles')
   </head>
 
@@ -68,7 +67,6 @@
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>
     <script src="{{ asset('assets/admin/js/custom.js') }}"></script>
 
-    {{-- @livewireScripts --}}
     @yield('scripts')
 </body>
 

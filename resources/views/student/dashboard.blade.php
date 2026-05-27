@@ -4,14 +4,13 @@
 @section('styles')
 <style>
     .stat-card {
-        border-radius: 12px;
         box-shadow: 0 1px 4px rgba(0,0,0,.06);
         transition: box-shadow .2s;
     }
     .stat-card:hover {
         box-shadow: 0 4px 16px rgba(0,0,0,.10);
     }
-    .stat-card .stat-icon {
+    .stat-icon {
         width: 52px;
         height: 52px;
         border-radius: 8px;
@@ -79,7 +78,7 @@
     {{-- ── Stat Cards ── --}}
     <div class="row g-3 mb-3">
 
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-xl-3 col-md-6">
             <div class="card stat-card border-0 h-100">
                 <div class="card-body d-flex align-items-center gap-3">
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary border border-primary">
@@ -93,7 +92,7 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-xl-3 col-md-6">
             <div class="card stat-card border-0 h-100">
                 <div class="card-body d-flex align-items-center gap-3">
                     <div class="stat-icon bg-warning bg-opacity-10 text-warning border border-warning">
@@ -107,10 +106,10 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-xl-3 col-md-6">
             <div class="card stat-card border-0 h-100">
                 <div class="card-body d-flex align-items-center gap-3">
-                    <div class="stat-icon bg-success bg-opacity-10 text-success border border-success">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info border border-info">
                         <i class="bi bi-check2-circle"></i>
                     </div>
                     <div>
@@ -121,10 +120,10 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
+        <div class="col-6 col-xl-3 col-md-6">
             <div class="card stat-card border-0 h-100">
                 <div class="card-body d-flex align-items-center gap-3">
-                    <div class="stat-icon bg-info bg-opacity-10 text-info border border-info">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success border border-success">
                         <i class="bi bi-bar-chart-line-fill"></i>
                     </div>
                     <div>
@@ -137,20 +136,20 @@
 
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 mb-3">
 
         {{-- ── Upcoming Exams ── --}}
         <div class="col-lg-6">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="text-theme fw-bold mb-0"><i class="bi bi-calendar-event me-2 text-warning"></i>Upcoming Exams</h6>
-                    <a href="{{ route('student.myExams') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="{{ route('student.myExams') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 <div class="card-body p-0">
                     @if($upcomingExamsList->count())
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-light">
+                            <thead class="table-warning">
                                 <tr>
                                     <th class="ps-3">Exam</th>
                                     <th>Course</th>
@@ -201,13 +200,13 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="text-theme fw-bold mb-0"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Enrolled Courses</h6>
-                    <a href="#" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="#" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 <div class="card-body p-0">
                     @if($enrolledCourses->count())
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-light">
+                            <thead class="table-primary">
                                 <tr>
                                     <th class="ps-3">Course</th>
                                     <th class="text-center">Code</th>
@@ -243,13 +242,13 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="text-theme fw-bold mb-0"><i class="bi bi-trophy-fill me-2 text-success"></i>Recent Results</h6>
-                    <a href="{{ route('student.myResults') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="{{ route('student.myResults') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 <div class="card-body p-0">
                     @if($recentResults->count())
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-light">
+                            <thead class="table-success">
                                 <tr>
                                     <th class="ps-3">Exam</th>
                                     <th class="text-center">Marks</th>
@@ -299,13 +298,13 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="text-theme fw-bold mb-0"><i class="bi bi-clock-history me-2 text-info"></i>Attempt History</h6>
-                    <a href="{{ route('student.myExams') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="{{ route('student.myExams') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 <div class="card-body p-0">
                     @if($attemptHistory->count())
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-light">
+                            <thead class="table-info">
                                 <tr>
                                     <th class="ps-3">Exam</th>
                                     <th class="text-center">Date</th>
@@ -350,6 +349,198 @@
 
     </div>
 
+    {{-- ── Charts Row ── --}}
+    <div class="row g-3">
+
+        {{-- Pass vs Fail Pie --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Pass vs Fail</h6>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="passFailChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Score Trend Line --}}
+        <div class="col-lg-5 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-graph-up me-2 text-primary"></i>Score Trend</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoreTrendChart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Attempts per Course Bar --}}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-bar-chart-fill me-2 text-info"></i>Attempts per Course</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="attemptsPerCourseChart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Score Distribution Bar --}}
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-bar-chart-steps me-2 text-warning"></i>Score Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoreDistributionChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </section>
 
+@endsection
+
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const gridColor  = 'rgba(0,0,0,0.06)';
+        const fontColor  = '#6c757d';
+        const fontFamily = "'Nunito', 'Segoe UI', sans-serif";
+
+        Chart.defaults.font.family = fontFamily;
+        Chart.defaults.color       = fontColor;
+
+        // ── 1. Pass vs Fail Pie ──
+        new Chart(document.getElementById('passFailChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Pass', 'Fail'],
+                datasets: [{
+                    data: [{{ $passCount }}, {{ $failCount }}],
+                    backgroundColor: ['#198754', '#dc3545'],
+                    borderColor    : ['#fff', '#fff'],
+                    borderWidth    : 3,
+                    hoverOffset    : 6,
+                }]
+            },
+            options: {
+                cutout  : '68%',
+                plugins : {
+                    legend: {
+                        position : 'bottom',
+                        labels   : { padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.label}: ${ctx.parsed} exam${ctx.parsed !== 1 ? 's' : ''}`
+                        }
+                    }
+                }
+            }
+        });
+
+        // ── 2. Score Trend Line ──
+        const trendData = @json($scoreTrend);
+        new Chart(document.getElementById('scoreTrendChart'), {
+            type: 'line',
+            data: {
+                labels  : trendData.map(d => d.label),
+                datasets: [{
+                    label          : 'Score %',
+                    data           : trendData.map(d => d.score),
+                    borderColor    : '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.08)',
+                    borderWidth    : 2.5,
+                    pointRadius    : 5,
+                    pointBackgroundColor: '#0d6efd',
+                    tension        : 0.4,
+                    fill           : true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        min        : 0,
+                        max        : 100,
+                        grid       : { color: gridColor },
+                        ticks      : { callback: v => v + '%' },
+                    },
+                    x: { grid: { display: false } },
+                },
+                plugins: {
+                    legend : { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` } },
+                }
+            }
+        });
+
+        // ── 3. Attempts per Course Bar ──
+        const courseLabels  = @json($attemptsPerCourse->keys());
+        const courseData    = @json($attemptsPerCourse->values());
+        new Chart(document.getElementById('attemptsPerCourseChart'), {
+            type: 'bar',
+            data: {
+                labels  : courseLabels,
+                datasets: [{
+                    label          : 'Attempts',
+                    data           : courseData,
+                    backgroundColor: 'rgba(13,202,240,0.25)',
+                    borderColor    : '#0dcaf0',
+                    borderWidth    : 2,
+                    borderRadius   : 6,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid       : { color: gridColor },
+                        ticks      : { stepSize: 1 },
+                    },
+                    x: { grid: { display: false } },
+                },
+                plugins: { legend: { display: false } },
+            }
+        });
+
+        // ── 4. Score Distribution Bar ──
+        const distLabels = @json(array_keys($scoreDistribution));
+        const distData   = @json(array_values($scoreDistribution));
+        const distColors = ['#dc3545','#fd7e14','#ffc107','#20c997','#198754'];
+        new Chart(document.getElementById('scoreDistributionChart'), {
+            type: 'bar',
+            data: {
+                labels  : distLabels,
+                datasets: [{
+                    label          : 'Students',
+                    data           : distData,
+                    backgroundColor: distColors.map(c => c + '33'),
+                    borderColor    : distColors,
+                    borderWidth    : 2,
+                    borderRadius   : 6,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid       : { color: gridColor },
+                        ticks      : { stepSize: 1 },
+                    },
+                    x: { grid: { display: false } },
+                },
+                plugins: { legend: { display: false } },
+            }
+        });
+
+    });
+</script>
 @endsection

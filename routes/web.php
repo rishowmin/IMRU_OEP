@@ -17,9 +17,11 @@ use App\Http\Controllers\Admin\Academic\AcaTeacherController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudDashboardController;
+use App\Http\Controllers\Student\StudMiscController;
 use App\Http\Controllers\Student\StudMyExamController;
 use App\Http\Controllers\Student\StudMyResultController;
 use App\Http\Controllers\Student\StudProctoringController;
+use App\Http\Controllers\Student\StudProfileController;
 use App\Http\Controllers\Teacher\TechCourseController;
 use App\Http\Controllers\Teacher\TechDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -280,6 +282,18 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
     // My Results
     Route::prefix('my-results')->controller(StudMyResultController::class)->group(function () {
         Route::get('/', 'index')->name('student.myResults');
+    });
+
+    // Student Profile
+    Route::prefix('my-profile')->controller(StudProfileController::class)->group(function () {
+        Route::get('/id={student}', 'myProfile')->name('student.myProfile');
+        Route::post('/store/id={student}', 'myProfileStore')->name('student.myProfile.store');
+    });
+
+    // Student Misc
+    Route::prefix('misc')->controller(StudMiscController::class)->group(function () {
+        Route::get('/documentation', 'documentation')->name('student.misc.documentation');
+        Route::get('/flowchart', 'flowchart')->name('student.misc.flowchart');
     });
 
 });
