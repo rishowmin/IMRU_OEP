@@ -13,19 +13,27 @@ services:
       - "8000:8000"
     volumes:
       - ./:/var/www/html
-      - ./vendor:/var/www/html/vendor
-      - ./node_modules:/var/www/html/node_modules
+      - vendor_data:/var/www/html/vendor        # named volume, not host folder
+      - node_modules_data:/var/www/html/node_modules
+    env_file:
+      - .env                                    # load from .env file
     environment:
       APP_ENV: local
-      APP_DEBUG: '1'
+      APP_DEBUG: "true"
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: mysql
       DB_HOST: db
-      DB_PORT: '3306'
+      DB_PORT: "3306"
       DB_DATABASE: imru_oep
       DB_USERNAME: imru
       DB_PASSWORD: secret
     depends_on:
-      - db
-    command: php artisan serve --host=0.0.0.0 --port=8000 --no-reload
+      db:
+        condition: service_healthy             # wait until MySQL is ready
+    command: >
+      sh -c "php artisan key:generate --no-interaction || true &&
+             php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
 
   db:
     image: mysql:8.0
@@ -40,8 +48,14 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+    healthcheck:                               # app waits for this
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   dbdata:
-  vendor:
-  node_modules:
+  vendor_data:
+  node_modules_data:
