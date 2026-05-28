@@ -1,0 +1,11 @@
+/vendor
+/node_modules
+/.env
+/.idea
+/.vscode
+/.git
+/.gitignore
+npm-debug.log
+/storage/framework/cache/data
+/storage/debugbar
+/public/storage
