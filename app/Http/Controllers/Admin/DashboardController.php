@@ -64,14 +64,24 @@ class DashboardController extends Controller
             ->get();
 
         // ── Chart: Pass vs Fail over last 6 months ──
+        // $monthlyResults = AcaExamResult::selectRaw("
+        //         DATE_FORMAT(created_at, '%b %Y') as month,
+        //         SUM(is_pass = 1) as pass,
+        //         SUM(is_pass = 0) as fail
+        //     ")
+        //     ->where('created_at', '>=', now()->subMonths(6))
+        //     ->groupByRaw("DATE_FORMAT(created_at, '%b %Y')")
+        //     ->orderBy('created_at')
+        //     ->get();
         $monthlyResults = AcaExamResult::selectRaw("
                 DATE_FORMAT(created_at, '%b %Y') as month,
+                MIN(created_at) as month_date,
                 SUM(is_pass = 1) as pass,
                 SUM(is_pass = 0) as fail
             ")
             ->where('created_at', '>=', now()->subMonths(6))
             ->groupByRaw("DATE_FORMAT(created_at, '%b %Y')")
-            ->orderBy('created_at')
+            ->orderBy('month_date')
             ->get();
 
         // ── Chart: Exams per course (top 6) ──
