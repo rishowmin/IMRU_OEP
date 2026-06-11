@@ -31,13 +31,9 @@ class CourseFormRequest extends FormRequest
 
         return [
             'course_title' => 'required|string|max:255',
-            'course_code' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('aca_courses', 'course_code')->ignore($courseId),
-            ],
+            'course_code' => 'nullable|string|max:255',
             'credits' => 'nullable|string|max:255',
+            'teacher_id' => 'nullable|exists:teachers,id',
             'description' => 'nullable|string',
             'is_active'   => 'nullable|boolean',
         ];
@@ -51,9 +47,9 @@ class CourseFormRequest extends FormRequest
             'course_title.max' => 'The course title may not be greater than 255 characters.',
             'course_code.string' => 'The course code must be a string.',
             'course_code.max' => 'The course code may not be greater than 255 characters.',
-            'course_code.unique' => 'The course code has already been taken.',
             'credits.string' => 'The credits must be a string.',
             'credits.max' => 'The credits may not be greater than 255 characters.',
+            'teacher_id.exists' => 'The selected teacher is invalid.',
             'description.string' => 'The description must be a string.',
             'is_active.boolean' => 'The active status must be true or false.',
         ];

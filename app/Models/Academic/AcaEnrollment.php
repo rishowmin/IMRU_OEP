@@ -26,10 +26,6 @@ class AcaEnrollment extends Model
         'updated_by',
     ];
 
-    protected $dates = [
-        'deleted_at',
-    ];
-
     protected $casts = [
         'deleted_at' => 'datetime',
     ];

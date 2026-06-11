@@ -27,14 +27,6 @@
             </a>
         </li>
 
-        {{-- My Profile --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('student.myProfile*') ? '' : 'collapsed' }}" href="{{ route('student.myProfile', auth('student')->user()->id) }}">
-                <i class="bi bi-person-circle"></i>
-                <span>My Profile</span>
-            </a>
-        </li>
-
     </ul>
 
 </aside>

@@ -90,7 +90,7 @@
                                                     @endphp
 
                                                     {{-- Preview image --}}
-                                                    <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }}">
+                                                    <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('assets/storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }}">
 
                                                     {{-- Initials fallback --}}
                                                     @if(!$studentInfo?->profile_photo)
@@ -168,7 +168,7 @@
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Admission Date</th>
-                                                        <td width="70%">{{ $student->info?->admission_date->format('d F Y') ?? 'N/A' }}</td>
+                                                        <td width="70%">{{ $student->info?->admission_date?->format('d F Y') ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>

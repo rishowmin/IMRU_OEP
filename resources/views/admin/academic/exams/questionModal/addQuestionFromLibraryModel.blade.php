@@ -101,7 +101,7 @@
                                 <div class="accordion-body p-0">
 
                                     @foreach($questions as $lib)
-                                    <div class="library-question-item border-bottom" data-question-type="{{ $lib->question_type }}" data-question-text="{{ strtolower($lib->question_text) }}" data-topic="{{ strtolower($topic) }}" data-topic-id="{{ $topicId }}">
+                                    <div class="library-question-item border-bottom" data-question-type="{{ $lib->question_type }}" data-question-text="{{ strtolower($lib->question_text) }}" data-topic="{{ strtolower($topic) }}" data-topic-id="{{ $topicId }}" data-difficulty="{{ $lib->difficulty_level ?? 'medium' }}">
 
                                         <label class="d-flex align-items-start gap-3 px-3 py-3 w-100" for="lib_{{ $lib->id }}" style="cursor: pointer;">
 
@@ -117,7 +117,7 @@
                                                 </p>
 
                                                 {{-- Meta Badges --}}
-                                                <div class="d-flex flex-wrap gap-1">
+                                                <div class="d-flex flex-wrap gap-1 mb-2">
 
                                                     <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 11px;">
                                                         @if($lib->question_type == 'mcq_4') <i class="bi bi-ui-checks me-1"></i>MCQ 4
@@ -127,15 +127,22 @@
                                                         @endif
                                                     </span>
 
-                                                    @if($lib->correct_answer)
-                                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style="font-size: 11px;">
-                                                        <i class="bi bi-check-circle me-1"></i>{{ $lib->correct_answer }}
+                                                    @php
+                                                        $difficultyLevel = $lib->difficulty_level ?? 'medium';
+                                                        $difficultyClass = match($difficultyLevel) {
+                                                            'easy'   => 'bg-success-subtle text-success border-success-subtle',
+                                                            'hard'   => 'bg-danger-subtle text-danger border-danger-subtle',
+                                                            default  => 'bg-warning-subtle text-warning border-warning-subtle',
+                                                        };
+                                                        $difficultyIcon = match($difficultyLevel) {
+                                                            'easy'  => 'bi-battery-half',
+                                                            'hard'  => 'bi-battery-full',
+                                                            default => 'bi-battery',
+                                                        };
+                                                    @endphp
+                                                    <span class="badge rounded-pill border {{ $difficultyClass }}" style="font-size: 11px;">
+                                                        <i class="bi {{ $difficultyIcon }} me-1"></i>{{ ucfirst($difficultyLevel) }}
                                                     </span>
-                                                    @else
-                                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle" style="font-size: 11px;">
-                                                        <i class="bi bi-pencil me-1"></i>Manual Eval.
-                                                    </span>
-                                                    @endif
 
                                                     @if($lib->question_figure)
                                                     <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle" style="font-size: 11px;">
@@ -144,6 +151,21 @@
                                                     @endif
 
                                                 </div>
+
+                                                {{-- Correct Answer / Evaluation --}}
+                                                @if($lib->correct_answer)
+                                                <div class="d-flex align-items-center gap-1 text-success" style="font-size: 12px;">
+                                                    <span class="badge rounded-pill border text-bg-success" style="font-size: 11px;">
+                                                        <i class="bi bi-check-circle-fill me-1"></i>Correct Answer
+                                                    </span>
+                                                    <span>{{ $lib->correct_answer }}</span>
+                                                </div>
+                                                @else
+                                                <div class="d-flex align-items-center gap-1 text-secondary" style="font-size: 12px;">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                    <span>Manual Evaluation</span>
+                                                </div>
+                                                @endif
                                             </div>
                                         </label>
                                     </div>

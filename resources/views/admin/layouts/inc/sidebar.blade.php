@@ -88,6 +88,15 @@
         </li>
         {{-- End Courses Nav --}}
 
+        {{-- Start Enrollments Nav --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.academic.enrollments*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.enrollments.index') }}">
+                <i class="bi bi-bookmark-plus"></i>
+                <span>Enrollments</span>
+            </a>
+        </li>
+        {{-- End Enrollments Nav --}}
+
         {{-- Start Exams Nav --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('admin.academic.exams*', 'admin.academic.examRules*', 'admin.academic.examAttempts*') ? '' : 'collapsed' }}" data-bs-target="#exam-nav" data-bs-toggle="collapse" href="#">
@@ -153,15 +162,6 @@
             </ul>
         </li>
         {{-- End Questions Nav --}}
-
-        {{-- Start Enrollments Nav --}}
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.academic.enrollments*') ? '' : 'collapsed' }}" href="{{ route('admin.academic.enrollments.index') }}">
-                <i class="bi bi-bookmark-plus"></i>
-                <span>Enrollments</span>
-            </a>
-        </li>
-        {{-- End Enrollments Nav --}}
 
         {{-- Start Review Answer Nav --}}
         <li class="nav-item">

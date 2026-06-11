@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 @section('title', 'Review Answers')
-@section('title2', 'Students')
+@section('title2', 'Student Submissions')
 
 @section('content')
 
@@ -8,40 +8,42 @@
 @include('admin.layouts.common.status')
 @endif
 
-<section class="section">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="card-header-left">
-                        <h5>
-                            <i class="bi bi-people"></i>
-                            <span class="ms-1">{{ $exam->exam_title }} — Student Submissions</span>
-                        </h5>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('admin.academic.reviewAnswer.index') }}">@yield('title')</a></li>
-                                <li class="breadcrumb-item active">@yield('title2')</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="card-header-right">
-                        <a href="{{ route('admin.academic.reviewAnswer.index') }}" class="btn btn-outline-theme btn-sm">
-                            <i class="bi bi-arrow-left-square"></i>
-                            <span class="ms-1">Back</span>
-                        </a>
+<div class="pagetitle mb-0">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-people"></i>
+                                <span class="ms-1">@yield('title2') - {{ $exam->exam_title }}</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="bi bi-house"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.academic.reviewAnswer.index') }}">@yield('title')</a></li>
+                                    <li class="breadcrumb-item active">@yield('title2')</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="card-header-right">
+                            <a href="{{ route('admin.academic.reviewAnswer.index') }}" class="btn btn-outline-theme btn-sm">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+</div>
+
+<section class="section">
 
     <div class="row">
         <div class="col-lg-12">
-
-
 
             <div class="accordion mb-3" id="accordionAcademicReviewAns">
                 <div class="accordion-item">
@@ -122,6 +124,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 

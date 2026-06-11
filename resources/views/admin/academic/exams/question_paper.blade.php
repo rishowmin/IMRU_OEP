@@ -300,9 +300,11 @@
     function handleOptions() {
         if (!questionType) return;
         const type = questionType.value;
-        const optionC = document.getElementById('option_c');
-        const optionD = document.getElementById('option_d');
-        const optionRow = document.getElementById('option_row');
+        const optionC    = document.getElementById('option_c_wrap');
+        const optionD    = document.getElementById('option_d_wrap');
+        const optionRow  = document.getElementById('option_row');
+        const answerInput    = document.getElementById('correct_answer');
+        const answerTextarea = document.getElementById('correct_answer_textarea');
 
         if (type === 'mcq_2') {
             optionC.style.display = 'none';
@@ -316,6 +318,22 @@
             optionRow.style.display = '';
         } else {
             optionRow.style.display = 'none';
+        }
+
+        // Toggle correct answer field type
+        const isLong = type === 'short_question' || type === 'long_question';
+        if (isLong) {
+            answerTextarea.value = answerInput.value; // carry over any existing value
+            answerInput.classList.add('d-none');
+            answerInput.removeAttribute('name');
+            answerTextarea.classList.remove('d-none');
+            answerTextarea.setAttribute('name', 'correct_answer');
+        } else {
+            answerInput.value = answerTextarea.value; // carry back
+            answerTextarea.classList.add('d-none');
+            answerTextarea.removeAttribute('name');
+            answerInput.classList.remove('d-none');
+            answerInput.setAttribute('name', 'correct_answer');
         }
     }
 
@@ -415,10 +433,19 @@
                 if (show) visible++;
             });
 
-            // Show/hide topic headers
+            // Show/hide topic groups and update totalBadge per topic
             document.querySelectorAll('.library-topic-group').forEach(function (group) {
-                const anyVisible = Array.from(group.querySelectorAll('.library-question-item')).some(i => i.style.display !== 'none');
+                const visibleItems = Array.from(group.querySelectorAll('.library-question-item'))
+                    .filter(i => i.style.display !== 'none');
+                const anyVisible = visibleItems.length > 0;
                 group.style.display = anyVisible ? '' : 'none';
+
+                // Update total badge to reflect filtered count
+                const topicId   = group.querySelector('.library-question-item')?.dataset.topicId;
+                if (topicId) {
+                    const totalBadge = document.getElementById('totalBadge_' + topicId);
+                    if (totalBadge) totalBadge.textContent = visibleItems.length;
+                }
             });
 
             if (visibleCount) visibleCount.textContent = visible;

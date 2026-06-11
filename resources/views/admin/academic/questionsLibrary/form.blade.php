@@ -280,7 +280,7 @@
                                                 <div class="figure-preview mt-3">
                                                     @if(isset($questionLib) && $questionLib->question_figure)
                                                     <div class="p-2 border rounded">
-                                                        <img id="figure_preview_img" src="{{ asset('storage/question_figure/library/' . $questionLib->question_figure) }}" alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
+                                                        <img id="figure_preview_img" src="{{ asset('assets/storage/question_figure/library/' . $questionLib->question_figure) }}" alt="Question Figure" class="img-fluid" style="width:100%; max-height: 200px">
                                                     </div>
                                                     @else
                                                     <div class="p-2 border rounded">

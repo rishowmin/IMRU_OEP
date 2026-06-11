@@ -85,7 +85,7 @@ class StudProctoringController extends Controller
 
         // ✅ Unique filename: attemptId_timestamp.jpg
         $fileName   = $attempt->id . '_' . time() . '.' . $extension;
-        $uploadPath = public_path('storage/proctoring/webcam/');
+        $uploadPath = public_path('assets/storage/proctoring/webcam/');
 
         // ✅ Create directory if it doesn't exist
         if (!file_exists($uploadPath)) {

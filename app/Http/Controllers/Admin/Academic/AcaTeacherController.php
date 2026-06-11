@@ -131,7 +131,7 @@ class AcaTeacherController extends Controller
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
-            $uploadPath = 'storage/profile_photo/teacher/';
+            $uploadPath = 'assets/storage/profile_photo/teacher/';
 
             // Delete old file if exists
             $oldFileName = optional($teacher->info)->profile_photo;

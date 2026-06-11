@@ -14,23 +14,32 @@ class StudDashboardController extends Controller
         /** @var Student $student */
         $student = auth()->user();
 
+        $now = now();
+
         // Courses the student is enrolled in
         $enrolledCourses = $student->courses()
             ->withCount('exams')
-            ->with('instructor')
+            ->with('teacher')
             ->latest()
             ->take(5)
             ->get();
 
         // All exam ids from enrolled courses
-        $courseIds = $student->courses()->pluck('aca_courses.id');
-        $examIds   = AcaExam::whereIn('course_id', $courseIds)->pluck('id');
+        $courseIds = $student->courses()->pluck('aca_courses.id')->toArray();
+        $examIds = AcaExam::whereIn('course_id', $courseIds)->pluck('id')->toArray();
 
         // Upcoming exams (today or future, not yet attempted)
-        $attemptedExamIds  = $student->examAttempts()->pluck('exam_id');
+        $attemptedExamIds = $student->examAttempts()->where('status', 'Old')->pluck('exam_id')->toArray();
         $upcomingExamsList = AcaExam::whereIn('id', $examIds)
-            ->whereDate('exam_date', '>=', today())
-            ->whereNotIn('id', $attemptedExamIds)
+            ->whereNotIn('id', $attemptedExamIds)          // exclude only fully completed ones
+            ->where(function ($query) use ($now) {
+                $query
+                    ->whereDate('exam_date', '>', $now->toDateString())
+                    ->orWhere(function ($q) use ($now) {
+                        $q->whereDate('exam_date', $now->toDateString())
+                        ->whereTime('end_time', '>=', $now->toTimeString());
+                    });
+            })
             ->with('course')
             ->orderBy('exam_date')
             ->take(5)

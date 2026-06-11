@@ -1,671 +1,581 @@
 @extends('teacher.layouts.app')
 @section('title', 'Dashboard')
 
+@section('styles')
+<style>
+    .stat-card {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+        transition: box-shadow .2s;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .10);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .stat-label {
+        font-size: 0.78rem;
+        margin-top: 2px;
+    }
+
+    .opacity-40 {
+        opacity: 0.4;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        25%      { opacity: 0.25; }
+        50%      { opacity: 0.5; }
+        75%      { opacity: 0.75; }
+    }
+
+    .blink-badge {
+        animation: blink 1.2s ease-in-out infinite;
+    }
+
+</style>
+@endsection
+
 @section('content')
 
 @if(session('status'))
-@include('layouts.inc.common.messages.status')
+    @include('layouts.inc.common.messages.status')
 @endif
 
 <div class="pagetitle mb-0">
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h1>@yield('title')</h1>
-                        <nav style="--bs-breadcrumb-divider: '•';">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item active"><i class="bi bi-house"></i> Dashboard</li>
-                            </ol>
-                        </nav>
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-header-left">
+                            <h1>
+                                <i class="bi bi-grid"></i>
+                                <span class="ms-1">@yield('title')</span>
+                            </h1>
+                            <nav style="--bs-breadcrumb-divider: '•';">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item active"><i class="bi bi-house"></i> Dashboard</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="text-muted small">
+                            Welcome back, <span class="fw-semibold text-theme">{{ auth('teacher')->user()->first_name }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-</div><!-- End Page Title -->
+</div>
 
 <section class="section dashboard">
-    <div class="row">
 
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-            <div class="row">
+    {{-- ── Stat Cards Row 1 ── --}}
+    <div class="row g-3 mb-3">
 
-                <!-- Sales Card -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Sales <span>| Today</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cart"></i>
-                                </div>
-                                <div class="ps-3">
-                                    <h6>145</h6>
-                                    <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
-                                </div>
-                            </div>
-                        </div>
-
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary border border-primary">
+                        <i class="bi bi-journal-bookmark-fill"></i>
                     </div>
-                </div><!-- End Sales Card -->
-
-                <!-- Revenue Card -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card revenue-card">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Revenue <span>| This Month</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-currency-dollar"></i>
-                                </div>
-                                <div class="ps-3">
-                                    <h6>$3,264</h6>
-                                    <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
-                                </div>
-                            </div>
-                        </div>
-
+                    <div>
+                        <div class="stat-value text-theme">{{ $myCourses }}</div>
+                        <div class="stat-label text-muted">My Courses</div>
                     </div>
-                </div><!-- End Revenue Card -->
-
-                <!-- Customers Card -->
-                <div class="col-xxl-4 col-xl-12">
-
-                    <div class="card info-card customers-card">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Customers <span>| This Year</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-people"></i>
-                                </div>
-                                <div class="ps-3">
-                                    <h6>1244</h6>
-                                    <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div><!-- End Customers Card -->
-
-                <!-- Reports -->
-                <div class="col-12">
-                    <div class="card">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Reports <span>/Today</span></h5>
-
-                            <!-- Line Chart -->
-                            <div id="reportsChart"></div>
-
-                            <script>
-                                document.addEventListener("DOMContentLoaded", () => {
-                                    new ApexCharts(document.querySelector("#reportsChart"), {
-                                        series: [{
-                                            name: 'Sales'
-                                            , data: [31, 40, 28, 51, 42, 82, 56]
-                                        , }, {
-                                            name: 'Revenue'
-                                            , data: [11, 32, 45, 32, 34, 52, 41]
-                                        }, {
-                                            name: 'Customers'
-                                            , data: [15, 11, 32, 18, 9, 24, 11]
-                                        }]
-                                        , chart: {
-                                            height: 350
-                                            , type: 'area'
-                                            , toolbar: {
-                                                show: false
-                                            }
-                                        , }
-                                        , markers: {
-                                            size: 4
-                                        }
-                                        , colors: ['#4154f1', '#2eca6a', '#ff771d']
-                                        , fill: {
-                                            type: "gradient"
-                                            , gradient: {
-                                                shadeIntensity: 1
-                                                , opacityFrom: 0.3
-                                                , opacityTo: 0.4
-                                                , stops: [0, 90, 100]
-                                            }
-                                        }
-                                        , dataLabels: {
-                                            enabled: false
-                                        }
-                                        , stroke: {
-                                            curve: 'smooth'
-                                            , width: 2
-                                        }
-                                        , xaxis: {
-                                            type: 'datetime'
-                                            , categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                                        }
-                                        , tooltip: {
-                                            x: {
-                                                format: 'dd/MM/yy HH:mm'
-                                            }
-                                        , }
-                                    }).render();
-                                });
-
-                            </script>
-                            <!-- End Line Chart -->
-
-                        </div>
-
-                    </div>
-                </div><!-- End Reports -->
-
-                <!-- Recent Sales -->
-                <div class="col-12">
-                    <div class="card recent-sales overflow-auto">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body">
-                            <h5 class="card-title">Recent Sales <span>| Today</span></h5>
-
-                            <table class="table table-borderless datatable">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Customer</th>
-                                        <th scope="col">Product</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row"><a href="#">#2457</a></th>
-                                        <td>Brandon Jacob</td>
-                                        <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                                        <td>$64</td>
-                                        <td><span class="badge bg-success">Approved</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#">#2147</a></th>
-                                        <td>Bridie Kessler</td>
-                                        <td><a href="#" class="text-primary">Blanditiis dolor omnis similique</a></td>
-                                        <td>$47</td>
-                                        <td><span class="badge bg-warning">Pending</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#">#2049</a></th>
-                                        <td>Ashleigh Langosh</td>
-                                        <td><a href="#" class="text-primary">At recusandae consectetur</a></td>
-                                        <td>$147</td>
-                                        <td><span class="badge bg-success">Approved</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#">#2644</a></th>
-                                        <td>Angus Grady</td>
-                                        <td><a href="#" class="text-primar">Ut voluptatem id earum et</a></td>
-                                        <td>$67</td>
-                                        <td><span class="badge bg-danger">Rejected</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#">#2644</a></th>
-                                        <td>Raheem Lehner</td>
-                                        <td><a href="#" class="text-primary">Sunt similique distinctio</a></td>
-                                        <td>$165</td>
-                                        <td><span class="badge bg-success">Approved</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                        </div>
-
-                    </div>
-                </div><!-- End Recent Sales -->
-
-                <!-- Top Selling -->
-                <div class="col-12">
-                    <div class="card top-selling overflow-auto">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-
-                                <li><a class="dropdown-item" href="#">Today</a></li>
-                                <li><a class="dropdown-item" href="#">This Month</a></li>
-                                <li><a class="dropdown-item" href="#">This Year</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="card-body pb-0">
-                            <h5 class="card-title">Top Selling <span>| Today</span></h5>
-
-                            <table class="table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Preview</th>
-                                        <th scope="col">Product</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Sold</th>
-                                        <th scope="col">Revenue</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row"><a href="#"><img src="{{ asset('assets/admin/img/product-1.jpg') }}" alt=""></a></th>
-                                        <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas
-                                                nulla</a></td>
-                                        <td>$64</td>
-                                        <td class="fw-bold">124</td>
-                                        <td>$5,828</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#"><img src="{{ asset('assets/admin/img/product-2.jpg') }}" alt=""></a></th>
-                                        <td><a href="#" class="text-primary fw-bold">Exercitationem similique
-                                                doloremque</a></td>
-                                        <td>$46</td>
-                                        <td class="fw-bold">98</td>
-                                        <td>$4,508</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#"><img src="{{ asset('assets/admin/img/product-3.jpg') }}" alt=""></a></th>
-                                        <td><a href="#" class="text-primary fw-bold">Doloribus nisi
-                                                exercitationem</a></td>
-                                        <td>$59</td>
-                                        <td class="fw-bold">74</td>
-                                        <td>$4,366</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#"><img src="{{ asset('assets/admin/img/product-4.jpg') }}" alt=""></a></th>
-                                        <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum
-                                                error</a></td>
-                                        <td>$32</td>
-                                        <td class="fw-bold">63</td>
-                                        <td>$2,016</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><a href="#"><img src="{{ asset('assets/admin/img/product-5.jpg') }}" alt=""></a></th>
-                                        <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus
-                                                repellendus</a></td>
-                                        <td>$79</td>
-                                        <td class="fw-bold">41</td>
-                                        <td>$3,239</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                        </div>
-
-                    </div>
-                </div><!-- End Top Selling -->
-
+                </div>
             </div>
-        </div><!-- End Left side columns -->
+        </div>
 
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-
-            <!-- Recent Activity -->
-            <div class="card">
-                <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li class="dropdown-header text-start">
-                            <h6>Filter</h6>
-                        </li>
-
-                        <li><a class="dropdown-item" href="#">Today</a></li>
-                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                        <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
-                </div>
-
-                <div class="card-body">
-                    <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-                    <div class="activity">
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">32 min</div>
-                            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                            <div class="activity-content">
-                                Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-                            </div>
-                        </div><!-- End activity item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">56 min</div>
-                            <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                            <div class="activity-content">
-                                Voluptatem blanditiis blanditiis eveniet
-                            </div>
-                        </div><!-- End activity item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">2 hrs</div>
-                            <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                            <div class="activity-content">
-                                Voluptates corrupti molestias voluptatem
-                            </div>
-                        </div><!-- End activity item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">1 day</div>
-                            <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                            <div class="activity-content">
-                                Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
-                            </div>
-                        </div><!-- End activity item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">2 days</div>
-                            <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                            <div class="activity-content">
-                                Est sit eum reiciendis exercitationem
-                            </div>
-                        </div><!-- End activity item-->
-
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">4 weeks</div>
-                            <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                            <div class="activity-content">
-                                Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                            </div>
-                        </div><!-- End activity item-->
-
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning border border-warning">
+                        <i class="bi bi-clipboard-check-fill"></i>
                     </div>
-
+                    <div>
+                        <div class="stat-value text-theme">{{ $myExams }}</div>
+                        <div class="stat-label text-muted">My Exams</div>
+                    </div>
                 </div>
-            </div><!-- End Recent Activity -->
+            </div>
+        </div>
 
-            <!-- Budget Report -->
-            <div class="card">
-                <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li class="dropdown-header text-start">
-                            <h6>Filter</h6>
-                        </li>
-
-                        <li><a class="dropdown-item" href="#">Today</a></li>
-                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                        <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info border border-info">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $totalEnrolledStudents }}</div>
+                        <div class="stat-label text-muted">Enrolled Students</div>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="card-body pb-0">
-                    <h5 class="card-title">Budget Report <span>| This Month</span></h5>
-
-                    <div id="budgetChart" style="min-height: 400px;" class="echart"></div>
-
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-                            var budgetChart = echarts.init(document.querySelector("#budgetChart")).setOption({
-                                legend: {
-                                    data: ['Allocated Budget', 'Actual Spending']
-                                }
-                                , radar: {
-                                    // shape: 'circle',
-                                    indicator: [{
-                                            name: 'Sales'
-                                            , max: 6500
-                                        }
-                                        , {
-                                            name: 'Administration'
-                                            , max: 16000
-                                        }
-                                        , {
-                                            name: 'Information Technology'
-                                            , max: 30000
-                                        }
-                                        , {
-                                            name: 'Customer Support'
-                                            , max: 38000
-                                        }
-                                        , {
-                                            name: 'Development'
-                                            , max: 52000
-                                        }
-                                        , {
-                                            name: 'Marketing'
-                                            , max: 25000
-                                        }
-                                    ]
-                                }
-                                , series: [{
-                                    name: 'Budget vs spending'
-                                    , type: 'radar'
-                                    , data: [{
-                                            value: [4200, 3000, 20000, 35000, 50000, 18000]
-                                            , name: 'Allocated Budget'
-                                        }
-                                        , {
-                                            value: [5000, 14000, 28000, 26000, 42000, 21000]
-                                            , name: 'Actual Spending'
-                                        }
-                                    ]
-                                }]
-                            });
-                        });
-
-                    </script>
-
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger border border-danger">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $pendingReviews }}</div>
+                        <div class="stat-label text-muted">Pending Reviews</div>
+                    </div>
                 </div>
-            </div><!-- End Budget Report -->
-
-            <!-- Website Traffic -->
-            <div class="card">
-                <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li class="dropdown-header text-start">
-                            <h6>Filter</h6>
-                        </li>
-
-                        <li><a class="dropdown-item" href="#">Today</a></li>
-                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                        <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
-                </div>
-
-                <div class="card-body pb-0">
-                    <h5 class="card-title">Website Traffic <span>| Today</span></h5>
-
-                    <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-                            echarts.init(document.querySelector("#trafficChart")).setOption({
-                                tooltip: {
-                                    trigger: 'item'
-                                }
-                                , legend: {
-                                    top: '5%'
-                                    , left: 'center'
-                                }
-                                , series: [{
-                                    name: 'Access From'
-                                    , type: 'pie'
-                                    , radius: ['40%', '70%']
-                                    , avoidLabelOverlap: false
-                                    , label: {
-                                        show: false
-                                        , position: 'center'
-                                    }
-                                    , emphasis: {
-                                        label: {
-                                            show: true
-                                            , fontSize: '18'
-                                            , fontWeight: 'bold'
-                                        }
-                                    }
-                                    , labelLine: {
-                                        show: false
-                                    }
-                                    , data: [{
-                                            value: 1048
-                                            , name: 'Search Engine'
-                                        }
-                                        , {
-                                            value: 735
-                                            , name: 'Direct'
-                                        }
-                                        , {
-                                            value: 580
-                                            , name: 'Email'
-                                        }
-                                        , {
-                                            value: 484
-                                            , name: 'Union Ads'
-                                        }
-                                        , {
-                                            value: 300
-                                            , name: 'Video Ads'
-                                        }
-                                    ]
-                                }]
-                            });
-                        });
-
-                    </script>
-
-                </div>
-            </div><!-- End Website Traffic -->
-
-            <!-- News & Updates Traffic -->
-            <div class="card">
-                <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li class="dropdown-header text-start">
-                            <h6>Filter</h6>
-                        </li>
-
-                        <li><a class="dropdown-item" href="#">Today</a></li>
-                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                        <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
-                </div>
-
-                <div class="card-body pb-0">
-                    <h5 class="card-title">News &amp; Updates <span>| Today</span></h5>
-
-                    <div class="news">
-                        <div class="post-item clearfix">
-                            <img src="{{ asset('assets/admin/img/news-1.jpg') }}" alt="">
-                            <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
-                            <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
-                        </div>
-
-                        <div class="post-item clearfix">
-                            <img src="{{ asset('assets/admin/img/news-2.jpg') }}" alt="">
-                            <h4><a href="#">Quidem autem et impedit</a></h4>
-                            <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
-                        </div>
-
-                        <div class="post-item clearfix">
-                            <img src="{{ asset('assets/admin/img/news-3.jpg') }}" alt="">
-                            <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
-                            <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
-                        </div>
-
-                        <div class="post-item clearfix">
-                            <img src="{{ asset('assets/admin/img/news-4.jpg') }}" alt="">
-                            <h4><a href="#">Laborum corporis quo dara net para</a></h4>
-                            <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
-                        </div>
-
-                        <div class="post-item clearfix">
-                            <img src="{{ asset('assets/admin/img/news-5.jpg') }}" alt="">
-                            <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
-                            <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
-                        </div>
-
-                    </div><!-- End sidebar recent posts-->
-
-                </div>
-            </div><!-- End News & Updates -->
-
-        </div><!-- End Right side columns -->
+            </div>
+        </div>
 
     </div>
+
+    {{-- ── Stat Cards Row 2 ── --}}
+    <div class="row g-3 mb-3">
+
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-secondary bg-opacity-10 text-secondary border border-secondary">
+                        <i class="bi bi-file-earmark-check-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $totalResults }}</div>
+                        <div class="stat-label text-muted">Total Results</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success border border-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $passCount }}</div>
+                        <div class="stat-label text-muted">Passed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger border border-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $failCount }}</div>
+                        <div class="stat-label text-muted">Failed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary border border-primary">
+                        <i class="bi bi-bar-chart-line-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value text-theme">{{ $avgScore }}%</div>
+                        <div class="stat-label text-muted">Avg Score · {{ $passRate }}% Pass Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ── Charts Row ── --}}
+    <div class="row g-3 mb-3">
+
+        {{-- Pass vs Fail Doughnut --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Pass vs Fail</h6>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="passFailChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Monthly Pass/Fail Trend Line --}}
+        <div class="col-lg-5 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-graph-up me-2 text-primary"></i>Monthly Pass / Fail Trend</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTrendChart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- Exams per Course Bar --}}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>Exams per Course</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="examsPerCourseChart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ── Tables Row 1 ── --}}
+    <div class="row g-3 mb-3">
+
+        {{-- Upcoming Exams --}}
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-calendar-event me-2 text-warning"></i>Upcoming Exams</h6>
+                    <a href="{{ route('teacher.exams.index') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+                <div class="card-body p-0">
+                    @if($upcomingExams->count())
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th class="ps-3">Exam</th>
+                                        <th class="text-center">Course</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($upcomingExams as $exam)
+                                        @php
+                                            $now      = now();
+                                            $startDT  = \Carbon\Carbon::parse($exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->start_time)->format('H:i:s'));
+                                            $endDT    = \Carbon\Carbon::parse($exam->exam_date->toDateString() . ' ' . \Carbon\Carbon::parse($exam->end_time)->format('H:i:s'));
+                                            $isOngoing = $now->between($startDT, $endDT);
+                                        @endphp
+                                        <tr>
+                                            <td class="ps-3 fw-semibold text-dark">{{ Str::limit($exam->exam_title, 22) }}</td>
+                                            <td class="text-center"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">{{ $exam->course->course_code }}</span></td>
+                                            <td class="text-center">
+                                                @if($isOngoing)
+                                                    <span class="badge bg-success border border-success blink-badge">
+                                                        <i class="bi bi-play-circle me-1"></i>Ongoing
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                                                        {{ $exam->exam_date->format('d M Y') }}
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="text-muted text-center">{{ $exam->exam_duration_min }} mins</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-2 d-block mb-2 opacity-40"></i>
+                            <p class="mb-0 small">No upcoming exams</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Pending Subjective Reviews --}}
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-pencil-square me-2 text-danger"></i>Pending Reviews</h6>
+                    <a href="{{ route('teacher.reviewAnswer.index') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+                <div class="card-body p-0">
+                    @if($pendingReviewList->count())
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th class="ps-3">Student</th>
+                                        <th class="text-center">Exam</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="text-center">Submitted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pendingReviewList as $answer)
+                                        <tr>
+                                            <td class="ps-3 fw-semibold text-dark">
+                                                {{ Str::limit($answer->student->first_name . ' ' . $answer->student->last_name ?? '—', 18) }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                                                    {{ Str::limit($answer->exam->exam_code ?? '—', 14) }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($answer->question->question_type === 'short_question')
+                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info">Short</span>
+                                                @else
+                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Long</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-muted text-center">{{ $answer->created_at->format('d M Y') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-check2-all fs-2 d-block mb-2 opacity-40"></i>
+                            <p class="mb-0 small">All answers reviewed</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ── Tables Row 2 ── --}}
+    <div class="row g-3">
+
+        {{-- Recent Exam Attempts --}}
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-clock-history me-2 text-info"></i>Recent Exam Attempts</h6>
+                    <a href="{{ route('teacher.examAttempts.index') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+                <div class="card-body p-0">
+                    @if($recentAttempts->count())
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th class="ps-3">Student</th>
+                                        <th class="text-center">Exam</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentAttempts as $attempt)
+                                        <tr>
+                                            <td class="ps-3 fw-semibold text-dark">{{ Str::limit($attempt->student->first_name . ' ' . $attempt->student->last_name ?? '—', 18) }}</td>
+                                            <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info border border-info">{{ Str::limit($attempt->exam->exam_code ?? '—', 14) }}</span></td>
+                                            <td class="text-muted text-center">{{ $attempt->created_at->format('d M Y') }}</td>
+                                            <td class="text-center">
+                                                @if($attempt->stopped)
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Stopped</span>
+                                                @elseif($attempt->submitted_at)
+                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">Submitted</span>
+                                                @else
+                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">In Progress</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-clock-history fs-2 d-block mb-2 opacity-40"></i>
+                            <p class="mb-0 small">No attempts yet</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Per-Course Stats --}}
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bold mb-0 text-theme"><i class="bi bi-journal-text me-2 text-warning"></i>Per-Course Stats</h6>
+                    <a href="{{ route('teacher.courses.index') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+                <div class="card-body p-0">
+                    @if($courseStats->count())
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th class="ps-3">Course</th>
+                                        <th class="text-center">Code</th>
+                                        <th class="text-center">Enrolled</th>
+                                        <th class="text-center">Exams</th>
+                                        <th class="text-center">Pass Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($courseStats as $course)
+                                        <tr>
+                                            <td class="ps-3 fw-semibold text-dark">{{ Str::limit($course->course_title, 15) }}</td>
+                                            <td class="text-center"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">{{ $course->course_code }}</span></td>
+                                            <td class="text-muted text-center">{{ $course->enrollments_count }}</td>
+                                            <td class="text-muted text-center">{{ $course->exams_count }}</td>
+                                            <td class="text-center">
+                                                @if($course->pass_rate !== null)
+                                                    @php $pr = $course->pass_rate; @endphp
+                                                    <div class="">
+                                                        <span class="text-muted small">{{ $pr }}%</span>
+                                                        <div class="progress flex-grow-1 border border-success" style="height:5px;">
+                                                            <div class="progress-bar {{ $pr >= 50 ? 'bg-success' : 'bg-danger' }}" style="width:{{ $pr }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted small">—</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-2 d-block mb-2 opacity-40"></i>
+                            <p class="mb-0 small">No course data</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </section>
 
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const gridColor  = 'rgba(0,0,0,0.06)';
+    const fontColor  = '#6c757d';
+    Chart.defaults.color       = fontColor;
+    Chart.defaults.font.family = "'Nunito','Segoe UI',sans-serif";
+
+    // ── 1. Pass vs Fail Doughnut ──
+    new Chart(document.getElementById('passFailChart'), {
+        type: 'doughnut',
+        data: {
+            labels  : ['Pass', 'Fail'],
+            datasets: [{
+                data           : [{{ $passCount }}, {{ $failCount }}],
+                backgroundColor: ['#198754', '#dc3545'],
+                borderColor    : ['#fff', '#fff'],
+                borderWidth    : 3,
+                hoverOffset    : 6,
+            }]
+        },
+        options: {
+            cutout : '68%',
+            plugins: {
+                legend : { position: 'bottom', labels: { padding: 16, usePointStyle: true } },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } },
+            }
+        }
+    });
+
+    // ── 2. Monthly Pass / Fail Trend Line ──
+    const monthly = @json($monthlyResults);
+    new Chart(document.getElementById('monthlyTrendChart'), {
+        type: 'line',
+        data: {
+            labels  : monthly.map(d => d.month),
+            datasets: [
+                {
+                    label               : 'Pass',
+                    data                : monthly.map(d => d.pass),
+                    borderColor         : '#198754',
+                    backgroundColor     : 'rgba(25,135,84,0.08)',
+                    borderWidth         : 2.5,
+                    tension             : 0.4,
+                    fill                : true,
+                    pointRadius         : 4,
+                    pointBackgroundColor: '#198754',
+                },
+                {
+                    label               : 'Fail',
+                    data                : monthly.map(d => d.fail),
+                    borderColor         : '#dc3545',
+                    backgroundColor     : 'rgba(220,53,69,0.08)',
+                    borderWidth         : 2.5,
+                    tension             : 0.4,
+                    fill                : true,
+                    pointRadius         : 4,
+                    pointBackgroundColor: '#dc3545',
+                },
+            ]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } },
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+            }
+        }
+    });
+
+    // ── 3. Exams per Course Bar ──
+    const epc = @json($examsPerCourse);
+    new Chart(document.getElementById('examsPerCourseChart'), {
+        type: 'bar',
+        data: {
+            labels  : epc.map(d => d.label),
+            datasets: [{
+                label          : 'Exams',
+                data           : epc.map(d => d.count),
+                backgroundColor: 'rgba(255,193,7,0.25)',
+                borderColor    : '#ffc107',
+                borderWidth    : 2,
+                borderRadius   : 6,
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } },
+            },
+            plugins: { legend: { display: false } },
+        }
+    });
+
+});
+</script>
 @endsection

@@ -125,7 +125,7 @@ class AcaStudentController extends Controller
         $data = $request->except(['profile_photo', '_token']);
 
         if ($request->hasFile('profile_photo')) {
-            $uploadPath = 'storage/profile_photo/student/';
+            $uploadPath = 'assets/storage/profile_photo/student/';
 
             // Delete old file if exists
             $oldFileName = optional($student->info)->profile_photo;

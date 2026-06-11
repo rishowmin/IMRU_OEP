@@ -11,32 +11,24 @@ use Illuminate\Http\Request;
 
 class AcaEnrollmentController extends Controller
 {
-    public function index()
+    private function getEnrollments()
     {
-        $serialNo = 1;
-        $courses = AcaCourse::where('is_active', 1)->get();
-        $students = Student::where('is_active', 1)->get();
-        $enrollments = AcaEnrollment::with(['course', 'student'])->get();
-
-        return view('admin.academic.enrollments.index', compact('courses', 'students', 'enrollments', 'serialNo'));
+        return AcaEnrollment::with(['course', 'student.info'])
+            ->whereHas('course')
+            ->whereHas('student')
+            ->get()
+            ->groupBy('course_id');
     }
 
-    // public function store(EnrollmentFormRequest $request)
-    // {
-    //     try {
-    //         AcaEnrollment::create([
-    //             'course_id'  => $request->course_id,
-    //             'student_id' => $request->student_id,
-    //             'is_active'  => $request->boolean('is_active'),
-    //             'created_by' => auth()->id(),
-    //         ]);
+    public function index()
+    {
+        $serialNo    = 1;
+        $courses     = AcaCourse::where('is_active', 1)->get();
+        $students    = Student::where('is_active', 1)->get();
+        $enrollments = $this->getEnrollments();
 
-    //         return redirect()->route('admin.academic.enrollments.index')
-    //             ->with('success', 'Enrollment has been created successfully!');
-    //     } catch (\Throwable $e) {
-    //         return back()->withInput()->with('error', 'Enrollment failed. Please try again.');
-    //     }
-    // }
+        return view('admin.academic.enrollments.index', compact('serialNo', 'courses', 'students', 'enrollments'));
+    }
 
     public function store(EnrollmentFormRequest $request)
     {
@@ -46,17 +38,36 @@ class AcaEnrollmentController extends Controller
             $isActive   = $request->boolean('is_active');
             $createdBy  = auth()->id();
 
-            $enrolled  = 0;
-            $skipped   = 0;
+            $enrolled = 0;
+            $skipped  = 0;
+            $restored = 0;
 
             foreach ($studentIds as $studentId) {
-                // Skip if this student is already enrolled in this course
-                $alreadyExists = AcaEnrollment::where('course_id', $courseId)
+                // Check active (non-deleted) enrollment
+                $activeExists = AcaEnrollment::where('course_id', $courseId)
                     ->where('student_id', $studentId)
                     ->exists();
 
-                if ($alreadyExists) {
+                if ($activeExists) {
                     $skipped++;
+                    continue;
+                }
+
+                // Check soft-deleted enrollment
+                $trashed = AcaEnrollment::withTrashed()
+                    ->where('course_id', $courseId)
+                    ->where('student_id', $studentId)
+                    ->first();
+
+                if ($trashed) {
+                    // Restore and update instead of creating duplicate
+                    $trashed->restore();
+                    $trashed->update([
+                        'is_active'  => $isActive,
+                        'created_by' => $createdBy,
+                        'updated_by' => $createdBy,
+                    ]);
+                    $restored++;
                     continue;
                 }
 
@@ -70,46 +81,19 @@ class AcaEnrollmentController extends Controller
                 $enrolled++;
             }
 
-            // Build a meaningful feedback message
             $message = match(true) {
-                $enrolled > 0 && $skipped > 0 => "{$enrolled} student(s) enrolled successfully. {$skipped} skipped (already enrolled).",
-                $enrolled > 0                 => "{$enrolled} student(s) enrolled successfully!",
-                default                       => "No new enrollments. All selected student(s) are already enrolled in this course.",
+                ($enrolled + $restored) > 0 && $skipped > 0   => "{$enrolled} enrolled, {$restored} restored. {$skipped} skipped (already enrolled).",
+                $enrolled > 0 && $restored > 0                => "{$enrolled} student(s) enrolled, {$restored} re-enrolled successfully!",
+                $enrolled > 0                                 => "{$enrolled} student(s) enrolled successfully!",
+                $restored > 0                                 => "{$restored} student(s) re-enrolled successfully!",
+                default                                       => "No new enrollments. All selected student(s) are already enrolled.",
             };
 
             return redirect()->route('admin.academic.enrollments.index')
-                ->with($enrolled > 0 ? 'success' : 'status', $message);
+                ->with(($enrolled + $restored) > 0 ? 'success' : 'status', $message);
 
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', 'Enrollment failed. Please try again.');
-        }
-    }
-
-    public function edit(AcaEnrollment $enroll)
-    {
-        $serialNo    = 1;
-        $courses     = AcaCourse::where('is_active', 1)->get();
-        $students    = Student::where('is_active', 1)->get();
-        $enrollments = AcaEnrollment::with(['course', 'student'])->get();
-
-        return view('admin.academic.enrollments.index', compact('enroll', 'courses', 'students', 'enrollments', 'serialNo'));
-    }
-
-    public function update(EnrollmentFormRequest $request, AcaEnrollment $enroll)
-    {
-        try {
-            $enroll->update([
-                'course_id'  => $request->course_id,
-                'student_id' => $request->student_id,
-                'is_active'  => $request->boolean('is_active'),
-                'updated_by' => auth()->id(),
-            ]);
-
-            return redirect()->route('admin.academic.enrollments.index')
-                ->with('success', 'Enrollment has been updated successfully!');
-        } catch (\Throwable $e) {
-            // \Log::error('Enrollment update failed: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Enrollment update failed. Please try again.');
         }
     }
 
@@ -118,6 +102,16 @@ class AcaEnrollmentController extends Controller
         $enroll->delete();
 
         return redirect()->route('admin.academic.enrollments.index')
-            ->with('status', 'Enrollment has been deleted successfully!');
+            ->with('status', 'Enrollment deleted successfully!');
+    }
+
+    // Bulk delete all enrollments for a course
+    public function destroyCourse(AcaCourse $course)
+    {
+        $count = AcaEnrollment::where('course_id', $course->id)->count();
+        AcaEnrollment::where('course_id', $course->id)->delete();
+
+        return redirect()->route('admin.academic.enrollments.index')
+            ->with('status', "All {$count} enrollment(s) for \"{$course->course_title}\" deleted successfully!");
     }
 }

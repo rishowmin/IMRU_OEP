@@ -21,6 +21,7 @@ class AcaCourse extends Model
         'course_title',
         'course_code',
         'credits',
+        'teacher_id',
         'description',
         'is_active',
         'aca_created_by',
@@ -57,9 +58,9 @@ class AcaCourse extends Model
         return $this->belongsTo(Admin::class, 'updated_by');
     }
 
-    public function instructor()
+    public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'aca_created_by');
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
     public function students()

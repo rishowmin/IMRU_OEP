@@ -24,6 +24,18 @@ use App\Http\Controllers\Student\StudProctoringController;
 use App\Http\Controllers\Student\StudProfileController;
 use App\Http\Controllers\Teacher\TechCourseController;
 use App\Http\Controllers\Teacher\TechDashboardController;
+use App\Http\Controllers\Teacher\TechEnrollmentController;
+use App\Http\Controllers\Teacher\TechExamAttemptController;
+use App\Http\Controllers\Teacher\TechExamController;
+use App\Http\Controllers\Teacher\TechExamSetController;
+use App\Http\Controllers\Teacher\TechMiscController;
+use App\Http\Controllers\Teacher\TechPerformanceController;
+use App\Http\Controllers\Teacher\TechProctoringController;
+use App\Http\Controllers\Teacher\TechProfileController;
+use App\Http\Controllers\Teacher\TechQuestionController;
+use App\Http\Controllers\Teacher\TechQuestionLibraryController;
+use App\Http\Controllers\Teacher\TechReviewAnswerController;
+use App\Http\Controllers\Teacher\TechStudentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +52,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/admin/login', function () {
+    return view('admin.auth.login');
+})->name('admin.login');
 
 Route::get('/academic/login', function () {
     return view('auth_view.academic.login');
@@ -66,10 +82,6 @@ require __DIR__.'/auth.php';
 
 
 
-// Route::get('/admin/dashboard', function () {
-//     return view('admin.dashboard');
-// })->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
-
 Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/profile', [ProfileController::class, 'editAdmin'])->name('admin.profile.edit');
     Route::patch('/admin/profile', [ProfileController::class, 'updateAdmin'])->name('admin.profile.update');
@@ -92,6 +104,38 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/', 'academicDashboard')->name('admin.academic.dashboard');
         });
 
+        // Teacher
+        Route::prefix('teachers')->controller(AcaTeacherController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.teachers.index');
+            Route::get('/create', 'create')->name('admin.academic.teachers.create');
+            Route::post('/store', 'store')->name('admin.academic.teachers.store');
+            Route::get('/edit/id={teacher}', 'edit')->name('admin.academic.teachers.edit');
+            Route::put('/id={teacher}', 'update')->name('admin.academic.teachers.update');
+            Route::delete('/id={teacher}', 'destroy')->name('admin.academic.teachers.destroy');
+
+            // Teacher Profile
+            Route::prefix('teacher-profile')->group(function () {
+                Route::get('/id={teacher}', 'teacherProfile')->name('admin.academic.teachers.profile');
+                Route::post('/store/id={teacher}', 'teacherProfileStore')->name('admin.academic.teachers.profile.store');
+            });
+        });
+
+        // Students
+        Route::prefix('students')->controller(AcaStudentController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.students.index');
+            Route::get('/create', 'create')->name('admin.academic.students.create');
+            Route::post('/store', 'store')->name('admin.academic.students.store');
+            Route::get('/edit/id={student}', 'edit')->name('admin.academic.students.edit');
+            Route::put('/id={student}', 'update')->name('admin.academic.students.update');
+            Route::delete('/id={student}', 'destroy')->name('admin.academic.students.destroy');
+
+            // Student Profile
+            Route::prefix('student-profile')->group(function () {
+                Route::get('/id={student}', 'studentProfile')->name('admin.academic.students.profile');
+                Route::post('/store/id={student}', 'studentProfileStore')->name('admin.academic.students.profile.store');
+            });
+        });
+
         // Courses
         Route::prefix('courses')->controller(AcaCourseController::class)->group(function () {
             Route::get('/', 'index')->name('admin.academic.courses.index');
@@ -100,6 +144,14 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/edit/id={course}', 'edit')->name('admin.academic.courses.edit');
             Route::put('/id={course}', 'update')->name('admin.academic.courses.update');
             Route::delete('/id={course}', 'destroy')->name('admin.academic.courses.destroy');
+        });
+
+        // Enrollments
+        Route::prefix('enrollments')->controller(AcaEnrollmentController::class)->group(function () {
+            Route::get('/', 'index')->name('admin.academic.enrollments.index');
+            Route::post('/', 'store')->name('admin.academic.enrollments.store');
+            Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
+            Route::delete('/course/id={course}', 'destroyCourse')->name('admin.academic.enrollments.destroyCourse');
         });
 
         // Exams
@@ -168,47 +220,6 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::patch('/id={examSet}/status', 'updateStatus')->name('admin.academic.aiExamSets.status');
             Route::post('/id={examSet}/publish', 'publishToExam')->name('admin.academic.aiExamSets.publish');
             Route::post('/id={examSet}/update-marks', 'updateMarks')->name('admin.academic.aiExamSets.updateMarks');
-        });
-
-        // Teacher
-        Route::prefix('teachers')->controller(AcaTeacherController::class)->group(function () {
-            Route::get('/', 'index')->name('admin.academic.teachers.index');
-            Route::get('/create', 'create')->name('admin.academic.teachers.create');
-            Route::post('/store', 'store')->name('admin.academic.teachers.store');
-            Route::get('/edit/id={teacher}', 'edit')->name('admin.academic.teachers.edit');
-            Route::put('/id={teacher}', 'update')->name('admin.academic.teachers.update');
-            Route::delete('/id={teacher}', 'destroy')->name('admin.academic.teachers.destroy');
-
-            // Teacher Profile
-            Route::prefix('teacher-profile')->group(function () {
-                Route::get('/id={teacher}', 'teacherProfile')->name('admin.academic.teachers.profile');
-                Route::post('/store/id={teacher}', 'teacherProfileStore')->name('admin.academic.teachers.profile.store');
-            });
-        });
-
-        // Students
-        Route::prefix('students')->controller(AcaStudentController::class)->group(function () {
-            Route::get('/', 'index')->name('admin.academic.students.index');
-            Route::get('/create', 'create')->name('admin.academic.students.create');
-            Route::post('/store', 'store')->name('admin.academic.students.store');
-            Route::get('/edit/id={student}', 'edit')->name('admin.academic.students.edit');
-            Route::put('/id={student}', 'update')->name('admin.academic.students.update');
-            Route::delete('/id={student}', 'destroy')->name('admin.academic.students.destroy');
-
-            // Student Profile
-            Route::prefix('student-profile')->group(function () {
-                Route::get('/id={student}', 'studentProfile')->name('admin.academic.students.profile');
-                Route::post('/store/id={student}', 'studentProfileStore')->name('admin.academic.students.profile.store');
-            });
-        });
-
-        // Enrollments
-        Route::prefix('enrollments')->controller(AcaEnrollmentController::class)->group(function () {
-            Route::get('/', 'index')->name('admin.academic.enrollments.index');
-            Route::post('/', 'store')->name('admin.academic.enrollments.store');
-            Route::get('/edit/id={enroll}', 'edit')->name('admin.academic.enrollments.edit');
-            Route::put('/id={enroll}', 'update')->name('admin.academic.enrollments.update');
-            Route::delete('/id={enroll}', 'destroy')->name('admin.academic.enrollments.destroy');
         });
 
         // Review Answer
@@ -310,6 +321,22 @@ Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
         Route::get('/', 'dashboard')->name('teacher.dashboard');
     });
 
+    // Students
+    Route::prefix('students')->controller(TechStudentController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.students.index');
+        Route::get('/create', 'create')->name('teacher.students.create');
+        Route::post('/store', 'store')->name('teacher.students.store');
+        Route::get('/edit/id={student}', 'edit')->name('teacher.students.edit');
+        Route::put('/id={student}', 'update')->name('teacher.students.update');
+        Route::delete('/id={student}', 'destroy')->name('teacher.students.destroy');
+
+        // Student Profile
+        Route::prefix('student-profile')->group(function () {
+            Route::get('/id={student}', 'studentProfile')->name('teacher.students.profile');
+            Route::post('/store/id={student}', 'studentProfileStore')->name('teacher.students.profile.store');
+        });
+    });
+
     // Courses
     Route::prefix('courses')->controller(TechCourseController::class)->group(function () {
         Route::get('/', 'index')->name('teacher.courses.index');
@@ -318,6 +345,109 @@ Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
         Route::get('/edit/id={course}', 'edit')->name('teacher.courses.edit');
         Route::put('/id={course}', 'update')->name('teacher.courses.update');
         Route::delete('/id={course}', 'destroy')->name('teacher.courses.destroy');
+    });
+
+    // Enrollments
+    Route::prefix('enrollments')->controller(TechEnrollmentController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.enrollments.index');
+        Route::post('/', 'store')->name('teacher.enrollments.store');
+        Route::get('/edit/id={enroll}', 'edit')->name('teacher.enrollments.edit');
+        Route::put('/id={enroll}', 'update')->name('teacher.enrollments.update');
+        Route::delete('/id={enroll}', 'destroy')->name('teacher.enrollments.destroy');
+        Route::delete('/course/id={course}', 'destroyCourse')->name('teacher.enrollments.destroyCourse');
+    });
+
+    // Exams
+    Route::prefix('exams')->controller(TechExamController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.exams.index');
+        Route::get('/create', 'create')->name('teacher.exams.create');
+        Route::post('/store', 'store')->name('teacher.exams.store');
+        Route::get('/edit/id={exam}', 'edit')->name('teacher.exams.edit');
+        Route::put('/id={exam}', 'update')->name('teacher.exams.update');
+        Route::delete('/id={exam}', 'destroy')->name('teacher.exams.destroy');
+
+        Route::get('/question-paper/id={exam}', 'questionPaper')->name('teacher.exams.questionPaper');
+        Route::post('/question-paper/id={exam}/store', 'storeQuestion')->name('teacher.exams.questionPaper.store');
+        Route::post('/id={exam}/question-paper/library', 'storeFromLibrary')->name('teacher.exams.questionPaper.library');
+        Route::put('/question-paper/id={exam}/question/update/id={question}', 'updateQuestion')->name('teacher.exams.questionPaper.update');
+        Route::delete('/question-paper/id={exam}/question/id={question}', 'destroyQuestion')->name('teacher.exams.questionPaper.destroy');
+
+        Route::get('/settings/id={exam}', 'examSettings')->name('teacher.exams.settings');
+        Route::put('/settings/id={exam}', 'updateExamSettings')->name('teacher.exams.settings.update');
+    });
+
+    // Exams Attempts
+    Route::prefix('exam-attempts')->controller(TechExamAttemptController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.examAttempts.index');
+        Route::post('/id={attempt}/reset', 'reset')->name('teacher.examAttempts.reset');
+    });
+
+    // Questions
+    Route::prefix('questions')->controller(TechQuestionController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.questions.index');
+        Route::get('/create', 'create')->name('teacher.questions.create');
+        Route::post('/store', 'store')->name('teacher.questions.store');
+        Route::get('/edit/id={question}', 'edit')->name('teacher.questions.edit');
+        Route::put('/id={question}', 'update')->name('teacher.questions.update');
+        Route::delete('/id={question}', 'destroy')->name('teacher.questions.destroy');
+    });
+
+    // Questions Library
+    Route::prefix('questions-library')->controller(TechQuestionLibraryController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.questions.library.index');
+        Route::get('/create', 'create')->name('teacher.questions.library.create');
+        Route::post('/store', 'store')->name('teacher.questions.library.store');
+        Route::get('/edit/id={questionLib}', 'edit')->name('teacher.questions.library.edit');
+        Route::put('/id={questionLib}', 'update')->name('teacher.questions.library.update');
+        Route::delete('/id={questionLib}', 'destroy')->name('teacher.questions.library.destroy');
+    });
+
+    // AI Exam Sets
+    Route::prefix('ai-exam-sets')->controller(TechExamSetController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.aiExamSets.index');
+        Route::get('/create', 'create')->name('teacher.aiExamSets.create');
+        Route::post('/store', 'store')->name('teacher.aiExamSets.store');
+        Route::get('/show/id={examSet}', 'show')->name('teacher.aiExamSets.show');
+        Route::delete('/id={examSet}', 'destroy')->name('teacher.aiExamSets.destroy');
+
+        Route::patch('/id={examSet}/status', 'updateStatus')->name('teacher.aiExamSets.status');
+        Route::post('/id={examSet}/publish', 'publishToExam')->name('teacher.aiExamSets.publish');
+        Route::post('/id={examSet}/update-marks', 'updateMarks')->name('teacher.aiExamSets.updateMarks');
+    });
+
+    // Review Answer
+    Route::prefix('review-answer')->controller(TechReviewAnswerController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.reviewAnswer.index');
+        Route::get('/exam/id={exam}', 'show')->name('teacher.reviewAnswer.show');
+        Route::get('/exam/id={exam}/student/id={student}', 'studentAnswers')->name('teacher.reviewAnswer.studentAnswers');
+        Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('teacher.reviewAnswer.store');
+    });
+
+    // Performance & Grading
+    Route::prefix('performance')->controller(TechPerformanceController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.performance.index');
+        Route::get('/exam/id={exam}', 'examAnalytics')->name('teacher.performance.examAnalytics');
+        Route::get('/exam/id={exam}/student/id={student}', 'studentReport')->name('teacher.performance.studentReport');
+        Route::post('/store/exam/id={exam}/student/id={student}', 'storeReview')->name('teacher.performance.store');
+    });
+
+    // Proctoring Reports
+    Route::prefix('proctoring')->controller(TechProctoringController::class)->group(function () {
+        Route::get('/', 'index')->name('teacher.proctoring.index');
+        Route::get('/report/id={attempt}', 'getReport')->name('teacher.proctoring.report');
+        Route::get('/summary/id={attempt}', 'getSummary')->name('teacher.proctoring.summary');
+    });
+
+    // Teacher Profile
+    Route::prefix('my-profile')->controller(TechProfileController::class)->group(function () {
+        Route::get('/id={teacher}', 'myProfile')->name('teacher.myProfile');
+        Route::post('/store/id={teacher}', 'myProfileStore')->name('teacher.myProfile.store');
+    });
+
+    // Teacher Misc
+    Route::prefix('misc')->controller(TechMiscController::class)->group(function () {
+        Route::get('/documentation', 'documentation')->name('teacher.misc.documentation');
+        Route::get('/flowchart', 'flowchart')->name('teacher.misc.flowchart');
     });
 
 });

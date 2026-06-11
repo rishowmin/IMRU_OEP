@@ -45,7 +45,7 @@ class DashboardController extends Controller
 
         // ── Per-Course Stats ──
         $courseStats = AcaCourse::withCount(['enrollments', 'exams'])
-            ->with('instructor')
+            ->with('teacher')
             ->latest()
             ->take(5)
             ->get()
@@ -64,25 +64,17 @@ class DashboardController extends Controller
             ->get();
 
         // ── Chart: Pass vs Fail over last 6 months ──
-        // $monthlyResults = AcaExamResult::selectRaw("
-        //         DATE_FORMAT(created_at, '%b %Y') as month,
-        //         SUM(is_pass = 1) as pass,
-        //         SUM(is_pass = 0) as fail
-        //     ")
-        //     ->where('created_at', '>=', now()->subMonths(6))
-        //     ->groupByRaw("DATE_FORMAT(created_at, '%b %Y')")
-        //     ->orderBy('created_at')
-        //     ->get();
-        $monthlyResults = AcaExamResult::selectRaw("
-                DATE_FORMAT(created_at, '%b %Y') as month,
-                MIN(created_at) as month_date,
-                SUM(is_pass = 1) as pass,
-                SUM(is_pass = 0) as fail
-            ")
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupByRaw("DATE_FORMAT(created_at, '%b %Y')")
-            ->orderBy('month_date')
-            ->get();
+        $monthlyResults = collect(range(5, 0))->map(function ($i) {
+            $month = now()->subMonths($i);
+            $base  = AcaExamResult::whereYear('created_at', $month->year)
+                                ->whereMonth('created_at', $month->month);
+
+            return [
+                'month' => $month->format('M Y'),
+                'pass'  => (clone $base)->where('is_pass', 1)->count(),
+                'fail'  => (clone $base)->where('is_pass', 0)->count(),
+            ];
+        });
 
         // ── Chart: Exams per course (top 6) ──
         $examsPerCourse = AcaCourse::withCount('exams')
@@ -130,7 +122,7 @@ class DashboardController extends Controller
 
         // ── Per-Course Stats ──
         $courseStats = AcaCourse::withCount(['enrollments', 'exams'])
-            ->with('instructor')
+            ->with('teacher')
             ->latest()
             ->take(5)
             ->get()

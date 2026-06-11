@@ -166,7 +166,9 @@
                                     $isOngoing = $now->between($startDT, $endDT);
                                 @endphp
                                 <tr>
-                                    <td class="ps-3 fw-semibold text-dark">{{ Str::limit($exam->exam_title, 24) }}</td>
+                                    <td class="ps-3 fw-semibold text-dark">
+                                        {{ Str::limit($exam->exam_title, 24) }}
+                                    </td>
                                     <td class="text-muted">{{ Str::limit($exam->course->course_title ?? '—', 20) }}</td>
                                     <td class="text-center">
                                         @if($isOngoing)
@@ -219,8 +221,8 @@
                                 <tr>
                                     <td class="ps-3 fw-semibold text-dark">{{ Str::limit($course->course_title, 24) }}</td>
                                     <td class="text-center"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">{{ $course->course_code }}</span></td>
-                                    {{-- <td class="text-muted">{{ Str::limit($course->instructor->name ?? '—', 18) }}</td> --}}
-                                    <td class="text-muted text-center">{{ Str::limit($course->instructor->full_name ?? '—', 18) }}</td>
+                                    {{-- <td class="text-muted text-center">{{ Str::limit($course->teacher->first_name ?? '—', 18) }}</td> --}}
+                                    <td class="text-muted text-center">{{ $course->teacher->first_name }} {{ $course->teacher->last_name }}</td>
                                     <td class="text-muted text-center">{{ $course->exams_count ?? 0 }}</td>
                                 </tr>
                                 @endforeach

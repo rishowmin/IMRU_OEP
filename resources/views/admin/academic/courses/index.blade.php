@@ -39,7 +39,7 @@
 </div>
 
 <section class="section">
-    
+
     <div class="row">
         <div class="col-lg-12">
 
@@ -61,7 +61,7 @@
                                     <tr>
                                         <th width="7%">#</th>
                                         <th width="30%">Course Title</th>
-                                        <th width="20%">Course Code</th>
+                                        <th width="20%">Teacher</th>
                                         <th width="20%">Credits</th>
                                         <th width="10%">Status</th>
                                         <th width="13%">Actions</th>
@@ -77,8 +77,13 @@
                                             </a>
                                             {{ $serialNo++ }}
                                         </th>
-                                        <td>{{ $course->course_title ?? 'N/A' }}</td>
-                                        <td>{{ $course->course_code ?? 'N/A' }}</td>
+                                        <td>
+                                            {{ $course->course_title ?? 'N/A' }}
+                                            <small class="d-block text-muted">{{ $course->course_code ?? 'N/A' }}</small>
+                                        </td>
+                                        <td>
+                                            {{ $course->teacher->first_name ?? 'N/A' }} {{ $course->teacher->last_name ?? 'N/A' }}
+                                        </td>
                                         <td>{{ $course->credits ?? 'N/A' }}</td>
                                         <td>
                                             @if($course->is_active == '1')

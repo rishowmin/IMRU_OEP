@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Academic;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\CourseFormRequest;
 use App\Models\Academic\AcaCourse;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 
 class AcaCourseController extends Controller
@@ -18,7 +19,8 @@ class AcaCourseController extends Controller
 
     public function create()
     {
-        return view('admin.academic.courses.form');
+        $teacherList = Teacher::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
+        return view('admin.academic.courses.form', compact('teacherList'));
     }
 
     public function store(CourseFormRequest $request)
@@ -28,6 +30,7 @@ class AcaCourseController extends Controller
                 'course_title' => $request->course_title,
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
+                'teacher_id' => $request->teacher_id,
                 'description' => $request->description,
                 'is_active'  => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
@@ -41,7 +44,8 @@ class AcaCourseController extends Controller
 
     public function edit(AcaCourse $course)
     {
-        return view('admin.academic.courses.form', compact('course'));
+        $teacherList = Teacher::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
+        return view('admin.academic.courses.form', compact('course', 'teacherList'));
     }
 
     public function update(CourseFormRequest $request, AcaCourse $course)
@@ -51,6 +55,7 @@ class AcaCourseController extends Controller
                 'course_title' => $request->course_title,
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
+                'teacher_id' => $request->teacher_id,
                 'description' => $request->description,
                 'is_active'  => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),

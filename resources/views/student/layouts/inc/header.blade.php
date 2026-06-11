@@ -14,8 +14,6 @@
 
             <li class="nav-item dropdown pe-3">
 
-
-
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     @php
                     $authStudent = Auth::guard('student')->user();
@@ -28,7 +26,7 @@
                     @endphp
 
                     {{-- Preview image --}}
-                    <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }}">
+                    <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('assets/storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }}">
 
                     {{-- Initials fallback --}}
                     @if(!$studentInfo?->profile_photo)

@@ -13,15 +13,16 @@ class TechCourseController extends Controller
     {
         $serialNo = 1;
         $courseList = AcaCourse::orderBy('id', 'ASC')
+                    // ->where('aca_created_by', auth()->id())
+                    ->where('teacher_id', auth()->id())
                     ->where('deleted_at', NULL)
-                    ->where('aca_created_by', auth('teacher')->id())
                     ->get();
-        return view('teacher.courses.index', compact('serialNo', 'courseList'));
+        return view('teacher.modules.courses.index', compact('serialNo', 'courseList'));
     }
 
     public function create()
     {
-        return view('teacher.courses.form');
+        return view('teacher.modules.courses.form');
     }
 
     public function store(CourseFormRequest $request)
@@ -31,6 +32,7 @@ class TechCourseController extends Controller
                 'course_title' => $request->course_title,
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
+                'teacher_id' => auth()->id(),
                 'description' => $request->description,
                 'is_active'  => $request->boolean('is_active'),
                 'aca_created_by' => auth()->id(),
@@ -44,7 +46,7 @@ class TechCourseController extends Controller
 
     public function edit(AcaCourse $course)
     {
-        return view('teacher.courses.form', compact('course'));
+        return view('teacher.modules.courses.form', compact('course'));
     }
 
     public function update(CourseFormRequest $request, AcaCourse $course)
@@ -54,6 +56,7 @@ class TechCourseController extends Controller
                 'course_title' => $request->course_title,
                 'course_code' => $request->course_code,
                 'credits' => $request->credits,
+                'teacher_id' => auth()->id(),
                 'description' => $request->description,
                 'is_active'  => $request->boolean('is_active'),
                 'aca_updated_by' => auth()->id(),

@@ -56,7 +56,7 @@
                             <input type="file" name="profile_photo" id="profile_photo_input" class="d-none @error('profile_photo') is-invalid @enderror" accept="image/*">
 
                             {{-- Preview image --}}
-                            <img id="photo-preview" src="{{ $info?->profile_photo ? asset('storage/profile_photo/student/' . $info->profile_photo) : '' }}" alt="Profile Photo" class="rounded-circle object-fit-cover border" style="{{ $info?->profile_photo ? '' : 'display:none;' }}">
+                            <img id="photo-preview" src="{{ $info?->profile_photo ? asset('assets/storage/profile_photo/student/' . $info->profile_photo) : '' }}" alt="Profile Photo" class="rounded-circle object-fit-cover border" style="{{ $info?->profile_photo ? '' : 'display:none;' }}">
 
                             {{-- Initials fallback --}}
                             @if(!$info?->profile_photo)

@@ -91,7 +91,7 @@
                                                     @endphp
 
                                                     {{-- Preview image --}}
-                                                    <img id="nav-photo-preview" src="{{ $teacherInfo?->profile_photo ? asset('storage/profile_photo/teacher/' . $teacherInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $teacherInfo?->profile_photo ? '' : 'display:none;' }}">
+                                                    <img id="nav-photo-preview" src="{{ $teacherInfo?->profile_photo ? asset('assets/storage/profile_photo/teacher/' . $teacherInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $teacherInfo?->profile_photo ? '' : 'display:none;' }}">
 
                                                     {{-- Initials fallback --}}
                                                     @if(!$teacherInfo?->profile_photo)
@@ -176,7 +176,7 @@
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
                                                         <th width="22%">Joining Date</th>
-                                                        <td width="70%">{{ $teacher->info?->joining_date->format('d F Y') ?? 'N/A' }}</td>
+                                                        <td width="70%">{{ $teacher->info?->joining_date?->format('d F Y') ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td width="8%" class="text-end"><i class="bi bi-arrow-return-right"></i></td>
@@ -198,7 +198,7 @@
                                                         <th width="22%">Date of Birth</th>
                                                         <td width="70%">
                                                             @if ($teacher->info?->dob != null)
-                                                            <span class="me-3">{{ $teacher->info?->dob->format('d F Y') }}</span>
+                                                            <span class="me-3">{{ $teacher->info?->dob?->format('d F Y') }}</span>
                                                             <span class="fw-semibold"> ({{ $teacher->info?->age }} years old)</span>
                                                             @else
                                                             N/A

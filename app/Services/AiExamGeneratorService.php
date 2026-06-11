@@ -560,6 +560,16 @@ PROMPT;
             throw new \RuntimeException('AI selection produced no questions. Please try again.');
         }
 
+        // ✅ Determine created_by based on active guard
+        $createdBy    = null;
+        $acaCreatedBy = null;
+
+        if (auth('admin')->check()) {
+            $createdBy = auth('admin')->id();
+        } elseif (auth('teacher')->check()) {
+            $acaCreatedBy = auth('teacher')->id();
+        }
+
         return AcaExamSet::create([
             'title'            => $config['title'],
             'topic'            => $config['topic'],
@@ -576,7 +586,8 @@ PROMPT;
             'question_ids'     => $selectedIds,
             'custom_marks'     => null,
             'status'           => 'draft',
-            'created_by'       => auth()->id(),
+            'created_by'       => $createdBy,
+            'aca_created_by'   => $acaCreatedBy,
         ]);
     }
 }

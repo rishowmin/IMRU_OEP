@@ -109,9 +109,10 @@
                             </div>
 
                             {{-- Correct Answer --}}
-                            <div class="mb-2">
+                            <div class="mb-2" id="correct_answer_wrap">
                                 <label class="form-label fw-bold small">Correct Answer</label>
-                                <input type="text" class="form-control form-control-sm" id="correct_answer" name="correct_answer" placeholder="e.g. Dhaka or A" value="{{ old('correct_answer') }}">
+                                <input type="text" class="form-control form-control-sm" id="correct_answer" name="correct_answer" placeholder="Enter the correct answer..." value="{{ old('correct_answer') }}">
+                                <textarea class="form-control form-control-sm d-none" id="correct_answer_textarea" name="correct_answer" rows="3" placeholder="Enter the correct answer...">{{ old('correct_answer') }}</textarea>
                             </div>
 
                         </div>

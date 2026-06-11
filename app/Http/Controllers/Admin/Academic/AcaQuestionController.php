@@ -32,7 +32,7 @@ class AcaQuestionController extends Controller
             $questionFigurePath = null;
 
             if ($request->hasFile('question_figure')) {
-                $uploadPath = 'storage/question_figure/';
+                $uploadPath = 'assets/storage/question_figure/';
 
                 $file = $request->file('question_figure');
                 $extension = $file->getClientOriginalExtension();
@@ -79,7 +79,7 @@ class AcaQuestionController extends Controller
     {
         try {
             if ($request->hasFile('question_figure')) {
-                $uploadPath = 'storage/question_figure/';
+                $uploadPath = 'assets/storage/question_figure/';
 
                 // Delete old file if exists
                 $oldFileName = $question->question_figure;

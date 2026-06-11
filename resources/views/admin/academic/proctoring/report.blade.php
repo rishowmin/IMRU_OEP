@@ -86,7 +86,7 @@
 
                             <div class="img-sec">
                                 {{-- Preview image --}}
-                                <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }} width: 60px; height:60px; max-height:60px;">
+                                <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('assets/storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }} width: 60px; height:60px; max-height:60px;">
 
                                 {{-- Initials fallback --}}
                                 @if(!$studentInfo?->profile_photo)
@@ -95,7 +95,7 @@
                                 </div>
                                 @endif
                             </div>
-                            
+
                         </div>
 
                         <div>
@@ -341,7 +341,7 @@
                         @foreach($attempt->webcamLogs as $snap)
                         <div class="col-6">
                             <div class="position-relative">
-                                <img src="{{ asset('storage/proctoring/webcam/' . $snap->image_url) }}" class="img-fluid rounded border w-100" style="height:100px;object-fit:cover;" alt="Snapshot">
+                                <img src="{{ asset('assets/storage/proctoring/webcam/' . $snap->image_url) }}" class="img-fluid rounded border w-100" style="height:100px;object-fit:cover;" alt="Snapshot">
                                 <span class="position-absolute top-0 start-0 m-1 badge bg-{{ $snap->ai_flag === 'clear' ? 'success' : 'danger' }} rounded-pill" style="font-size:10px;">
                                     {{ ucfirst(str_replace('_', ' ', $snap->ai_flag)) }}
                                 </span>

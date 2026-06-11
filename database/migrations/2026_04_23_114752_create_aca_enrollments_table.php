@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['course_id', 'student_id']);
         });
     }
 

@@ -5,50 +5,57 @@
 
 <div class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
     <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <div class="back-to-home">
-                    <a href="{{ url('/') }}"><i class="bi bi-arrow-left"></i></a>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="back-to-home">
+                            <a href="{{ url('/') }}" class="btn btn-sm btn-outline-theme"><i class="bi bi-arrow-left"></i></a>
+                        </div>
+                        <div class="row justify-content-center">
+                            <a href="{{ url('/') }}" class="logo d-flex align-items-center w-auto">
+                                <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="IMRU OEP Logo" width="100%">
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-9 col-sm-12">
+
+                                {{-- Toggle Buttons --}}
+                                <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                                    <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showStudentLogin">
+                                        <i class="bi bi-person me-1"></i>Student Login
+                                    </button>
+                                    <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showTeacherLogin">
+                                        <i class="bi bi-person-badge me-1"></i>Teacher Login
+                                    </button>
+                                </div>
+
+                                {{-- Student Login Form --}}
+                                <div id="studentLoginForm">
+                                    @include('student.auth.login')
+                                </div>
+
+                                {{-- Teacher Login Form --}}
+                                <div id="teacherLoginForm" style="display: none;">
+                                    @include('teacher.auth.login')
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="row justify-content-center">
-                    <a href="{{ url('/') }}" class="logo login-logo d-flex align-items-center w-auto">
-                        <img src="{{ asset('assets/admin/img/brand/logo.png') }}" alt="IMRU OEP Logo" width="100%">
-                    </a>
-                </div>
-            </div>
 
-            <div class="card-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-9 col-sm-12">
-
-                        {{-- Toggle Buttons --}}
-                        <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
-                            <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showStudentLogin">
-                                <i class="bi bi-person me-1"></i>Student Login
-                            </button>
-                            <button type="button" class="btn btn-outline-theme px-4 login-toggle-btn" id="showTeacherLogin">
-                                <i class="bi bi-person-badge me-1"></i>Teacher Login
-                            </button>
-                        </div>
-
-                        {{-- Student Login Form --}}
-                        <div id="studentLoginForm">
-                            @include('student.auth.login')
-                        </div>
-
-                        {{-- Teacher Login Form --}}
-                        <div id="teacherLoginForm" style="display: none;">
-                            @include('teacher.auth.login')
-                        </div>
-
+                <div class="row justify-content-center text-center mt-2">
+                    <div class="credits small">
+                        Developed by <a href="https://github.com/rishowmin" target="_blank">Muhammad Raisul Islam, IIT, JU</a>
                     </div>
                 </div>
-            </div>
 
-        </div>
-        <div class="row justify-content-center text-center mt-2">
-            <div class="credits small">
-                Developed by <a href="https://github.com/rishowmin" target="_blank">Muhammad Raisul Islam, IIT, JU</a>
             </div>
         </div>
     </div>

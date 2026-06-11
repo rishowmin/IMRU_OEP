@@ -26,7 +26,7 @@
                     @endphp
 
                     {{-- Preview image --}}
-                    <img id="nav-photo-preview" src="{{ $teacherInfo?->profile_photo ? asset('storage/profile_photo/teacher/' . $teacherInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $teacherInfo?->profile_photo ? '' : 'display:none;' }}">
+                    <img id="nav-photo-preview" src="{{ $teacherInfo?->profile_photo ? asset('assets/storage/profile_photo/teacher/' . $teacherInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $teacherInfo?->profile_photo ? '' : 'display:none;' }}">
 
                     {{-- Initials fallback --}}
                     @if(!$teacherInfo?->profile_photo)
@@ -40,14 +40,21 @@
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
                         <h6>{{ $firstName }} {{ $lastName }}</h6>
-                        <span>{{ $teacherInfo->designation ?? 'Teacher' }}</span>
+                        <span>
+                            @if ($teacherInfo?->teacher_id_no != null)
+                            Teacher ID: {{ $teacherInfo->teacher_id_no }}
+                            @else
+                            Teacher
+                            @endif
+                        </span>
+
                     </li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('teacher.myProfile', auth('teacher')->user()->id) }}">
                             <i class="bi bi-person"></i>
                             <span>My Profile</span>
                         </a>
@@ -57,9 +64,19 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="#">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('teacher.misc.documentation') }}">
                             <i class="bi bi-question-circle"></i>
                             <span>Documentation</span>
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('teacher.misc.flowchart') }}">
+                            <i class="bi bi-diagram-2"></i>
+                            <span>Flow Chart</span>
                         </a>
                     </li>
                     <li>

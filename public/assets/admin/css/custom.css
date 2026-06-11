@@ -178,31 +178,33 @@ p {
 
 .back-to-home {
     position: absolute;
-    top: 20px;
+    top: 25px;
     left: 20px;
     z-index: 1000;
 }
 
-.back-to-home a {
-    width: 40px;
-    height: 40px;
-    color: #13415e;
-    font-size: 20px;
+/* .back-to-home a {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--theme-color);
+    border-radius: 3px;
+    color: var(--theme-color);
+    font-size: 16px;
     text-decoration: none;
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 6px;
     transition: all 0.3s ease;
 }
 
 .back-to-home a:hover {
     color: #ffffff;
-    width: 40px;
-    height: 40px;
-    border: 1px solid #13415e;
-    border-radius: 5px;
-    background-color: #13415e;
-}
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--theme-color);
+    border-radius: 3px;
+    background-color: var(--theme-color);
+} */
 
 
 .sidebar-nav .nav-link {

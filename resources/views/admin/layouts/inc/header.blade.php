@@ -27,7 +27,7 @@
                     @endphp
 
                     {{-- Preview image --}}
-                    <img id="nav-photo-preview" src="{{ $adminInfo?->profile_photo ? asset('storage/profile_photo/admin/' . $adminInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $adminInfo?->profile_photo ? '' : 'display:none;' }}">
+                    <img id="nav-photo-preview" src="{{ $adminInfo?->profile_photo ? asset('assets/storage/profile_photo/admin/' . $adminInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $adminInfo?->profile_photo ? '' : 'display:none;' }}">
 
                     {{-- Initials fallback --}}
                     @if(!$adminInfo?->profile_photo)

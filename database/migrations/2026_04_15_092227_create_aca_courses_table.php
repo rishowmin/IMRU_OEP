@@ -16,8 +16,9 @@ return new class extends Migration
         Schema::create('aca_courses', function (Blueprint $table) {
             $table->id();
             $table->string('course_title');
-            $table->string('course_code')->unique()->nullable();
+            $table->string('course_code')->nullable();
             $table->string('credits')->nullable();
+            $table->foreignId('teacher_id')->nullable()->constrained('teachers')->nullOnDelete();
             $table->longText('description')->nullable();
 
             $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');

@@ -111,7 +111,41 @@
                                     </div>
                                 </div>
 
+                                {{-- Teacher ID --}}
+                                <div class="row align-items-baseline mb-2">
+                                    <label for="teacher_id" class="col-sm-3 col-form-label fw-bold"><small>Teacher</small> <small class="text-danger">*</small></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
+                                            <select class="form-select form-select-sm @error('teacher_id') is-invalid @elseif(old('teacher_id')) is-valid @enderror" name="teacher_id" id="teacher_id">
+                                                <option selected disabled>Select Teacher</option>
+                                                @foreach($teacherList as $teacher)
+                                                <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                                                    {{ $teacher->first_name }} {{ $teacher->last_name }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            @error('teacher_id')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                            @else
+                                            @if(old('teacher_id'))
+                                            <div class="valid-feedback d-block">
+                                                <i class="bi bi-check-circle"></i>
+                                                Looks good!
+                                            </div>
+                                            @endif
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- Description --}}
+
                                 <div class="row align-items-baseline mb-2">
                                     <label for="description" class="col-sm-3 col-form-label fw-bold"><small>Description</small></label>
                                     <div class="col-sm-9">

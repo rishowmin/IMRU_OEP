@@ -212,11 +212,11 @@
                                                 <div class="difficulty-row mb-2">
                                                     <div class="form-group">
                                                         <label for="easy_percent" class="form-label fw-bold text-success mb-1 small"><small>Easy (%)</small></label>
-                                                        <input type="number" name="easy_percent" id="easy_pct" class="form-control form-control-sm border-success" value="{{ old('easy_percent', 30) }}" min="0" max="100" oninput="updateDifficultyTotal()">
+                                                        <input type="number" name="easy_percent" id="easy_pct" class="form-control form-control-sm border-success" value="{{ old('easy_percent', 50) }}" min="0" max="100" oninput="updateDifficultyTotal()">
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="medium_percent" class="form-label fw-bold text-warning mb-1 small"><small>Medium (%)</small></label>
-                                                        <input type="number" name="medium_percent" id="medium_pct" class="form-control form-control-sm border-warning" value="{{ old('medium_percent', 50) }}" min="0" max="100" oninput="updateDifficultyTotal()">
+                                                        <input type="number" name="medium_percent" id="medium_pct" class="form-control form-control-sm border-warning" value="{{ old('medium_percent', 30) }}" min="0" max="100" oninput="updateDifficultyTotal()">
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="hard_percent" class="form-label fw-bold text-danger mb-1 small"><small>Hard (%)</small></label>
@@ -230,8 +230,8 @@
                                                 </div>
 
                                                 <div id="diff-bar" style="height:10px;border-radius:6px;overflow:hidden;display:flex">
-                                                    <div id="bar-easy" style="background:#198754;width:30%;transition:width .3s"></div>
-                                                    <div id="bar-medium" style="background:#ffc107;width:50%;transition:width .3s"></div>
+                                                    <div id="bar-easy" style="background:#198754;width:50%;transition:width .3s"></div>
+                                                    <div id="bar-medium" style="background:#ffc107;width:30%;transition:width .3s"></div>
                                                     <div id="bar-hard" style="background:#dc3545;width:20%;transition:width .3s"></div>
                                                 </div>
 
