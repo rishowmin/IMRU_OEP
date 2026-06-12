@@ -14,7 +14,7 @@ class TechProfileController extends Controller
     public function myProfile(Teacher $teacher)
     {
         $teacher->load('info');
-        return view('teacher.modules.myProfile.form', compact('teacher'));
+        return view('teacher.modules.myprofile.form', compact('teacher'));
     }
 
     public function myProfileStore(Request $request, Teacher $teacher)
@@ -70,7 +70,7 @@ class TechProfileController extends Controller
 
             $file = $request->file('profile_photo');
             $extension = $file->getClientOriginalExtension();
-            $fileName = 'profile_photo_' . substr(Str::slug($request->student_id_no), 0, 20) . '-' . time() . '.' . $extension;
+            $fileName = 'profile_photo_' . substr(Str::slug($request->teacher_id_no), 0, 20) . '-' . time() . '.' . $extension;
 
             $file->move($uploadPath, $fileName);
 
@@ -85,7 +85,7 @@ class TechProfileController extends Controller
             $data
         );
 
-        return redirect()->route('teacher.myProfile', $teacher->id)
+        return redirect()->route('teacher.myprofile', $teacher->id)
             ->with('success', 'Teacher profile saved successfully.');
     }
 }
