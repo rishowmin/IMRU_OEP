@@ -19,15 +19,21 @@
 
 ---
 
+## 📃 Abstract
+
+> This project proposes a secure **Online Examination Portal** for universities and corporate recruiters to conduct admission and recruitment tests. The system includes features such as **automated evaluation**, **video camera monitoring**, **no tab change restriction**, **timer-based controls**, and **result analysis dashboards**. It supports multiple exam formats, ensuring flexibility and integrity. With modern web technologies and cloud scalability, the platform provides a reliable, accessible, and cost-effective solution for large-scale online examinations.
+
+---
+
 ## 📖 Table of Contents
 
+- [Abstract](#-abstract)
 - [About the Project](#-about-the-project)
 - [Features](#-features)
 - [User Roles](#-user-roles)
 - [Tech Stack](#-tech-stack)
 - [Getting Started](#-getting-started)
 - [Project Structure](#-project-structure)
-- [Screenshots](#-screenshots)
 - [Exam Creation Workflow](#-exam-creation-workflow)
 - [License](#-license)
 - [Author](#-author)
@@ -98,7 +104,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 
 | Layer | Technology |
 |-------|-----------|
-| Backend Framework | Laravel 11.x |
+| Backend Framework | Laravel 9.x |
 | Language | PHP 8.2+ |
 | Database | MySQL 8.0+ |
 | Frontend | Bootstrap 5, Bootstrap Icons |
@@ -139,7 +145,7 @@ php artisan key:generate
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=imru_oep
+DB_DATABASE=imru_oep_db
 DB_USERNAME=root
 DB_PASSWORD=
 
@@ -181,29 +187,6 @@ IMRU_OEP/
 └── public/
     └── assets/             # CSS, JS, images, logo
 ```
-
----
-
-## 📸 Screenshots
-
-### Teacher Dashboard
-> 8 live stat cards, 3 analytics charts, and 4 quick-access tables.
-
-![Teacher Dashboard](https://raw.githubusercontent.com/rishowmin/IMRU_OEP/main/public/assets/img/screenshots/teacher-dashboard.png)
-
-### Exam Management
-> Create exams with scheduling, marks, instructions, and per-exam security rules.
-
-### AI Exam Generation
-> Generate complete exam sets from a topic using the Gorq API with automatic question balancing.
-
-### Student Answer Sheet
-> Live exam interface with countdown timer, MCQ and subjective questions, and real-time progress counter.
-
-### Result Page
-> Two-stage result view — partial before teacher review, final after — with full scorecard and Pass/Fail badge.
-
----
 
 ## 🔄 Exam Creation Workflow
 
@@ -274,7 +257,7 @@ This project is open-sourced software licensed under the [MIT License](https://o
 ## 👤 Author
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rishowmin/IMRU_OEP/main/public/assets/img/icon.png" width="64" alt="IMRU Icon" /><br/>
+  <img src="public/assets/admin/img/brand/icon.png" width="64" alt="IMRU Icon" /><br/>
   <strong>Muhammad Raisul Islam</strong><br/>
   Institute of Information Technology (IIT)<br/>
   Jahangirnagar University (JU), Bangladesh<br/><br/>
@@ -286,6 +269,6 @@ This project is open-sourced software licensed under the [MIT License](https://o
 ---
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rishowmin/IMRU_OEP/main/public/assets/img/logo.png" width="160" alt="IMRU Logo" /><br/>
+  <img src="public/assets/admin/img/brand/logo.png" width="160" alt="IMRU Logo" /><br/>
   <sub>© IMRU Online Examination Portal — All Rights Reserved</sub>
 </p>
