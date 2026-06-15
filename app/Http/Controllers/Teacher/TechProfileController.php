@@ -14,7 +14,7 @@ class TechProfileController extends Controller
     public function myProfile(Teacher $teacher)
     {
         $teacher->load('info');
-        return view('teacher.modules.myProfile.form', compact('teacher'));
+        return view('teacher.modules.myprofile.form', compact('teacher'));
     }
 
     public function myProfileStore(Request $request, Teacher $teacher)

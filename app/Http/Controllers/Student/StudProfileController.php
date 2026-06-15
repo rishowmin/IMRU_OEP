@@ -14,7 +14,7 @@ class StudProfileController extends Controller
     public function myProfile(Student $student)
     {
         $student->load('info');
-        return view('student.modules.myProfile.form', compact('student'));
+        return view('student.modules.myprofile.form', compact('student'));
     }
 
     public function myProfileStore(Request $request, Student $student)
