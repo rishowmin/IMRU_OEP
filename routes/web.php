@@ -263,56 +263,6 @@ require __DIR__.'/adminauth.php';
 
 
 
-// Student
-Route::prefix('student')->middleware('auth:student')->group(function () {
-
-    // Dashboard
-    Route::prefix('dashboard')->controller(StudDashboardController::class)->group(function () {
-        Route::get('/', 'dashboard')->name('student.dashboard');
-    });
-
-    // My Exams
-    Route::prefix('my-exams')->controller(StudMyExamController::class)->group(function () {
-        Route::get('/', 'index')->name('student.myExams');
-        Route::get('/details/id={exam}', 'show')->name('student.myExams.show');
-        Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
-        Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
-        Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
-        Route::get('/my-result/id={exam}', 'myResult')->name('student.myExams.myResult');
-        Route::get('/rules/id={exam}', 'examRules')->name('student.myExams.rule');
-    });
-
-    // Proctoring
-    Route::prefix('proctoring')->controller(StudProctoringController::class)->group(function () {
-        Route::post('/tab-switch/id={attempt}',  'logTabSwitch')->name('student.proctoring.tabSwitch');
-        Route::post('/clipboard/id={attempt}',   'logClipboard')->name('student.proctoring.clipboard');
-        Route::post('/webcam/id={attempt}',      'logWebcam')->name('student.proctoring.webcam');
-        Route::post('/event/id={attempt}',       'logEvent')->name('student.proctoring.event');
-    });
-
-    // My Results
-    Route::prefix('my-results')->controller(StudMyResultController::class)->group(function () {
-        Route::get('/', 'index')->name('student.myResults');
-    });
-
-    // Student Profile
-    Route::prefix('my-profile')->controller(StudProfileController::class)->group(function () {
-        Route::get('/id={student}', 'myProfile')->name('student.myProfile');
-        Route::post('/store/id={student}', 'myProfileStore')->name('student.myProfile.store');
-    });
-
-    // Student Misc
-    Route::prefix('misc')->controller(StudMiscController::class)->group(function () {
-        Route::get('/documentation', 'documentation')->name('student.misc.documentation');
-        Route::get('/flowchart', 'flowchart')->name('student.misc.flowchart');
-    });
-
-});
-
-require __DIR__.'/studentauth.php';
-
-
-
 // Teacher
 Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
 
@@ -453,3 +403,53 @@ Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
 });
 
 require __DIR__.'/teacherauth.php';
+
+
+
+// Student
+Route::prefix('student')->middleware('auth:student')->group(function () {
+
+    // Dashboard
+    Route::prefix('dashboard')->controller(StudDashboardController::class)->group(function () {
+        Route::get('/', 'dashboard')->name('student.dashboard');
+    });
+
+    // My Exams
+    Route::prefix('my-exams')->controller(StudMyExamController::class)->group(function () {
+        Route::get('/', 'index')->name('student.myExams');
+        Route::get('/details/id={exam}', 'show')->name('student.myExams.show');
+        Route::get('/answer-sheet/id={exam}', 'startExam')->name('student.myExams.start');
+        Route::post('/store-answer/id={exam}', 'storeAnswer')->name('student.myExams.store');
+        Route::get('/view-result/id={exam}', 'viewResult')->name('student.myExams.result');
+        Route::get('/my-result/id={exam}', 'myResult')->name('student.myExams.myResult');
+        Route::get('/rules/id={exam}', 'examRules')->name('student.myExams.rule');
+    });
+
+    // Proctoring
+    Route::prefix('proctoring')->controller(StudProctoringController::class)->group(function () {
+        Route::post('/tab-switch/id={attempt}',  'logTabSwitch')->name('student.proctoring.tabSwitch');
+        Route::post('/clipboard/id={attempt}',   'logClipboard')->name('student.proctoring.clipboard');
+        Route::post('/webcam/id={attempt}',      'logWebcam')->name('student.proctoring.webcam');
+        Route::post('/event/id={attempt}',       'logEvent')->name('student.proctoring.event');
+    });
+
+    // My Results
+    Route::prefix('my-results')->controller(StudMyResultController::class)->group(function () {
+        Route::get('/', 'index')->name('student.myResults');
+    });
+
+    // Student Profile
+    Route::prefix('my-profile')->controller(StudProfileController::class)->group(function () {
+        Route::get('/id={student}', 'myProfile')->name('student.myProfile');
+        Route::post('/store/id={student}', 'myProfileStore')->name('student.myProfile.store');
+    });
+
+    // Student Misc
+    Route::prefix('misc')->controller(StudMiscController::class)->group(function () {
+        Route::get('/documentation', 'documentation')->name('student.misc.documentation');
+        Route::get('/flowchart', 'flowchart')->name('student.misc.flowchart');
+    });
+
+});
+
+require __DIR__.'/studentauth.php';

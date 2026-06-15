@@ -114,7 +114,7 @@ class TechDashboardController extends Controller
                 return $course;
             });
 
-        return view('teacher.dashboard', compact(
+        return view('teacher.modules.dashboard', compact(
             'myCourses',
             'myExams',
             'totalEnrolledStudents',

@@ -107,7 +107,7 @@ class StudDashboardController extends Controller
             '81–100' => $allPercentages->filter(fn($p) => $p > 80)->count(),
         ];
 
-        return view('student.dashboard', compact(
+        return view('student.modules.dashboard', compact(
             'enrolledCourses',
             'upcomingExamsList',
             'attemptHistory',

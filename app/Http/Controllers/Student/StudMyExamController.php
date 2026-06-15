@@ -41,7 +41,7 @@ class StudMyExamController extends Controller
             ->unique()
             ->toArray();
 
-        return view('student.myExams.index', compact('myExamList', 'myCourseEnrollment', 'submittedExamIds'));
+        return view('student.modules.myExams.index', compact('myExamList', 'myCourseEnrollment', 'submittedExamIds'));
     }
 
     public function show(AcaExam $exam)
@@ -64,7 +64,7 @@ class StudMyExamController extends Controller
         // Load questions count
         $exam->loadCount('questions');
 
-        return view('student.myExams.show', compact('exam', 'isSubmitted'));
+        return view('student.modules.myExams.show', compact('exam', 'isSubmitted'));
     }
 
     public function startExam(AcaExam $exam)
@@ -143,7 +143,7 @@ class StudMyExamController extends Controller
         // Manually set the loaded relation so the blade works unchanged
         $exam->setRelation('questions', $questions);
 
-        return view('student.myExams.answer_sheet', compact(
+        return view('student.modules.myExams.answer_sheet', compact(
             'exam',
             'attempt',
             'remainingSeconds',

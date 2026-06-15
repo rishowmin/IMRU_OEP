@@ -10,11 +10,11 @@ use Illuminate\Support\Str;
 
 class TechProfileController extends Controller
 {
-    // Student Profile
+    // Teacher Profile
     public function myProfile(Teacher $teacher)
     {
         $teacher->load('info');
-        return view('teacher.modules.myprofile.form', compact('teacher'));
+        return view('teacher.modules.myProfile.form', compact('teacher'));
     }
 
     public function myProfileStore(Request $request, Teacher $teacher)
@@ -85,7 +85,7 @@ class TechProfileController extends Controller
             $data
         );
 
-        return redirect()->route('teacher.myprofile', $teacher->id)
+        return redirect()->route('teacher.myProfile', $teacher->id)
             ->with('success', 'Teacher profile saved successfully.');
     }
 }

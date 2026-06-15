@@ -14,7 +14,7 @@ class StudProfileController extends Controller
     public function myProfile(Student $student)
     {
         $student->load('info');
-        return view('student.myprofile.form', compact('student'));
+        return view('student.modules.myProfile.form', compact('student'));
     }
 
     public function myProfileStore(Request $request, Student $student)
@@ -81,7 +81,7 @@ class StudProfileController extends Controller
             $data
         );
 
-        return redirect()->route('student.myprofile', $student->id)
+        return redirect()->route('student.myProfile', $student->id)
             ->with('success', 'Student profile saved successfully.');
     }
 }

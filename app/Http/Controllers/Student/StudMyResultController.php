@@ -31,6 +31,6 @@ class StudMyResultController extends Controller
 
         $serialNo = 1;
 
-        return view('student.myResults.index', compact('myResults', 'serialNo'));
+        return view('student.modules.myResults.index', compact('myResults', 'serialNo'));
     }
 }

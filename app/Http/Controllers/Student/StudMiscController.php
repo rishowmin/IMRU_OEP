@@ -9,11 +9,11 @@ class StudMiscController extends Controller
 {
     public function documentation()
     {
-        return view('student.misc.documentation');
+        return view('student.modules.misc.documentation');
     }
 
     public function flowchart()
     {
-        return view('student.misc.flowchart');
+        return view('student.modules.misc.flowchart');
     }
 }
