@@ -16,7 +16,8 @@ class AiExamGeneratorService
     public function __construct()
     {
         $this->apiKey = config('services.groq.key');
-        $this->model  = config('services.groq.model', 'llama-3.3-70b-versatile');
+        // $this->model  = config('services.groq.model', 'llama-3.3-70b-versatile');
+        $this->model  = config('services.groq.model', 'openai/gpt-oss-120b');
     }
 
     public function generate(array $config): AcaExamSet
