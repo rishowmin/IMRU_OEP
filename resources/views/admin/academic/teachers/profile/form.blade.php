@@ -214,9 +214,9 @@
                             </div>
 
                             <div class="col-sm-6">
-                                <label class="form-label fw-bold small">Specialization</label>
-                                <input type="text" name="specialization" class="form-control form-control-sm @error('specialization') is-invalid @enderror" placeholder="e.g. Machine Learning, Data Science" value="{{ old('specialization', $info->specialization ?? '') }}">
-                                @error('specialization')
+                                <label class="form-label fw-bold small">Joining Date</label>
+                                <input type="date" name="joining_date" class="form-control form-control-sm @error('joining_date') is-invalid @enderror" value="{{ old('joining_date', isset($info->joining_date) ? $info->joining_date->format('Y-m-d') : '') }}">
+                                @error('joining_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -244,10 +244,10 @@
                                 @enderror
                             </div>
 
-                            <div class="col-sm-6">
-                                <label class="form-label fw-bold small">Joining Date</label>
-                                <input type="date" name="joining_date" class="form-control form-control-sm @error('joining_date') is-invalid @enderror" value="{{ old('joining_date', isset($info->joining_date) ? $info->joining_date->format('Y-m-d') : '') }}">
-                                @error('joining_date')
+                            <div class="col-sm-12">
+                                <label class="form-label fw-bold small">Specialization</label>
+                                <input type="text" name="specialization" class="form-control form-control-sm @error('specialization') is-invalid @enderror" placeholder="e.g. Machine Learning, Data Science" value="{{ old('specialization', $info->specialization ?? '') }}">
+                                @error('specialization')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -472,7 +472,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-sm-6">
                                 <label class="form-label fw-bold small">Postal Code</label>
                                 <input type="text" name="postal_code" class="form-control form-control-sm @error('postal_code') is-invalid @enderror" placeholder="Postal Code" value="{{ old('postal_code', $info->postal_code ?? '') }}">
                                 @error('postal_code')
@@ -480,7 +480,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-sm-6">
                                 <label class="form-label fw-bold small">Country</label>
                                 <input type="text" name="country" class="form-control form-control-sm @error('country') is-invalid @enderror" placeholder="Country" value="{{ old('country', $info->country ?? 'Bangladesh') }}">
                                 @error('country')
@@ -578,4 +578,5 @@
     });
 
 </script>
+
 @endsection

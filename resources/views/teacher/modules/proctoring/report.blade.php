@@ -3,7 +3,6 @@
 
 @section('content')
 
-
 <div class="pagetitle mb-0">
     <section class="section">
         <div class="row">

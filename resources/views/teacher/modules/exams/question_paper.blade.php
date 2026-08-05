@@ -10,7 +10,6 @@
 
 <div class="pagetitle mb-0">
     <section class="section">
-
         <div class="row">
             <div class="col-lg-12">
                 <div class="card mb-3">
@@ -38,7 +37,6 @@
                 </div>
             </div>
         </div>
-
     </section>
 </div>
 

@@ -510,7 +510,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-sm-6">
                                 <label class="form-label fw-bold small">Postal Code</label>
                                 <input type="text" name="postal_code"
                                        class="form-control form-control-sm @error('postal_code') is-invalid @enderror"
@@ -521,7 +521,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-sm-6">
                                 <label class="form-label fw-bold small">Country</label>
                                 <input type="text" name="country"
                                        class="form-control form-control-sm @error('country') is-invalid @enderror"

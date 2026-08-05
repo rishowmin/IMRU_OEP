@@ -25,7 +25,6 @@
                                 </ol>
                             </nav>
                         </div>
-                        <div class="card-header-right"></div>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 @extends('teacher.layouts.app')
-@section('title', 'Questions Library')
+@section('title', 'Question Bank')
 
 @section('content')
 
@@ -28,7 +28,7 @@
                         <div class="card-header-right">
                             <a href="{{ route('teacher.questions.library.create') }}" class="btn btn-sm btn-outline-theme">
                                 <i class="bi bi-plus-lg"></i>
-                                <span class="ms-1">Add @yield('title')</span>
+                                <span class="ms-1">Add Question</span>
                             </a>
                         </div>
                     </div>

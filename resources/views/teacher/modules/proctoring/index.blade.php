@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card mb-3">
-                    <div class="card-body d-flex align-items-center justify-content-between">
+                    <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="card-header-left">
                             <h1>
                                 <i class="bi bi-camera-video"></i>
@@ -28,7 +28,7 @@
     </section>
 </div>
 
-<section class="pagetitle mb-0">
+<section class="section">
     <div class="row">
         <div class="col-lg-12">
 
