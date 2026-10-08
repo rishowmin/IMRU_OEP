@@ -229,7 +229,7 @@ $canStart = false;
                     {{-- Card Footer: Stepper Navigation --}}
                     <div class="card-footer bg-white border-top">
                         <div class="d-flex align-items-center justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary btn-sm px-4" id="prevQuestionBtn" disabled>
+                            <button type="button" class="btn btn-primary btn-sm px-4" id="prevQuestionBtn" disabled>
                                 <i class="bi bi-arrow-left me-1"></i>Previous
                             </button>
                             <span class="text-muted small" id="stepperLabel">Question 1 of {{ $exam->questions->count() }}</span>

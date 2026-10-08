@@ -19,7 +19,17 @@ class TechExamController extends Controller
     public function index()
     {
         $serialNo = 1;
-        $examList = AcaExam::orderBy('id', 'ASC')->where('aca_created_by', auth()->id())->where('deleted_at', NULL)->get();
+        $teacherId = auth()->id();
+        $examList = AcaExam::with('course')
+            ->where(function ($query) use ($teacherId) {
+                $query->where('aca_created_by', $teacherId)
+                    ->orWhereHas('course', function ($courseQuery) use ($teacherId) {
+                        $courseQuery->where('teacher_id', $teacherId);
+                    });
+            })
+            ->orderBy('id', 'ASC')
+            ->get();
+
         return view('teacher.modules.exams.index', compact('serialNo', 'examList'));
     }
 

@@ -60,6 +60,7 @@
                                     <tr>
                                         <th width="7%">#</th>
                                         <th width="18%">Exam Title</th>
+                                        <th width="15%">Course</th>
                                         <th width="17%">Topic</th>
                                         <th width="10%">Questions</th>
                                         <th width="13%">Difficulty</th>
@@ -74,6 +75,7 @@
                                     <tr>
                                         <th class="text-start">{{ $serialNo++ }}</th>
                                         <td>{{ $set->title }}</td>
+                                        <td>{{ $set->publishedExam?->course?->course_title ?? '—' }}</td>
                                         <td>{{ $set->topic }}</td>
                                         <td>{{ $set->total_questions }}</td>
                                         <td>
@@ -110,7 +112,7 @@
                                     @empty
 
                                     <tr>
-                                        <td colspan="8" class="text-center">
+                                        <td colspan="9" class="text-center">
                                             <strong>
                                                 <i class="bi bi-exclamation-triangle me-1"></i>
                                                 <span>No Exam Sets Available</span>

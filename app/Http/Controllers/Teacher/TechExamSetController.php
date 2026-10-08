@@ -26,7 +26,16 @@ class TechExamSetController extends Controller
     public function index()
     {
         $serialNo = 1;
-        $examSets = AcaExamSet::latest()->where('aca_created_by', auth()->id())->get();
+        $teacherId = auth()->id();
+        $examSets = AcaExamSet::with('publishedExam.course')
+            ->where(function ($query) use ($teacherId) {
+                $query->where('aca_created_by', $teacherId)
+                    ->orWhereHas('publishedExam.course', function ($courseQuery) use ($teacherId) {
+                        $courseQuery->where('teacher_id', $teacherId);
+                    });
+            })
+            ->latest()
+            ->get();
 
         $topics = AcaQuestionLibrary::active()
             ->distinct()

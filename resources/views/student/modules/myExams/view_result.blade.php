@@ -300,7 +300,9 @@
 
                             {{-- Result badge --}}
                             @if($isUnanswered)
-                                <span class="badge bg-secondary ms-auto">Not Answered</span>
+                                <span class="badge bg-secondary ms-auto">
+                                    <i class="bi bi-slash-circle me-1"></i>Not Answered
+                                </span>
                             @elseif($isObjective)
                                 <span class="badge {{ $isCorrect ? 'bg-success' : 'bg-danger' }} ms-auto">
                                     <i class="bi {{ $isCorrect ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>

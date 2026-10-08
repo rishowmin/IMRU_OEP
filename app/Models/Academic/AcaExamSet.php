@@ -29,6 +29,7 @@ class AcaExamSet extends Model
         'custom_marks',
         'randomization_seed',
         'status',
+        'published_exam_id',
         'aca_created_by',
         'aca_updated_by',
         'created_by',
@@ -74,9 +75,13 @@ class AcaExamSet extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    public function publishedExam()
+    {
+        return $this->belongsTo(AcaExam::class, 'published_exam_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 }
-

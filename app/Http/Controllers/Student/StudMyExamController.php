@@ -41,6 +41,35 @@ class StudMyExamController extends Controller
             ->unique()
             ->toArray();
 
+        $now = now();
+        $submittedExamIdsLookup = array_flip($submittedExamIds);
+        $priority = function (AcaExam $exam) use ($now, $submittedExamIdsLookup) {
+            if (isset($submittedExamIdsLookup[$exam->id])) {
+                return 2;
+            }
+
+            if (!$exam->exam_date || !$exam->start_time || !$exam->end_time) {
+                return 1;
+            }
+
+            $examDate = $exam->exam_date->toDateString();
+            $startDT = Carbon::parse($examDate . ' ' . Carbon::parse($exam->start_time)->format('H:i:s'));
+            $endDT = Carbon::parse($examDate . ' ' . Carbon::parse($exam->end_time)->format('H:i:s'));
+
+            if ($now->between($startDT, $endDT)) {
+                return 0;
+            }
+
+            return $now->lt($startDT) ? 1 : 3;
+        };
+
+        $myExamList = $myExamList
+            ->sort(function (AcaExam $first, AcaExam $second) use ($priority) {
+                return ($priority($first) <=> $priority($second))
+                    ?: ($first->id <=> $second->id);
+            })
+            ->values();
+
         return view('student.modules.myExams.index', compact('myExamList', 'myCourseEnrollment', 'submittedExamIds'));
     }
 
@@ -111,23 +140,25 @@ class StudMyExamController extends Controller
                 ->with('error', 'You have already submitted this exam.');
         }
 
-        // ✅ Store attempt in variable so we can pass it to the view
-        $attempt = AcaExamAttempt::updateOrCreate(
+        $attempt = AcaExamAttempt::firstOrNew(
             [
                 'student_id' => $student,
                 'exam_id'    => $exam->id,
-            ],
-            [
-                'started_at' => $now,
-                'status'     => 'New',
-                'is_active'  => true,
             ]
         );
 
-        // Calculate remaining time
-        $secondsUntilEnd  = $now->diffInSeconds($endDT, false);
-        $durationSeconds  = ($exam->exam_duration_min ?? 0) * 60;
-        $remainingSeconds = min($secondsUntilEnd, $durationSeconds);
+        if (!$attempt->exists || !$attempt->started_at) {
+            $attempt->started_at = $now;
+            $attempt->status = 'New';
+            $attempt->is_active = true;
+            $attempt->save();
+        }
+
+        $elapsedSeconds = $attempt->started_at->diffInSeconds($now);
+        $durationSeconds = ($exam->exam_duration_min ?? 0) * 60;
+        $remainingDuration = max(0, $durationSeconds - $elapsedSeconds);
+        $secondsUntilEnd = max(0, $now->diffInSeconds($endDT, false));
+        $remainingSeconds = min($remainingDuration, $secondsUntilEnd);
 
         // Ratio-aware question selection
         $questions = $this->selectProportionalQuestions($exam);
@@ -321,7 +352,7 @@ class StudMyExamController extends Controller
         $allReviewed = $subjectiveAnswers->count() > 0 &&
                        $subjectiveAnswers->count() === $reviewedAnswers->count();
 
-        return view('student.myExams.view_result', compact(
+        return view('student.modules.myExams.view_result', compact(
             'exam',
             'result',
             'rank',
@@ -346,7 +377,7 @@ class StudMyExamController extends Controller
         $instructions = $mappedRules->get('instruction', collect());
         $rules        = $mappedRules->get('rule', collect());
 
-        return view('student.myExams.exam_rules', compact('exam', 'instructions', 'rules'));
+        return view('student.modules.myExams.exam_rules', compact('exam', 'instructions', 'rules'));
     }
 
     private function selectProportionalQuestions(AcaExam $exam): Collection
