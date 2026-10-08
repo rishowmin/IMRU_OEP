@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\AdminResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,11 @@ class Admin extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $guard = 'admin';
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new AdminResetPassword($token));
+    }
 
     /**
      * The attributes that are mass assignable.

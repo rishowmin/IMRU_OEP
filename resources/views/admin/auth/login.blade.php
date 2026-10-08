@@ -3,6 +3,10 @@
 
 @section('content')
 
+@if(session('success') || session('status') || session('error'))
+@include('admin.layouts.common.status')
+@endif
+
 <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
     <div class="container">
         <div class="row justify-content-center">

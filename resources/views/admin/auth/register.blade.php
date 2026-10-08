@@ -63,9 +63,9 @@
                                 {{-- Password --}}
                                 <div class="col-12">
                                     <div class="input-group">
-                                        <span class="input-group-text brr-0" id="inputGroupPrepend"><i class="bi bi-at auth-icon"></i></span>
+                                        <span class="input-group-text brr-0" id="inputGroupPrepend"><i class="bi bi-key auth-icon"></i></span>
                                         <input id="password" type="password" class="form-control brr-0 @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
-                                        <input id="password-confirm" type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
+                                        <input id="password_confirmation" type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
                                         <button class="btn btn-outline-theme" type="button" id="password-toggle">
                                             <i class="bi bi-eye-slash" id="password-icon"></i>
                                         </button>
@@ -118,7 +118,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('password-confirm');
+        const confirmPasswordInput = document.getElementById('password_confirmation');
         const passwordToggle = document.getElementById('password-toggle');
         const passwordIcon = document.getElementById('password-icon');
 
