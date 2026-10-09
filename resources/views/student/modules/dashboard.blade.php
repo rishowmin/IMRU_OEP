@@ -45,8 +45,8 @@
 
 @section('content')
 
-@if(session('status'))
-@include('layouts.inc.common.messages.status')
+@if(session('success') || session('status') || session('error'))
+@include('admin.layouts.common.status')
 @endif
 
 <div class="pagetitle mb-0">

@@ -1,3 +1,7 @@
+@if(session('success') || session('status') || session('error'))
+@include('teacher.layouts.common.status')
+@endif
+
 <div class="pb-2">
     <h5 class="card-title text-center pt-2 pb-0 fs-4 mb-0">Teacher Login</h5>
     <p class="text-center small">Enter your email & password to login</p>
@@ -37,13 +41,13 @@
 
     <div class="col-12">
         <div class="d-flex justify-content-between">
-            <div class="form-check mb-0 small">
+            {{-- <div class="form-check mb-0 small">
                 <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
                 <label class="form-check-label" for="remember">
                     {{ __('Remember Me') }}
                 </label>
-            </div>
+            </div> --}}
             <div class="forgot-password small">
                 <a href="{{ route('teacher.password.request') }}">Forgot Password?</a>
             </div>

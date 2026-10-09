@@ -7,17 +7,17 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\Mime\Email;
 
-class AdminResetPassword extends ResetPassword
+class TeacherResetPassword extends ResetPassword
 {
     public function toMail($notifiable)
     {
         return (new MailMessage)
             ->from(config('mail.from.address'), config('mail.from.name'))
-            ->subject('Reset Admin Password')
+            ->subject('Reset Teacher Password')
             ->view('emails.password-reset', [
-                'name' => $notifiable->first_name ?: 'Admin',
+                'name' => $notifiable->first_name ?: 'Teacher',
                 'resetUrl' => $this->resetUrl($notifiable),
-                'expiresIn' => Config::get('auth.passwords.admins.expire', 60),
+                'expiresIn' => Config::get('auth.passwords.teachers.expire', 60),
                 'appName' => Config::get('app.name'),
             ])
             ->withSymfonyMessage(function (Email $email) {
@@ -35,7 +35,7 @@ class AdminResetPassword extends ResetPassword
 
     protected function resetUrl($notifiable)
     {
-        return url(route('admin.password.reset', [
+        return url(route('teacher.password.reset', [
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
         ], false));

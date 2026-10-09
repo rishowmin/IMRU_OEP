@@ -9,6 +9,7 @@ use App\Models\Academic\AcaExamAttempt;
 use App\Models\Academic\AcaExamResult;
 use App\Models\StudentInfo;
 use App\Models\Teacher;
+use App\Notifications\StudentResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -20,8 +21,12 @@ class Student extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $guard = 'student';
-
     protected $table = 'students';
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new StudentResetPassword($token));
+    }
 
     /**
      * The attributes that are mass assignable.

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\TeacherInfo;
 use App\Models\Admin;
+use App\Notifications\TeacherResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,6 +15,11 @@ class Teacher extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $guard = 'teacher';
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new TeacherResetPassword($token));
+    }
 
     /**
      * The attributes that are mass assignable.

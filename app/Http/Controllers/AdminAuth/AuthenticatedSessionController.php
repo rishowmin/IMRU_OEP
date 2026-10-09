@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::ADMIN_HOME);
+        return redirect()->intended(RouteServiceProvider::ADMIN_HOME)->with('success', 'You are logged in successfully!');
     }
 
     /**
@@ -45,5 +45,6 @@ class AuthenticatedSessionController extends Controller
 
         // return redirect('/');
         return redirect()->route('admin.login');
+
     }
 }

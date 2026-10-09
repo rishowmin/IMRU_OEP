@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::STUDENT_HOME);
+        return redirect()->intended(RouteServiceProvider::STUDENT_HOME)->with('success', 'You are logged in successfully!');
     }
 
     /**
