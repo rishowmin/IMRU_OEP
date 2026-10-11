@@ -311,6 +311,7 @@ class AcaQuestionLibrarySeeder extends Seeder
                 'option_c'          => $question['option_c'],
                 'option_d'          => $question['option_d'],
                 'correct_answer'    => $question['correct_answer'],
+                'created_by'        => 1,
             ]);
         }
     }

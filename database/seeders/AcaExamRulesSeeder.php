@@ -36,6 +36,7 @@ class AcaExamRulesSeeder extends Seeder
                     'description' => $rule['description'],
                     'order'       => $rule['order'],
                     'is_active'   => true,
+                    'created_by'  => 1,
                 ]
             );
         }

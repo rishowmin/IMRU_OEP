@@ -30,6 +30,7 @@ class AcaCourseSeeder extends Seeder
                 'credits'      => $course['credits'],
                 'teacher_id'   => $course['teacher_id'],
                 'is_active'    => 1,
+                'created_by'   => 1,
             ]);
         }
     }

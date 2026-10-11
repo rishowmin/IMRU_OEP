@@ -186,6 +186,23 @@
                                             </div>
                                         </div>
 
+                                        {{-- Teacher Assign --}}
+                                        <div class="row align-items-baseline mb-2">
+                                            <label for="aca_created_by" class="col-sm-3 col-form-label fw-bold"><small>Teacher Assign</small></label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-info-circle"></i></span>
+                                                    {{-- <input type="password" id="password" class="form-control @error('password') is-invalid @elseif(old('password', $student->password ?? false)) is-valid @enderror" name="password" placeholder="Password"> --}}
+                                                    <select class="form-select" id="aca_created_by" name="aca_created_by">
+                                                        <option value="">Select Teacher</option>
+                                                        @foreach($teacherList as $teacher)
+                                                        <option value="{{ $teacher->id }}" {{ old('aca_created_by', $student->aca_created_by ?? '') == $teacher->id ? 'selected' : '' }}>{{ $teacher->first_name }} {{ $teacher->last_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
                                 </div>

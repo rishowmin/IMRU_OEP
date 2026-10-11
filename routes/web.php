@@ -61,6 +61,10 @@ Route::get('/academic/login', function () {
     return view('auth_view.academic.login');
 })->name('academic.login');
 
+Route::get('/corporate/login', function () {
+    return view('auth_view.professional.login');
+})->name('corporate.login');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -30,6 +30,7 @@ class TeacherSeeder extends Seeder
                 'email'      => $teacher['email'],
                 'password'   => Hash::make('12345678'),
                 'is_active'  => 1,
+                'created_by' => 1,
             ]);
         }
     }

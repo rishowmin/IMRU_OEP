@@ -23,7 +23,7 @@ $statusIconClass = 'bi-hourglass-split';
 $canStart = false;
 } elseif ($now->between($startDT, $endDT)) {
 $status = 'Ongoing';
-$statusClass = 'bg-success';
+$statusClass = 'bg-success-light';
 $statusIconClass = 'bi-play-circle';
 $canStart = true;
 } else {
@@ -43,79 +43,7 @@ $canStart = false;
 
         <div class="row g-3 justify-content-center">
 
-            {{-- RIGHT: Exam Summary --}}
-            <div class="col-lg-3">
-
-                {{-- Exam Summary --}}
-                <div class="card mb-0 h-100">
-                    <div class="card-header bg-white border-bottom">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <h6 class="fw-bold text-dark mb-0">
-                                <i class="bi bi-clipboard-data me-2"></i>Exam Summary
-                            </h6>
-
-                            <span class="badge rounded-pill {{ $statusClass }} px-3 py-2">
-                                <i class="bi {{ $statusIconClass }} me-1"></i>{{ $status }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush small">
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-book me-2"></i></span>
-                                <span class="text-dark text-truncate">{{ $exam->course->course_title }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-tag me-2"></i></span>
-                                <span class="text-dark">{{ $exam->exam_type ?? 'General' }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-calendar3 me-2"></i></span>
-                                <span class="text-dark">{{ $exam->exam_date->format('d M Y') }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-clock me-2"></i></span>
-                                <span class="text-dark">
-                                    {{ $exam->start_time?->format('h:i A') ?? 'N/A' }}
-                                    <span class="text-muted fw-normal">–</span>
-                                    {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
-                                </span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-stopwatch me-2"></i></span>
-                                <span class="text-dark">{{ $exam->exam_duration_min ?? 0 }} mins</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-question-circle me-2"></i></span>
-                                <span class="text-dark">{{ $exam->total_questions ?? 0 }} questions</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-patch-check me-2"></i></span>
-                                <span class="text-dark">{{ intval($exam->total_marks) }} marks</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-muted text-bold"><i class="bi bi-check2-circle me-2"></i></span>
-                                <span class="text-dark">{{ intval($exam->passing_marks) ?? 'N/A' }} marks</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="card-footer d-grid gap-2">
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
-                                <i class="bi bi-send me-1"></i>Submit
-                            </button>
-                            <button type="button" class="btn btn-outline-danger btn-sm w-100 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
-                                <i class="bi bi-stop-circle me-1"></i>Stop
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            {{-- LEFT: Questions --}}
+            {{-- RIGHT: Questions --}}
             <div class="col-lg-9">
                 <div class="card mb-0 h-100">
 
@@ -125,6 +53,9 @@ $canStart = false;
                             <div class="d-flex align-items-center gap-2">
                                 <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clipboard me-1"></i>{{ $exam->exam_title }}</h5>
                                 <small class="text-muted">[{{ $exam->exam_code }}]</small>
+                                <span class="badge rounded-pill border border-success text-success {{ $statusClass }}">
+                                    <i class="bi {{ $statusIconClass }} me-1"></i>{{ $status }}
+                                </span>
                             </div>
                             <div class="card-header-right">
                                 <div class="d-flex align-items-center gap-3">
@@ -141,10 +72,6 @@ $canStart = false;
 
                     {{-- Progress bar --}}
                     <div>
-                        {{-- <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted fw-semibold">Exam Progress</small>
-                            <small class="text-muted" id="progressLabel">0%</small>
-                        </div> --}}
                         <div class="progress" style="height: 6px; border-radius: 0;">
                             <div class="progress-bar bg-success" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
@@ -229,16 +156,94 @@ $canStart = false;
                     {{-- Card Footer: Stepper Navigation --}}
                     <div class="card-footer bg-white border-top">
                         <div class="d-flex align-items-center justify-content-between">
-                            <button type="button" class="btn btn-primary btn-sm px-4" id="prevQuestionBtn" disabled>
-                                <i class="bi bi-arrow-left me-1"></i>Previous
+                            <button type="button" class="btn btn-primary btn-sm px-4 d-flex" id="prevQuestionBtn" disabled>
+                                <span><i class="bi bi-arrow-left"></i></span>
+                                <span class="d-none d-lg-block ms-1">Prev</span>
                             </button>
                             <span class="text-muted small" id="stepperLabel">Question 1 of {{ $exam->questions->count() }}</span>
-                            <button type="button" class="btn btn-primary btn-sm px-4" id="nextQuestionBtn">
-                                Next<i class="bi bi-arrow-right ms-1"></i>
+                            <button type="button" class="btn btn-primary btn-sm px-4 d-flex" id="nextQuestionBtn">
+                                <span class="d-none d-lg-block me-1">Next</span>
+                                <span><i class="bi bi-arrow-right"></i></span>
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {{-- LEFT: Exam Summary --}}
+            <div class="col-lg-3">
+
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#submit_exam_confirm_modal">
+                                <i class="bi bi-send me-1"></i>Submit
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 stopExamBtn" data-bs-toggle="modal" data-bs-target="#stop_exam_confirm_modal">
+                                <i class="bi bi-stop-circle me-1"></i>Stop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Exam Summary --}}
+                <div class="accordion mb-5 mb-lg-0" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <h6 class="fw-bold text-dark mb-0">
+                                    <i class="bi bi-clipboard-check me-2"></i>Exam Summary
+                                </h6>
+                            </button>
+
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                            <div class="accordion-body p-0">
+
+                                <ul class="list-group list-group-flush small">
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-book me-2"></i></span>
+                                        <span class="text-dark text-truncate">{{ $exam->course->course_title }}</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-tag me-2"></i></span>
+                                        <span class="text-dark">{{ $exam->exam_type ?? 'General' }}</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-calendar3 me-2"></i></span>
+                                        <span class="text-dark">{{ $exam->exam_date->format('d M Y') }}</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-clock me-2"></i></span>
+                                        <span class="text-dark">
+                                            {{ $exam->start_time?->format('h:i A') ?? 'N/A' }}
+                                            <span class="text-muted fw-normal">–</span>
+                                            {{ $exam->end_time?->format('h:i A') ?? 'N/A' }}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-stopwatch me-2"></i></span>
+                                        <span class="text-dark">{{ $exam->exam_duration_min ?? 0 }} mins</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-question-circle me-2"></i></span>
+                                        <span class="text-dark">{{ $exam->total_questions ?? 0 }} questions</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-patch-check me-2"></i></span>
+                                        <span class="text-dark">{{ intval($exam->total_marks) }} marks</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="text-muted text-bold"><i class="bi bi-check2-circle me-2"></i></span>
+                                        <span class="text-dark">{{ intval($exam->passing_marks) ?? 'N/A' }} marks</span>
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -423,10 +428,10 @@ $canStart = false;
             prevBtn.disabled = (index === 0);
 
             if (index === totalQ - 1) {
-                nextBtn.innerHTML  = '<i class="bi bi-send me-1"></i>Submit Answers';
+                nextBtn.innerHTML  = '<span><i class="bi bi-send"></i></span><span class="d-none d-lg-block ms-1">Submit</span>';
                 nextBtn.classList.replace('btn-primary', 'btn-success');
             } else {
-                nextBtn.innerHTML  = 'Next<i class="bi bi-arrow-right ms-1"></i>';
+                nextBtn.innerHTML  = '<span class="d-none d-lg-block me-1">Next</span><span><i class="bi bi-arrow-right"></i></span>';
                 nextBtn.classList.replace('btn-success', 'btn-primary');
             }
         }
@@ -790,10 +795,13 @@ $canStart = false;
             const overlay       = document.createElement('div');
             overlay.id          = 'webcam_overlay';
             overlay.style.cssText = `
-                position: fixed; bottom: 16px; left: 16px; z-index: 9999;
+                position: fixed; z-index: 9999;
+                left: ${window.innerWidth - 160 - 16}px;
+                top: ${window.innerHeight - 120 - 16}px;
                 background: #000; border-radius: 10px; overflow: hidden;
                 width: 160px; height: 120px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 2px solid #198754;
+                cursor: grab; touch-action: none; user-select: none;
             `;
 
             const video           = document.createElement('video');
@@ -809,11 +817,56 @@ $canStart = false;
                 font-size: 11px; padding: 2px 7px;
                 border-radius: 20px; font-weight: 500;
             `;
-            badge.innerHTML = '&#128247; Live';
+            badge.innerHTML = '<i class="bi bi-camera"></i> Live';
 
             overlay.appendChild(video);
             overlay.appendChild(badge);
             document.body.appendChild(overlay);
+
+            // ── Draggable overlay
+            (function makeDraggable(el) {
+                let startX, startY, startLeft, startTop, dragging = false;
+
+                el.addEventListener('pointerdown', function (e) {
+                    dragging  = true;
+                    startX    = e.clientX;
+                    startY    = e.clientY;
+                    startLeft = el.offsetLeft;
+                    startTop  = el.offsetTop;
+                    el.setPointerCapture(e.pointerId);
+                    el.style.cursor = 'grabbing';
+                });
+
+                el.addEventListener('pointermove', function (e) {
+                    if (!dragging) return;
+                    let newLeft = startLeft + (e.clientX - startX);
+                    let newTop  = startTop  + (e.clientY - startY);
+
+                    // Keep inside viewport
+                    newLeft = Math.max(0, Math.min(newLeft, window.innerWidth  - el.offsetWidth));
+                    newTop  = Math.max(0, Math.min(newTop,  window.innerHeight - el.offsetHeight));
+
+                    el.style.left = newLeft + 'px';
+                    el.style.top  = newTop  + 'px';
+                });
+
+                function stopDrag(e) {
+                    if (!dragging) return;
+                    dragging = false;
+                    el.style.cursor = 'grab';
+                    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+                }
+                el.addEventListener('pointerup', stopDrag);
+                el.addEventListener('pointercancel', stopDrag);
+
+                // Re-clamp if the window is resized (e.g., fullscreen enter/exit)
+                window.addEventListener('resize', function () {
+                    const maxLeft = window.innerWidth  - el.offsetWidth;
+                    const maxTop  = window.innerHeight - el.offsetHeight;
+                    el.style.left = Math.max(0, Math.min(el.offsetLeft, maxLeft)) + 'px';
+                    el.style.top  = Math.max(0, Math.min(el.offsetTop,  maxTop))  + 'px';
+                });
+            })(overlay);
 
             function onDenied(reason) {
                 badge.style.background = '#dc3545';
@@ -857,7 +910,7 @@ $canStart = false;
                     .then(function (s) {
                         stream          = s;
                         video.srcObject = s;
-                        badge.innerHTML        = '&#128247; Live';
+                        badge.innerHTML        = '<i class="bi bi-camera"></i> Live';
                         badge.style.background = '#198754';
                         console.log('[Webcam] Started successfully.');
 

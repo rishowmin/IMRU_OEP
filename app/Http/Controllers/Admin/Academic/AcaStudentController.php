@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Academic\StudentFormRequest;
 use App\Models\Student;
 use App\Models\StudentInfo;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -21,7 +22,8 @@ class AcaStudentController extends Controller
 
     public function create()
     {
-        return view('admin.academic.students.form');
+        $teacherList = Teacher::orderBy('id', 'ASC')->get();
+        return view('admin.academic.students.form', compact('teacherList'));
     }
 
     public function store(StudentFormRequest $request)
@@ -33,6 +35,7 @@ class AcaStudentController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'is_active' => $request->boolean('is_active'),
+                'aca_created_by' => $request->aca_created_by,
                 'created_by' => auth()->id(),
             ]);
 
@@ -44,7 +47,8 @@ class AcaStudentController extends Controller
 
     public function edit(Student $student)
     {
-        return view('admin.academic.students.form', compact('student'));
+        $teacherList = Teacher::orderBy('id', 'ASC')->get();
+        return view('admin.academic.students.form', compact('student', 'teacherList'));
     }
 
     public function update(StudentFormRequest $request, Student $student)
@@ -55,6 +59,7 @@ class AcaStudentController extends Controller
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'is_active' => $request->boolean('is_active'),
+                'aca_created_by' => $request->aca_created_by,
                 'updated_by' => auth()->id(),
             ];
 

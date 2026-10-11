@@ -41,13 +41,13 @@
 
     <div class="col-12">
         <div class="d-flex justify-content-between">
-            {{-- <div class="form-check mb-0 small">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+            <div class="form-check mb-0 small">
+                <input class="form-check-input" type="checkbox" name="remember" id="teacher_remember" {{ old('remember') ? 'checked' : '' }}>
 
-                <label class="form-check-label" for="remember">
+                <label class="form-check-label" for="teacher_remember">
                     {{ __('Remember Me') }}
                 </label>
-            </div> --}}
+            </div>
             <div class="forgot-password small">
                 <a href="{{ route('teacher.password.request') }}">Forgot Password?</a>
             </div>
