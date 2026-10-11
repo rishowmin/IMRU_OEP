@@ -265,11 +265,12 @@ $canStart = false;
 <script>
     var formSubmitting = false;
 
-    function submitExam(stopped, reason) {
+    async function submitExam(stopped, reason) {
         if (formSubmitting) return;
         formSubmitting = true;
         document.getElementById('stoppedFlag').value  = stopped ? '1' : '0';
         document.getElementById('stopReasonFlag').value = reason ?? '';
+        await window.captureFinalWebcamSnapshot?.();
         document.getElementById('examAnswerForm').submit();
     }
 </script>
@@ -616,7 +617,7 @@ $canStart = false;
             window.addEventListener('resize', function () {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(function () {
-                    if (!checkMaximized()) {
+                    if (!formSubmitting && !checkMaximized()) {
                         console.log('[Browser] Window no longer maximized.');
 
                         // ✅ Log to DB
@@ -754,7 +755,7 @@ $canStart = false;
             document.addEventListener('mozfullscreenchange',    onFullscreenChange);
 
             function onFullscreenChange() {
-                if (!isFullscreen()) {
+                if (!formSubmitting && !isFullscreen()) {
                     console.log('[Fullscreen] Exited.');
 
                     // ✅ Log to DB
@@ -791,6 +792,7 @@ $canStart = false;
             let stream              = null;
             let webcamCheckInterval = null;
             let snapshotInterval    = null;
+            let snapshotInProgress  = null;
 
             const overlay       = document.createElement('div');
             overlay.id          = 'webcam_overlay';
@@ -887,22 +889,45 @@ $canStart = false;
 
             async function captureSnapshot() {
                 if (!stream || !stream.active) return;
-                try {
-                    const track    = stream.getVideoTracks()[0];
-                    const capture  = new ImageCapture(track);
-                    const blob     = await capture.takePhoto();
-                    const formData = new FormData();
-                    formData.append('image', blob, 'snapshot.jpg');
 
-                    const res = await fetch(PROCTOR.webcam, {
-                        method  : 'POST',
-                        headers : { 'X-CSRF-TOKEN': CSRF_TOKEN },
-                        body    : formData,
-                    });
-                    console.log('[Webcam] Snapshot sent. Status:', res.status);
-                } catch (err) {
-                    console.error('[Webcam] Snapshot failed:', err);
+                if (snapshotInProgress) {
+                    await snapshotInProgress;
                 }
+
+                if (!stream || !stream.active) return;
+
+                snapshotInProgress = (async function () {
+                    try {
+                        const track    = stream.getVideoTracks()[0];
+                        const capture  = new ImageCapture(track);
+                        const blob     = await capture.takePhoto();
+                        const formData = new FormData();
+                        formData.append('image', blob, 'snapshot.jpg');
+
+                        const res = await fetch(PROCTOR.webcam, {
+                            method  : 'POST',
+                            headers : {
+                                'X-CSRF-TOKEN': CSRF_TOKEN,
+                                'Accept'      : 'application/json',
+                            },
+                            body    : formData,
+                        });
+                        if (!res.ok) {
+                            console.error('[Webcam] Snapshot upload failed. Status:', res.status);
+                            return false;
+                        }
+
+                        console.log('[Webcam] Snapshot sent. Status:', res.status);
+                        return true;
+                    } catch (err) {
+                        console.error('[Webcam] Snapshot failed:', err);
+                        return false;
+                    } finally {
+                        snapshotInProgress = null;
+                    }
+                })();
+
+                return snapshotInProgress;
             }
 
             function startWebcam() {
@@ -938,12 +963,19 @@ $canStart = false;
                 startWebcam();
             }
 
-            document.getElementById('confirmSubmitExam')?.addEventListener('click', function () {
-                clearInterval(snapshotInterval);
-                clearInterval(webcamCheckInterval);
-                stream?.getTracks().forEach(t => t.stop());
-                console.log('[Webcam] Stopped on submit.');
-            });
+            window.captureFinalWebcamSnapshot = async function () {
+                try {
+                    const captured = await captureSnapshot();
+                    if (captured === false) {
+                        showProctoringWarning('⚠️ Warning: The final webcam snapshot could not be recorded.');
+                    }
+                } finally {
+                    clearInterval(snapshotInterval);
+                    clearInterval(webcamCheckInterval);
+                    stream?.getTracks().forEach(t => t.stop());
+                    console.log('[Webcam] Stopped on submit.');
+                }
+            };
 
         })();
         @endif
@@ -954,4 +986,3 @@ $canStart = false;
 </script>
 
 @endsection
-

@@ -38,16 +38,29 @@
                 <!-- End Profile Iamge Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                    <li class="dropdown-header">
-                        <h6>{{ $firstName }} {{ $lastName }}</h6>
-                        <span>
-                            @if ($studentInfo?->student_id_no != null)
-                            Student ID: {{ $studentInfo->student_id_no }}
-                            @else
-                            Student
-                            @endif
-                        </span>
+                    <li class="dropdown-header text-start d-flex align-items-center gap-2 px-3">
+                        <div class="nav-profile">
+                            {{-- Preview image --}}
+                            <img id="nav-photo-preview" src="{{ $studentInfo?->profile_photo ? asset('assets/storage/profile_photo/student/' . $studentInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $studentInfo?->profile_photo ? '' : 'display:none;' }}">
 
+                            {{-- Initials fallback --}}
+                            @if(!$studentInfo?->profile_photo)
+                            <div class="photo-initials" style="background-color:{{ $bgColor }};">
+                                <span>{{ $initials ?: '?' }}</span>
+                            </div>
+                            @endif
+                        </div>
+
+                        <div class="text-theme lh-1">
+                            <h6 class="fw-semibold mb-0">{{ $firstName }} {{ $lastName }}</h6>
+                            <small class="text-mute">
+                                @if ($studentInfo?->student_id_no != null)
+                                <span class="fw-semibold">SID:</span> {{ $studentInfo->student_id_no }}
+                                @else
+                                {{ $authStudent->email }}
+                                @endif
+                            </small>
+                        </div>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
@@ -65,7 +78,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('student.misc.documentation') }}">
-                            <i class="bi bi-question-circle"></i>
+                            <i class="bi bi-book"></i>
                             <span>Documentation</span>
                         </a>
                     </li>

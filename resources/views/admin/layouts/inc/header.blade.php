@@ -39,11 +39,23 @@
                 <!-- End Profile Iamge Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                    <li class="dropdown-header">
-                        {{-- <h6>{{ Auth::guard('admin')->user()->first_name }} {{ Auth::guard('admin')->user()->last_name }}</h6>
-                        <span>Super Admin</span> --}}
-                        <h6>{{ $firstName }} {{ $lastName }}</h6>
-                        <span>{{ $authAdmin->email }}</span>
+                    <li class="dropdown-header text-start d-flex align-items-center gap-2 px-3">
+                        <div class="nav-profile">
+                            {{-- Preview image --}}
+                            <img id="nav-photo-preview" src="{{ $adminInfo?->profile_photo ? asset('assets/storage/profile_photo/admin/' . $adminInfo->profile_photo) : '' }}" alt="Profile Photo" style="{{ $adminInfo?->profile_photo ? '' : 'display:none;' }}">
+
+                            {{-- Initials fallback --}}
+                            @if(!$adminInfo?->profile_photo)
+                            <div class="photo-initials" style="background-color:{{ $bgColor }};">
+                                <span>{{ $initials ?: '?' }}</span>
+                            </div>
+                            @endif
+                        </div>
+
+                        <div class="text-theme lh-1">
+                            <h6 class="fw-semibold mb-0">{{ $firstName }} {{ $lastName }}</h6>
+                            <small class="text-mute">{{ $authAdmin->email }}</small>
+                        </div>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
@@ -59,15 +71,15 @@
                         <hr class="dropdown-divider">
                     </li>
 
-                    <li>
+                    {{-- <li>
                         <a class="dropdown-item d-flex align-items-center" href="#">
-                            <i class="bi bi-question-circle"></i>
+                            <i class="bi bi-book"></i>
                             <span>Documentation</span>
                         </a>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
-                    </li>
+                    </li> --}}
 
                     <li>
                         <form method="POST" action="{{ route('admin.logout') }}">

@@ -19,13 +19,23 @@ use Illuminate\Support\Str;
 
 class AcaProctoringController extends Controller
 {
-    // Admin: List All Flagged Attempts
+    // Admin: List All Proctored Attempts
 
     public function index()
     {
         $serialNo = 1;
-        $attempts = AcaExamAttempt::with(['student', 'exam'])
-            ->whereHas('proctoringEvents')
+        $attempts = AcaExamAttempt::with([
+            'student',
+            'exam',
+            'proctoringEvents',
+            'webcamLogs',
+            'tabSwitchLogs',
+            'clipboardLogs',
+        ])
+            ->where(function ($query) {
+                $query->whereHas('proctoringEvents')
+                    ->orWhereHas('webcamLogs');
+            })
             ->latest()
             ->paginate(20);
 

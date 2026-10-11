@@ -19,13 +19,23 @@ use Illuminate\Support\Str;
 
 class TechProctoringController extends Controller
 {
-    // Teacher: List All Flagged Attempts
+    // Teacher: List All Proctored Attempts
 
     public function index()
     {
         $serialNo = 1;
-        $attempts = AcaExamAttempt::with(['student', 'exam'])
-            ->whereHas('proctoringEvents')
+        $attempts = AcaExamAttempt::with([
+            'student',
+            'exam',
+            'proctoringEvents',
+            'webcamLogs',
+            'tabSwitchLogs',
+            'clipboardLogs',
+        ])
+            ->where(function ($query) {
+                $query->whereHas('proctoringEvents')
+                    ->orWhereHas('webcamLogs');
+            })
             ->whereHas('exam', function ($query) {
                 $query->where('aca_created_by', auth()->id());
             })

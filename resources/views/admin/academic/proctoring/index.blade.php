@@ -53,6 +53,7 @@
                                         <th>Exam</th>
                                         <th>Tab Switches</th>
                                         <th>Clipboard</th>
+                                        <th>Snapshots</th>
                                         <th>Webcam Flags</th>
                                         <th>High Severity</th>
                                         <th>Risk</th>
@@ -65,6 +66,7 @@
                                     @php
                                     $tabCount = $attempt->tabSwitchLogs->count();
                                     $clipCount = $attempt->clipboardLogs->count();
+                                    $snapshotCount = $attempt->webcamLogs->count();
                                     $webcamCount = $attempt->webcamLogs->where('ai_flag', '!=', 'clear')->count();
                                     $highCount = $attempt->proctoringEvents->where('severity', 'high')->count();
 
@@ -103,6 +105,11 @@
                                             </span>
                                         </td>
                                         <td>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2">
+                                                <i class="bi bi-camera me-1"></i>{{ $snapshotCount }}
+                                            </span>
+                                        </td>
+                                        <td>
                                             <span class="badge bg-purple bg-opacity-10 text-secondary border border-secondary px-2">
                                                 <i class="bi bi-camera-video-off me-1"></i>{{ $webcamCount }}
                                             </span>
@@ -130,9 +137,9 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="10" class="text-center py-5 text-muted">
+                                        <td colspan="11" class="text-center py-5 text-muted">
                                             <i class="bi bi-shield-check fs-1 d-block mb-2 opacity-50"></i>
-                                            No flagged attempts found.
+                                            No proctoring records found.
                                         </td>
                                     </tr>
                                     @endforelse
@@ -188,4 +195,3 @@
 
 </script>
 @endsection
-
