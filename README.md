@@ -133,17 +133,48 @@
 ---
 
 <h3>🛠️ Tech Stack</h3>
-
-| Layer | Technology |
-|-------|-----------|
-| Backend Framework | Laravel 9.x |
-| Language | PHP 8.2+ |
-| Database | MySQL 8.0+ |
-| Frontend | Bootstrap 5, Bootstrap Icons |
-| Charts | Chart.js 4.x |
-| AI Integration | Gorq API (exam generation) |
-| Auth | Laravel Multi-Guard (Admin / Teacher / Student) |
-| Template Engine | Blade |
+<table>
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Technology</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Backend Framework</td>
+      <td>Laravel 9.x</td>
+    </tr>
+    <tr>
+      <td>Language</td>
+      <td>PHP 8.2+</td>
+    </tr>
+    <tr>
+      <td>Database</td>
+      <td>MySQL 8.0+</td>
+    </tr>
+    <tr>
+      <td>Frontend</td>
+      <td>Bootstrap 5, Bootstrap Icons</td>
+    </tr>
+    <tr>
+      <td>Charts</td>
+      <td>Chart.js 4.x</td>
+    </tr>
+    <tr>
+      <td>AI Integration</td>
+      <td>Groq API (exam generation)</td>
+    </tr>
+    <tr>
+      <td>Authentication</td>
+      <td>Laravel Multi-Guard (Admin / Teacher / Student)</td>
+    </tr>
+    <tr>
+      <td>Template Engine</td>
+      <td>Blade</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -157,7 +188,6 @@
   <li>Node.js & npm (for asset compilation)</li>
 </ul>
 
-### Installation
 <h4>Installation</h4>
 
 ```bash
