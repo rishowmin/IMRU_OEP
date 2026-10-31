@@ -31,7 +31,7 @@
 
 <p align="justify">The system controls access based on user roles. It has three main roles: Admin, Teacher, and Student. Users can only access features assigned to their roles. The system also monitors students during exams. The webcam stays active throughout the exam. Tab switching is detected and recorded. The timer runs continuously during the exam. The exam is automatically submitted when the time expires. These features improve exam security and help prevent cheating.</p>
 
-<p align="justify">The system uses the Groq API. It uses the \textbf{openai/gpt-oss-120b} model for AI-assisted question generation. Teachers can create questions manually or with AI assistance. The system can generate questions based on specific topics. Different students can receive different question sets. The system also balances questions across three difficulty levels. This reduces the chance of students sharing answers. It also helps maintain exam fairness. Written answers are reviewed manually by teachers. Objective questions are scored automatically after submission. Students first see the automatically generated results. The teacher reviews the written answers manually. The final result is updated after the review.</p>
+<p align="justify">The system uses the Groq API. It uses the <strong>openai/gpt-oss-120b</strong> model for AI-assisted question generation. Teachers can create questions manually or with AI assistance. The system can generate questions based on specific topics. Different students can receive different question sets. The system also balances questions across three difficulty levels. This reduces the chance of students sharing answers. It also helps maintain exam fairness. Written answers are reviewed manually by teachers. Objective questions are scored automatically after submission. Students first see the automatically generated results. The teacher reviews the written answers manually. The final result is updated after the review.</p>
 
 ---
 
@@ -331,6 +331,7 @@ This project is open-sourced software licensed under the [MIT License](https://o
   <strong>Muhammad Raisul Islam</strong><br/>
   Institute of Information Technology (IIT)<br/>
   Jahangirnagar University (JU), Bangladesh<br/><br/>
+</p>
   <a href="https://github.com/rishowmin">
     <img src="https://img.shields.io/badge/GitHub-rishowmin-15A6FF?style=flat-square&logo=github" alt="GitHub" />
   </a>
@@ -338,7 +339,6 @@ This project is open-sourced software licensed under the [MIT License](https://o
   <a href="http://iamraisulislam.com/">
     <img src="https://img.shields.io/badge/Website-iamraisulislam.com-375A9E?style=flat-square&logo=googlechrome" alt="Website" />
   </a>
-</p>
 
 ---
 
