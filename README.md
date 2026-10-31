@@ -57,10 +57,12 @@
 <h3>✨ Features</h3>
 
 <h4>🛡️ Admin Panel</h4>
-- Full control over all system data: courses, exams, questions, students, and enrollments
-- Manage teacher accounts and assign courses
-- Global exam rules and instruction library management
-- System-wide performance reporting
+<ul>
+  <li>Full control over all system data: courses, exams, questions, students, and enrollments</li>
+  <li>Manage teacher accounts and assign courses</li>
+  <li>Global exam rules and instruction library management</li>
+  <li>System-wide performance reporting</li>
+</ul>
 
 <h4>👨‍🏫 Teacher Portal</h4>
 - **Dashboard** with 8 live stat cards (courses, exams, enrolled students, pending reviews, total results, passed, failed, avg score & pass rate)
