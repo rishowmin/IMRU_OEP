@@ -21,7 +21,11 @@
 
 ## 📃 Abstract
 
-> This project proposes a secure **Online Examination Portal** for universities and corporate recruiters to conduct admission and recruitment tests. The system includes features such as **automated evaluation**, **video camera monitoring**, **no tab change restriction**, **timer-based controls**, and **result analysis dashboards**. It supports multiple exam formats, ensuring flexibility and integrity. With modern web technologies and cloud scalability, the platform provides a reliable, accessible, and cost-effective solution for large-scale online examinations.
+> This project developed a web-based Online Examination Portal. It is designed for universities and corporate organizations. The system supports both academic and professional assessments. The portal was built using Laravel, MySQL, and Bootstrap. It provides more flexibility than general-purpose quiz tools. Users can access the system online from different locations. This makes the examination process easier and more flexible.
+
+The system controls access based on user roles. It has three main roles: Admin, Teacher, and Student. Users can only access features assigned to their roles. The system also monitors students during exams. The webcam stays active throughout the exam. Tab switching is detected and recorded. The timer runs continuously during the exam. The exam is automatically submitted when the time expires. These features improve exam security and help prevent cheating.
+
+The system uses the Groq API. It uses the \textbf{openai/gpt-oss-120b} model for AI-assisted question generation. Teachers can create questions manually or with AI assistance. The system can generate questions based on specific topics. Different students can receive different question sets. The system also balances questions across three difficulty levels. This reduces the chance of students sharing answers. It also helps maintain exam fairness. Written answers are reviewed manually by teachers. Objective questions are scored automatically after submission. Students first see the automatically generated results. The teacher reviews the written answers manually. The final result is updated after the review.
 
 ---
 
