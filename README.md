@@ -50,7 +50,7 @@
 
 <p align="justify">The platform provides three distinct role-based portals (**Admin**, **Teacher**, **Student**) and supports both manually created exams and AI-generated exam sets via the **Gorq API**, complete with automated MCQ grading, subjective answer review, live proctoring, and detailed performance analytics.</p>
 
-> <p align="justify">Developed by **Muhammad Raisul Islam**, IIT, Jahangirnagar University (JU).</p>
+> <p align="justify">Developed by <span text="bold">Muhammad Raisul Islam</span>, IIT, Jahangirnagar University (JU).</p>
 
 ---
 
