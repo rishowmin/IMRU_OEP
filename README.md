@@ -57,7 +57,7 @@
 <h3>✨ Features</h3>
 
 <h4>🛡️ Admin Panel</h4>
-<ul>
+<ul align="justify">
   <li>Full control over all system data: courses, exams, questions, students, and enrollments</li>
   <li>Manage teacher accounts and assign courses</li>
   <li>Global exam rules and instruction library management</li>
@@ -65,7 +65,7 @@
 </ul>
 
 <h4>👨‍🏫 Teacher Portal</h4>
-<ul>
+<ul align="justify">
   <li><strong>Dashboard</strong> with 8 live stat cards (courses, exams, enrolled students, pending reviews, total results, passed, failed, avg score & pass rate)</li>
   <li>Three analytics charts: Pass vs Fail doughnut, Monthly Pass/Fail Trend (6-month line), Exams per Course bar chart</li>
   <li>Quick-access tables: Upcoming Exams, Pending Reviews, Recent Attempts, Per-Course Stats</li>
@@ -78,7 +78,7 @@
 </ul>
 
 <h4>🎓 Student Portal</h4>
-<ul>
+<ul align="justify">
   <li>Dashboard with enrolled courses, upcoming exams, exams attempted, and average score</li>
   <li><strong>My Exams</strong> — card view of all assigned exams with status badges (Ongoing, Ended, Upcoming, Submitted)</li>
   <li>Exam detail page with full summary before starting</li>
@@ -89,7 +89,7 @@
 </ul>
 
 <h4>🔒 Proctoring & Exam Security</h4>
-<ul>
+<ul align="justify">
   <li>Cut / Copy / Paste restrictions (default)</li>
   <li>Back Button restrictions (default)</li>
   <li>Tab Switching detection — auto-submit on violation</li>
@@ -103,12 +103,32 @@
 ---
 
 <h3>👥 User Roles</h3>
-
-| Role | Access | Login URL |
-|------|--------|-----------|
-| **Admin** | Full system management | `/admin/login` |
-| **Teacher** | Courses, exams, questions, students, reviews, analytics | `/academic/login` (Teacher tab) |
-| **Student** | Exams, results, profile | `/academic/login` (Student tab) |
+<table>
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Access</th>
+      <th>Login URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Admin</strong></td>
+      <td>Full system management</td>
+      <td><code>/admin/login</code></td>
+    </tr>
+    <tr>
+      <td><strong>Teacher</strong></td>
+      <td>Courses, exams, questions, students, reviews, analytics</td>
+      <td><code>/academic/login</code> (Teacher tab)</td>
+    </tr>
+    <tr>
+      <td><strong>Student</strong></td>
+      <td>Exams, results, profile</td>
+      <td><code>/academic/login</code> (Student tab)</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -130,11 +150,12 @@
 <h3>🚀 Getting Started</h3>
 
 <h4>Prerequisites</h3>
-
-- PHP >= 8.2
-- Composer
-- MySQL >= 8.0
-- Node.js & npm (for asset compilation)
+<ul align="justify">
+  <li>PHP >= 8.2</li>
+  <li>Composer</li>
+  <li>MySQL >= 8.0</li>
+  <li>Node.js & npm (for asset compilation)</li>
+</ul>
 
 ### Installation
 <h4>Installation</h4>
