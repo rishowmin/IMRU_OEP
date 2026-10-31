@@ -65,34 +65,40 @@
 </ul>
 
 <h4>👨‍🏫 Teacher Portal</h4>
-- **Dashboard** with 8 live stat cards (courses, exams, enrolled students, pending reviews, total results, passed, failed, avg score & pass rate)
-- Three analytics charts: Pass vs Fail doughnut, Monthly Pass/Fail Trend (6-month line), Exams per Course bar chart
-- Quick-access tables: Upcoming Exams, Pending Reviews, Recent Attempts, Per-Course Stats
-- Create and manage **Courses**, **Exams**, **Questions**, and **Enrollments**
-- **AI Exam Generation** via Gorq API with Question Type Balancer, Difficulty Balancer, and Anti-repeat Filter
-- Per-exam **Exam Settings** — toggle instructions and security rules independently per exam
-- **Review Answer** module — manually grade Short & Long Question answers with verdict and marks
-- **Performance** analytics per exam and course
-- **Proctoring Monitor** — view tab-switch, clipboard, and webcam event logs per student
+<ul>
+  <li><strong>Dashboard</strong> with 8 live stat cards (courses, exams, enrolled students, pending reviews, total results, passed, failed, avg score & pass rate)</li>
+  <li>Three analytics charts: Pass vs Fail doughnut, Monthly Pass/Fail Trend (6-month line), Exams per Course bar chart</li>
+  <li>Quick-access tables: Upcoming Exams, Pending Reviews, Recent Attempts, Per-Course Stats</li>
+  <li>Create and manage <strong>Courses</strong>, <strong>Exams</strong>, <strong>Questions</strong>, and <strong>Enrollments</strong></li>
+  <li><strong>AI Exam Generation</strong> via Gorq API with Question Type Balancer, Difficulty Balancer, and Anti-repeat Filter</li>
+  <li>Per-exam <strong>Exam Settings</strong> — toggle instructions and security rules independently per exam</li>
+  <li><strong>Review Answer</strong> module — manually grade Short & Long Question answers with verdict and marks</li>
+  <li><strong>Performance</strong> analytics per exam and course</li>
+  <li><strong>Proctoring Monitor</strong> — view tab-switch, clipboard, and webcam event logs per student</li>
+</ul>
 
 <h4>🎓 Student Portal</h4>
-- Dashboard with enrolled courses, upcoming exams, exams attempted, and average score
-- **My Exams** — card view of all assigned exams with status badges (Ongoing, Ended, Upcoming, Submitted)
-- Exam detail page with full summary before starting
-- Instructions & Rules agreement screen before exam entry
-- Live **Answer Sheet** with countdown timer, question progress counter, MCQ radio buttons, and free-text areas for subjective questions
-- **Real-time auto-submit** when timer expires (if rule enabled)
-- **View Result** — two-stage result: partial (pre-review) and final (post-review) with full scorecard, percentage, and Pass/Fail badge
+<ul>
+  <li>Dashboard with enrolled courses, upcoming exams, exams attempted, and average score</li>
+  <li><strong>My Exams</strong> — card view of all assigned exams with status badges (Ongoing, Ended, Upcoming, Submitted)</li>
+  <li>Exam detail page with full summary before starting</li>
+  <li>Instructions & Rules agreement screen before exam entry</li>
+  <li>Live <strong>Answer Sheet</strong> with countdown timer, question progress counter, MCQ radio buttons, and free-text areas for subjective questions</li>
+  <li><strong>Real-time auto-submit</strong> when timer expires (if rule enabled)</li>
+  <li><strong>View Result</strong> — two-stage result: partial (pre-review) and final (post-review) with full scorecard, percentage, and Pass/Fail badge</li>
+</ul>
 
 <h4>🔒 Proctoring & Exam Security</h4>
-- Cut / Copy / Paste restrictions (default)
-- Back Button restrictions (default)
-- Tab Switching detection — auto-submit on violation
-- Fullscreen / Browser Maximized enforcement
-- Webcam Required (configurable)
-- Single Attempt enforcement
-- Auto Submit on timer expiry
-- Internet Connection reminder
+<ul>
+  <li>Cut / Copy / Paste restrictions (default)</li>
+  <li>Back Button restrictions (default)</li>
+  <li>Tab Switching detection — auto-submit on violation</li>
+  <li>Fullscreen / Browser Maximized enforcement</li>
+  <li>Webcam Required (configurable)</li>
+  <li>Single Attempt enforcement</li>
+  <li>Auto Submit on timer expiry</li>
+  <li>Internet Connection reminder</li>
+</ul>
 
 ---
 
