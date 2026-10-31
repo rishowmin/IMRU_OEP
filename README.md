@@ -331,7 +331,7 @@ This project is open-sourced software licensed under the [MIT License](https://o
   <strong>Muhammad Raisul Islam</strong><br/>
   Institute of Information Technology (IIT)<br/>
   Jahangirnagar University (JU), Bangladesh<br/><br/>
-</p>
+  
   <a href="https://github.com/rishowmin">
     <img src="https://img.shields.io/badge/GitHub-rishowmin-15A6FF?style=flat-square&logo=github" alt="GitHub" />
   </a>
@@ -339,6 +339,7 @@ This project is open-sourced software licensed under the [MIT License](https://o
   <a href="http://iamraisulislam.com/">
     <img src="https://img.shields.io/badge/Website-iamraisulislam.com-375A9E?style=flat-square&logo=googlechrome" alt="Website" />
   </a>
+</p>
 
 ---
 
