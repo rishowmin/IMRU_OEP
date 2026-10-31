@@ -19,7 +19,7 @@
 
 ---
 
-<h3 align="justify">📃 Abstract</h3>h3>
+<h3>📃 Abstract</h3>
 
 <p align="justify">This project developed a web-based Online Examination Portal. It is designed for universities and corporate organizations. The system supports both academic and professional assessments. The portal was built using Laravel, MySQL, and Bootstrap. It provides more flexibility than general-purpose quiz tools. Users can access the system online from different locations. This makes the examination process easier and more flexible.</p>
 
@@ -29,7 +29,7 @@
 
 ---
 
-## 📖 Table of Contents
+<h3>📖 Table of Contents</h3>
 
 - [Abstract](#-abstract)
 - [About the Project](#-about-the-project)
@@ -44,25 +44,25 @@
 
 ---
 
-## 🎓 About the Project
+<h3>🎓 About the Project</h3>
 
-**IMRU Online Examination Portal** is a comprehensive academic examination management system designed to digitise and streamline the entire examination lifecycle — from course setup to result delivery.
+<p align="justify">**IMRU Online Examination Portal** is a comprehensive academic examination management system designed to digitise and streamline the entire examination lifecycle — from course setup to result delivery.</p>
 
-The platform provides three distinct role-based portals (**Admin**, **Teacher**, **Student**) and supports both manually created exams and AI-generated exam sets via the **Gorq API**, complete with automated MCQ grading, subjective answer review, live proctoring, and detailed performance analytics.
+<p align="justify">The platform provides three distinct role-based portals (**Admin**, **Teacher**, **Student**) and supports both manually created exams and AI-generated exam sets via the **Gorq API**, complete with automated MCQ grading, subjective answer review, live proctoring, and detailed performance analytics.</p>
 
 > Developed by **Muhammad Raisul Islam**, IIT, Jahangirnagar University (JU).
 
 ---
 
-## ✨ Features
+<h3>✨ Features</h3>
 
-### 🛡️ Admin Panel
+<h4>🛡️ Admin Panel</h4>
 - Full control over all system data: courses, exams, questions, students, and enrollments
 - Manage teacher accounts and assign courses
 - Global exam rules and instruction library management
 - System-wide performance reporting
 
-### 👨‍🏫 Teacher Portal
+<h4>👨‍🏫 Teacher Portal</h4>
 - **Dashboard** with 8 live stat cards (courses, exams, enrolled students, pending reviews, total results, passed, failed, avg score & pass rate)
 - Three analytics charts: Pass vs Fail doughnut, Monthly Pass/Fail Trend (6-month line), Exams per Course bar chart
 - Quick-access tables: Upcoming Exams, Pending Reviews, Recent Attempts, Per-Course Stats
@@ -73,7 +73,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 - **Performance** analytics per exam and course
 - **Proctoring Monitor** — view tab-switch, clipboard, and webcam event logs per student
 
-### 🎓 Student Portal
+<h4>🎓 Student Portal</h4>
 - Dashboard with enrolled courses, upcoming exams, exams attempted, and average score
 - **My Exams** — card view of all assigned exams with status badges (Ongoing, Ended, Upcoming, Submitted)
 - Exam detail page with full summary before starting
@@ -82,7 +82,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 - **Real-time auto-submit** when timer expires (if rule enabled)
 - **View Result** — two-stage result: partial (pre-review) and final (post-review) with full scorecard, percentage, and Pass/Fail badge
 
-### 🔒 Proctoring & Exam Security
+<h4>🔒 Proctoring & Exam Security</h4>
 - Cut / Copy / Paste restrictions (default)
 - Back Button restrictions (default)
 - Tab Switching detection — auto-submit on violation
@@ -94,7 +94,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 
 ---
 
-## 👥 User Roles
+<h3>👥 User Roles</h3>
 
 | Role | Access | Login URL |
 |------|--------|-----------|
@@ -104,7 +104,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 
 ---
 
-## 🛠️ Tech Stack
+<h3>🛠️ Tech Stack</h3>
 
 | Layer | Technology |
 |-------|-----------|
@@ -119,9 +119,9 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 
 ---
 
-## 🚀 Getting Started
+<h3>🚀 Getting Started</h3>
 
-### Prerequisites
+<h4>Prerequisites</h3>
 
 - PHP >= 8.2
 - Composer
@@ -129,6 +129,7 @@ The platform provides three distinct role-based portals (**Admin**, **Teacher**,
 - Node.js & npm (for asset compilation)
 
 ### Installation
+<h4>Installation</h4>
 
 ```bash
 # 1. Clone the repository
@@ -167,7 +168,7 @@ Visit `http://127.0.0.1:8000` in your browser.
 
 ---
 
-## 📁 Project Structure
+<h3>📁 Project Structure</h3>
 
 ```
 IMRU_OEP/
@@ -192,7 +193,7 @@ IMRU_OEP/
     └── assets/             # CSS, JS, images, logo
 ```
 
-## 🔄 Exam Creation Workflow
+<h3>🔄 Exam Creation Workflow</h3>
 
 ```
 Teacher Logs In
@@ -252,13 +253,13 @@ General (Custom)                    AI Generated
 
 ---
 
-## 📄 License
+<h3>📄 License</h3>
 
 This project is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-## 👤 Author
+<h3>👤 Author</h3>
 
 <p align="center">
   <img src="public/assets/admin/img/brand/icon.png" width="64" alt="IMRU Icon" /><br/>
