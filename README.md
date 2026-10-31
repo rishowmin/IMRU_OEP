@@ -21,7 +21,7 @@
 
 ## 📃 Abstract
 
-> This project developed a web-based Online Examination Portal. It is designed for universities and corporate organizations. The system supports both academic and professional assessments. The portal was built using Laravel, MySQL, and Bootstrap. It provides more flexibility than general-purpose quiz tools. Users can access the system online from different locations. This makes the examination process easier and more flexible.
+This project developed a web-based Online Examination Portal. It is designed for universities and corporate organizations. The system supports both academic and professional assessments. The portal was built using Laravel, MySQL, and Bootstrap. It provides more flexibility than general-purpose quiz tools. Users can access the system online from different locations. This makes the examination process easier and more flexible.
 
 The system controls access based on user roles. It has three main roles: Admin, Teacher, and Student. Users can only access features assigned to their roles. The system also monitors students during exams. The webcam stays active throughout the exam. Tab switching is detected and recorded. The timer runs continuously during the exam. The exam is automatically submitted when the time expires. These features improve exam security and help prevent cheating.
 
