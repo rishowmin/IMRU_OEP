@@ -46,11 +46,11 @@
 
 <h3>🎓 About the Project</h3>
 
-<p align="justify">**IMRU Online Examination Portal** is a comprehensive academic examination management system designed to digitise and streamline the entire examination lifecycle — from course setup to result delivery.</p>
+<p align="justify"><strong>IMRU Online Examination Portal</strong> is a comprehensive academic examination management system designed to digitise and streamline the entire examination lifecycle — from course setup to result delivery.</p>
 
-<p align="justify">The platform provides three distinct role-based portals (**Admin**, **Teacher**, **Student**) and supports both manually created exams and AI-generated exam sets via the **Gorq API**, complete with automated MCQ grading, subjective answer review, live proctoring, and detailed performance analytics.</p>
+<p align="justify">The platform provides three distinct role-based portals (<strong>Admin</strong>, <strong>Teacher</strong>, <strong>Student</strong>) and supports both manually created exams and AI-generated exam sets via the <strong>Gorq API</strong>, complete with automated MCQ grading, subjective answer review, live proctoring, and detailed performance analytics.</p>
 
-> <p align="justify">Developed by <span text="bold">Muhammad Raisul Islam</span>, IIT, Jahangirnagar University (JU).</p>
+> <p align="justify">Developed by <strong>Muhammad Raisul Islam</strong>, IIT, Jahangirnagar University (JU).</p>
 
 ---
 
