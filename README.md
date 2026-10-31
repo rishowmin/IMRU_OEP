@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/Laravel-9.x-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
   <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP" />
   <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
   <img src="https://img.shields.io/badge/Bootstrap-5.x-7952B3?style=flat-square&logo=bootstrap&logoColor=white" alt="Bootstrap" />
@@ -18,8 +18,8 @@
 </p>
 
 <p align="center">
-  <a href="http://imru-oep.iamraisulislam.com/" target="_blank">
-    <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Website-2ea44f?style=for-the-badge" alt="Live Demo" />
+  <a href="http://imru-oep.iamraisulislam.com/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Portal-2ea44f?style=for-the-badge" alt="Live Demo" />
   </a>
 </p>
 
@@ -332,7 +332,10 @@ This project is open-sourced software licensed under the [MIT License](https://o
   Institute of Information Technology (IIT)<br/>
   Jahangirnagar University (JU), Bangladesh<br/><br/>
   <a href="https://github.com/rishowmin">
-    <img src="https://img.shields.io/badge/GitHub-rishowmin-181717?style=flat-square&logo=github" alt="GitHub" />
+    <img src="https://img.shields.io/badge/GitHub-rishowmin-15A6FF?style=flat-square&logo=github" alt="GitHub" />
+  </a>
+  <a href="http://iamraisulislam.com/">
+    <img src="https://img.shields.io/badge/Website-iamraisulislam.com-375A9E?style=flat-square&logo=googlechrome" alt="Website" />
   </a>
 </p>
 
