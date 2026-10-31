@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudDashboardController;
 use App\Http\Controllers\Student\StudMiscController;
+use App\Http\Controllers\Student\StudMyCourseController;
 use App\Http\Controllers\Student\StudMyExamController;
 use App\Http\Controllers\Student\StudMyResultController;
 use App\Http\Controllers\Student\StudProctoringController;
@@ -416,6 +417,11 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
     // Dashboard
     Route::prefix('dashboard')->controller(StudDashboardController::class)->group(function () {
         Route::get('/', 'dashboard')->name('student.dashboard');
+    });
+
+    // Enrolled Courses
+    Route::prefix('enrolled-courses')->controller(StudMyCourseController::class)->group(function () {
+        Route::get('/', 'index')->name('student.myCourses');
     });
 
     // My Exams

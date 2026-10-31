@@ -11,6 +11,14 @@
             </a>
         </li>
 
+        {{-- Enrolled Courses --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('student.myCourses*') ? '' : 'collapsed' }}" href="{{ route('student.myCourses') }}">
+                <i class="bi bi-book"></i>
+                <span>Enrolled Courses</span>
+            </a>
+        </li>
+
         {{-- My Exams --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('student.myExams*') ? '' : 'collapsed' }}" href="{{ route('student.myExams') }}">

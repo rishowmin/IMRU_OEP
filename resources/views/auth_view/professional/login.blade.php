@@ -19,9 +19,9 @@
                             </a>
                         </div>
                         <div class="status-header">
-                            <span class="badge bg-warning-light border border-warning text-dark rounded-pill px-3 py-2 mb-0">
-                                <i class="bi bi-clock-history me-1"></i>
-                                In Progress
+                            <span class="badge bg-warning-light border border-warning text-dark p-2 mb-0">
+                                <i class="bi bi-clock-history"></i>
+                                <span class="d-none d-lg-block ms-1">In Progress</span>
                             </span>
                         </div>
 
@@ -33,7 +33,7 @@
 
                                 {{-- Coming Soon --}}
                                 <div class="Coming-soon text-center px-5 pb-3">
-                                    <h4 class="display-1 text-warning"><i class="bi bi-cone-striped"></i></h4>
+                                    <h4 class="comingsoon-icon text-warning"><i class="bi bi-cone-striped"></i></h4>
                                     <h3 class="text-theme fw-bold mb-2">Corporate Module Coming Soon!</h3>
                                     <p class="text-muted mb-3">We're working on something great.</p>
                                     <p class="text-muted mb-3">The Corporate Examination Module is currently under development. We're working to bring you recruitment assessments and corporate examination management features.</p>

@@ -315,7 +315,8 @@ p {
     line-height: 1;
 }
 
-.modal .modal-body .modal-icon i {
+.modal .modal-body .modal-icon i,
+.comingsoon-icon i {
     display: inline-block;
     animation: shake 0.5s ease-in-out infinite;
     font-size: 60px;

@@ -202,7 +202,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="text-theme fw-bold mb-0"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Enrolled Courses</h6>
-                    <a href="#" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
+                    <a href="{{ route('student.myCourses') }}" class="text-theme small text-decoration-underline">View All<i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 <div class="card-body p-0">
                     @if($enrolledCourses->count())
