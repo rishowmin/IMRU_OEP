@@ -60,11 +60,11 @@
                             <form method="POST" action="{{ route('teacher.aiExamSets.store') }}" id="exam-form">
                                 @csrf
 
-                                <div class="row mb-3">
+                                <div class="row g-2">
 
                                     {{-- Exam Title --}}
                                     <div class="col-md-8">
-                                        <label for="title" class="form-label fw-bold"><small>Exam Title</small> <small class="text-danger">*</small></label>
+                                        <label for="title" class="form-label fw-bold mb-1"><small>Exam Title</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="e.g. Midterm Exam — Computer Networks">
                                         </div>
@@ -81,12 +81,12 @@
 
                                     {{-- Question Type --}}
                                     <div class="col-md-4">
-                                        <label for="question_type" class="form-label fw-bold"><small>Question Type</small> <small class="text-danger">*</small></label>
+                                        <label for="question_type" class="form-label fw-bold mb-1"><small>Question Type</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <select name="question_type" class="form-select @error('question_type') is-invalid @enderror" id="question-type-select">
                                                 <option value="All">All</option>
-                                                <option value="objective" {{ old('question_type') === 'objective' ? 'selected' : '' }}>Objective (MCQ 4 & 2 Options)</option>
-                                                <option value="subjective" {{ old('question_type') === 'subjective' ? 'selected' : '' }}>Subjective (Short & Long Questions)</option>
+                                                <option value="objective" {{ old('question_type') === 'objective' ? 'selected' : '' }}>Objective (4 & 2 Options)</option>
+                                                <option value="subjective" {{ old('question_type') === 'subjective' ? 'selected' : '' }}>Subjective (Short & Long)</option>
                                                 <option value="mcq_4" {{ old('question_type') === 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
                                                 <option value="mcq_2" {{ old('question_type') === 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
                                                 <option value="short_question" {{ old('question_type') === 'short_question' ? 'selected' : '' }}>Short Question</option>
@@ -107,7 +107,7 @@
 
                                     {{-- Topic / Subject --}}
                                     <div class="col-md-6">
-                                        <label for="topic" class="form-label fw-bold"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
+                                        <label for="topic" class="form-label fw-bold mb-1"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <select name="topic" class="form-select @error('topic') is-invalid @enderror" id="topic-select">
                                                 <option value="All">All Topics</option>
@@ -129,7 +129,7 @@
 
                                     {{-- Total Questions --}}
                                     <div class="col-md-3">
-                                        <label for="total_questions" class="form-label fw-bold"><small>Total Questions</small> <small class="text-danger">*</small></label>
+                                        <label for="total_questions" class="form-label fw-bold mb-1"><small>Total Questions</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <input type="number" name="total_questions" class="form-control @error('total_questions') is-invalid @enderror" value="{{ old('total_questions', 30) }}" min="5" max="200">
                                         </div>
@@ -146,7 +146,7 @@
 
                                     {{-- Duration (min) --}}
                                     <div class="col-md-3">
-                                        <label for="duration_minutes" class="form-label fw-bold"><small>Duration (min)</small> <small class="text-danger">*</small></label>
+                                        <label for="duration_minutes" class="form-label fw-bold mb-1"><small>Duration (min)</small> <small class="text-danger">*</small></label>
                                         <div class="input-group">
                                             <input type="number" name="duration_minutes" class="form-control" value="{{ old('duration_minutes', 60) }}" min="10" max="300">
                                         </div>
@@ -163,9 +163,9 @@
 
                                 </div>
 
-                                <hr class="my-4">
+                                <hr class="my-3">
 
-                                <div class="row mb-4">
+                                <div class="row g-3">
                                     {{-- Question Type Mix --}}
                                     <div class="col-md-6">
                                         <div class="card border border-theme mb-0">
@@ -240,7 +240,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-submit-button">
+                                <div class="form-submit-button mt-3">
                                     <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">
                                         <i class="bi bi-lightning-charge me-2"></i>
                                         Generate with AI
