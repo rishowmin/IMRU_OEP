@@ -49,8 +49,10 @@
 
             {{-- ==================== GRID VIEW ==================== --}}
             <div id="gridView">
-                <div class="row">
-                    @forelse ($myExamList as $exam)
+
+                @if($myExamList->count())
+                <div class="row g-3">
+                    @foreach ($myExamList as $exam)
 
                     @php
                     $now = now();
@@ -91,7 +93,7 @@
                         $canStart = true;
                     } else {
                         $status = 'Ended';
-                        $statusClass = 'bg-secondary';
+                        $statusClass = 'bg-danger';
                         $statusIconClass = 'bi-slash-circle';
                         $canStart = false;
                     }
@@ -99,8 +101,8 @@
                     $noQuestions = ($exam->questions_count ?? 0) === 0;
                     @endphp
 
-                    <div class="col-md-4 mb-3">
-                        <div class="card h-100 border-0 shadow-sm">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm mb-0">
 
                             {{-- Colored top accent bar by status --}}
                             <div class="rounded-top {{ $statusClass }}" style="height: 5px;"></div>
@@ -196,27 +198,35 @@
                             </div>
                         </div>
                     </div>
-
-                    @empty
-                    <div class="col-12">
-                        <div class="alert alert-info d-flex align-items-center gap-2" role="alert">
-                            <i class="bi bi-info-circle-fill"></i>
-                            <span>You have no exams assigned yet. Please check back later.</span>
+                    @endforeach
+                </div>
+                @else
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm mb-0">
+                            <div class="card-body">
+                                <div class="text-center text-muted py-3">
+                                    <h1 class="mb-2"><i class="bi bi-clipboard-x"></i></h1>
+                                    <h6 class="mb-0">No exams found!</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    @endforelse
                 </div>
+                @endif
+
             </div>
 
             {{-- ==================== TABLE VIEW ==================== --}}
             <div id="listView" style="display: none;">
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
+                <div class="card shadow-sm mb-0">
+                    <div class="card-body">
 
-                        <table class="table table-sm small mb-0" id="myExamTable">
+                        @if($myExamList->count())
+                        <table class="table table-sm table-bordered table-hover small mb-0" id="myExamTable">
                             <thead class="small">
                                 <tr>
-                                    <th>Course</th>
+                                    <th style="border-left: 4px solid #6c757d">Course</th>
                                     <th>Exam</th>
                                     <th>Type</th>
                                     <th>Date & Time</th>
@@ -226,7 +236,7 @@
                                 </tr>
                             </thead>
                             <tbody class="small">
-                                @forelse ($myExamList as $index => $exam)
+                                @foreach ($myExamList as $index => $exam)
 
                                 @php
                                 $now = now();
@@ -267,7 +277,7 @@
                                     $canStart = true;
                                 } else {
                                     $status = 'Ended';
-                                    $statusClass = 'bg-secondary';
+                                    $statusClass = 'bg-danger';
                                     $statusIconClass = 'bi-slash-circle';
                                     $canStart = false;
                                 }
@@ -276,7 +286,7 @@
                                 @endphp
 
                                 <tr>
-                                    <td style="border-left: 4px solid var(--bs-{{ $isSubmitted ? 'primary' : ($status === 'Upcoming' ? 'warning' : ($status === 'Ongoing' ? 'success' : 'secondary')) }});">
+                                    <td style="border-left: 4px solid var(--bs-{{ $isSubmitted ? 'primary' : ($status === 'Upcoming' ? 'warning' : ($status === 'Ongoing' ? 'success' : 'danger')) }});">
                                         <div class="fw-bold">{{ $exam->course->course_title }}</div>
                                         <small class="text-muted">[{{ $exam->course->course_code }}]</small>
                                     </td>
@@ -353,19 +363,15 @@
                                         </div>
                                     </td>
                                 </tr>
-
-                                @empty
-                                <tr>
-                                    <td colspan="8">
-                                        <div class="alert alert-info d-flex align-items-center gap-2 mb-0">
-                                            <i class="bi bi-info-circle-fill"></i>
-                                            <span>You have no exams assigned yet. Please check back later.</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
+                        @else
+                        <div class="text-center text-muted py-3">
+                            <h1 class="mb-2"><i class="bi bi-clipboard-x"></i></h1>
+                            <h6 class="mb-0">No exams found!</h6>
+                        </div>
+                        @endif
 
                     </div>
 

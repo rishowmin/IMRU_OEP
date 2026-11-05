@@ -14,7 +14,7 @@
         {{-- Enrolled Courses --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('student.myCourses*') ? '' : 'collapsed' }}" href="{{ route('student.myCourses') }}">
-                <i class="bi bi-book"></i>
+                <i class="bi bi-journal-bookmark-fill"></i>
                 <span>Enrolled Courses</span>
             </a>
         </li>

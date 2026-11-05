@@ -37,10 +37,11 @@
     <div class="row">
         <div class="col-lg-12">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
+            <div class="card shadow-sm mb-0">
+                <div class="card-body">
 
-                    <table class="table table-sm small mb-0" id="myResultTable">
+                    @if($myResults->count())
+                    <table class="table table-sm table-bordered table-hover small mb-0" id="myResultTable">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -56,7 +57,7 @@
                             </tr>
                         </thead>
                         <tbody class="small">
-                            @forelse($myResults as $result)
+                            @foreach($myResults as $result)
                             <tr>
                                 <td class="text-muted">{{ $serialNo++ }}</td>
                                 <td>
@@ -104,18 +105,15 @@
                                     </a>
                                 </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="12">
-                                    <div class="alert alert-info d-flex align-items-center gap-2 mb-0">
-                                        <i class="bi bi-info-circle-fill"></i>
-                                        <span>No results yet. Complete an exam to see your results here.</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
+                    @else
+                    <div class="text-center text-muted py-3">
+                        <h1 class="mb-2"><i class="bi bi-trophy"></i></h1>
+                        <h6 class="mb-0">No results found!</h6>
+                    </div>
+                    @endif
 
                 </div>
 

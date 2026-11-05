@@ -1,5 +1,5 @@
 @extends('student.layouts.app')
-@section('title', 'My Courses')
+@section('title', 'Enrolled Courses')
 
 @section('content')
 
@@ -15,7 +15,7 @@
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="card-header-left">
                             <h1>
-                                <i class="bi bi-trophy"></i>
+                                <i class="bi bi-journal-bookmark-fill"></i>
                                 <span class="ms-1">@yield('title')</span>
                             </h1>
                             <nav style="--bs-breadcrumb-divider: '•';">
@@ -37,10 +37,11 @@
     <div class="row">
         <div class="col-lg-12">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
+            <div class="card shadow-sm mb-0">
+                <div class="card-body">
 
-                    <table class="table table-sm small mb-0" id="myCourseTable">
+                    @if($enrolledCourses->count())
+                    <table class="table table-sm table-bordered table-hover small mb-0" id="myCourseTable">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -54,7 +55,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($enrolledCourses as $enrolled)
+                            @foreach($enrolledCourses as $enrolled)
                             <tr>
                                 <td class="text-muted">{{ $serialNo++ }}</td>
                                 <td>
@@ -84,21 +85,17 @@
                                     </span>
                                 </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8">
-                                    <div class="alert alert-info d-flex align-items-center gap-2 mb-0">
-                                        <i class="bi bi-info-circle-fill"></i>
-                                        <span>You have no enrolled courses yet.</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
+                    @else
+                    <div class="text-center text-muted py-3">
+                        <h1 class="mb-2"><i class="bi bi-journal-x"></i></h1>
+                        <h6 class="mb-0">No courses enrolled!</h6>
+                    </div>
+                    @endif
 
                 </div>
-
             </div>
 
         </div>
