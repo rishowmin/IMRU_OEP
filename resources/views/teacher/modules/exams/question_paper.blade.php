@@ -58,8 +58,8 @@
 
                         {{-- Action Buttons --}}
                         <div class="exam-card-right d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addQuestionFromLibraryModal">
-                                <i class="bi bi-journal-plus me-1"></i> From Library
+                            <button type="button" class="btn btn-outline-theme btn-sm" data-bs-toggle="modal" data-bs-target="#addQuestionFromLibraryModal">
+                                <i class="bi bi-journal-plus me-1"></i> From Question Bank
                             </button>
                             <button type="button" class="btn btn-theme btn-sm" data-bs-toggle="modal" data-bs-target="#addCustomQuestionModal">
                                 <i class="bi bi-plus-square me-1"></i> Add Custom Question
@@ -118,9 +118,6 @@
 
                                         {{-- Action Buttons --}}
                                         <div class="d-flex gap-1 mt-2">
-                                            {{-- <a href="{{ route('teacher.questions.edit', $question->id) }}" class="btn btn-outline-warning btn-sm" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a> --}}
                                             <a href="javascript:void(0)" class="btn btn-sm btn-outline-warning editQuestionBtn"
                                             data-id="{{ $question->id }}"
                                             data-exam_id="{{ $exam->id }}"

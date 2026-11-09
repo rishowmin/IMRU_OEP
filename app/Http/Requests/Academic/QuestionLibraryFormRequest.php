@@ -35,6 +35,7 @@ class QuestionLibraryFormRequest extends FormRequest
             'option_d' => 'nullable|string',
             'correct_answer' => 'nullable|string',
             'question_figure' => 'nullable|image|max:2048',
+            'source' => 'string|in:manual,ai',
             'is_active'   => 'nullable|boolean',
         ];
     }

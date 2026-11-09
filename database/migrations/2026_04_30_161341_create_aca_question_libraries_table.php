@@ -27,6 +27,7 @@ return new class extends Migration
             $table->longText('correct_answer')->nullable();
             $table->string('question_figure')->nullable();
 
+            $table->string('source', 20)->default('manual')->comment('manual | ai');
             $table->boolean('is_active')->default(true)->comment('0=Deactive, 1=Active');
 
             $table->string('aca_created_by')->nullable();

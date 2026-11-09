@@ -7,7 +7,7 @@
                 {{-- Header --}}
                 <div class="modal-header bg-theme text-white py-3">
                     <h5 class="modal-title fw-semibold">
-                        <i class="bi bi-journal-bookmark-fill me-2"></i>Add Questions From Library
+                        <i class="bi bi-journal-bookmark-fill me-2"></i>Add From Questions Bank
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>

@@ -1,5 +1,5 @@
 @extends('teacher.layouts.app')
-@section('title', $examSet->title)
+@section('title', 'View AI Exam Set')
 
 
 @section('content')
@@ -18,7 +18,6 @@
                             <h1>
                                 <i class="bi bi-stars"></i>
                                 <span class="ms-1">@yield('title')</span>
-                                <span class="small text-muted">[<strong>Topic:</strong> {{ $examSet->topic }}]</span>
                             </h1>
                             <nav style="--bs-breadcrumb-divider: '•';">
                                 <ol class="breadcrumb mb-0">
@@ -26,8 +25,6 @@
                                     <li class="breadcrumb-item"><a href="{{ route('teacher.aiExamSets.index') }}">Exam Sets by AI</a></li>
                                     <li class="breadcrumb-item active">
                                         @yield('title')
-                                        <span class="qbank-divider">·</span>
-                                        <span class="text-muted">[Created {{ $examSet->created_at->diffForHumans() }}]</span>
                                     </li>
                                 </ol>
                             </nav>
@@ -55,83 +52,119 @@
 
 <section class="section">
 
-    {{-- Stats --}}
-    <div class="row g-2 mb-3 mb-md-0">
-        <div class="col-6 col-md-3 mb-0 mb-md-3">
-            <div class="card text-center mb-0 h-100">
+    <div class="row g-2 mb-3">
+        {{-- Exam Title & Details --}}
+        <div class="col-md-4">
+            <div class="card mb-0 h-100">
                 <div class="card-body">
-                    <div class="fs-2 fw-bold text-theme">{{ $examSet->total_questions }}</div>
-                    <div class="text-muted small fw-semibold">Questions</div>
+                    <h4 class="text-theme fw-bold mb-0">{{ $examSet->topic }}</h4>
+                    <h6 class="text-theme fw-bold mb-0">{{ $examSet->title }}</h6>
+                    <span class="text-muted small"><small>Created {{ $examSet->created_at->diffForHumans() }}</small></span>
+
+                    <ul class="list-unstyled mb-0 small text-muted mt-4">
+                        <li class="my-2 d-flex align-items-center justify-content-between gap-1">
+                            <strong><i class="bi bi-stopwatch me-1"></i>Duration</strong>
+                            <span>{{ $examSet->duration_minutes }} minutes</span>
+                        </li>
+                        <li class="my-2 d-flex align-items-center justify-content-between gap-1">
+                            <strong><i class="bi bi-trophy me-1"></i>Total Marks</strong>
+                            <span>{{ $examSet->total_marks }}</span>
+                        </li>
+                        <li class="my-2 d-flex align-items-center justify-content-between gap-1">
+                            <strong><i class="bi bi-check-circle me-1"></i>Status</strong>
+                            @if ($examSet->status === 'draft')
+                                <span class="badge bg-warning text-dark">Draft</span>
+                            @elseif ($examSet->status === 'active')
+                                <span class="badge bg-success">Active</span>
+                            @elseif ($examSet->status === 'archived')
+                                <span class="badge bg-secondary">Archived</span>
+                            @endif
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <div class="col-6 col-md-3 mb-0 mb-md-3">
-            <div class="card text-center mb-0 h-100">
-                <div class="card-body">
-                    @if ($examSet->question_type === 'objective')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+        {{-- Stats --}}
+        <div class="col-md-8">
+            <div class="row g-2">
+                <div class="col-6 col-md-6">
+                    <div class="card text-center mb-0 h-100">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-theme">{{ $examSet->total_questions }}</div>
+                            <div class="text-muted small fw-semibold">Questions</div>
+                        </div>
                     </div>
-                    <div class="text-muted small fw-semibold">MCQ (4 & 2) Questions</div>
-                    @elseif ($examSet->question_type === 'subjective')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">Short & Long Questions</div>
-                    @elseif ($examSet->question_type === 'mcq_4')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">MCQ (4) Questions</div>
-                    @elseif ($examSet->question_type === 'mcq_2')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">MCQ (2) Questions</div>
-                    @elseif ($examSet->question_type === 'short_question')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">Short Questions</div>
-                    @elseif ($examSet->question_type === 'long_question')
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">Long Questions</div>
-                    @else
-                    <div class="fs-2 fw-bold text-primary">
-                        {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
-                    </div>
-                    <div class="text-muted small fw-semibold">Obj. & Sub. Questions</div>
-                    @endif
                 </div>
-            </div>
-        </div>
 
-        <div class="col-4 col-md-2 mb-0 mb-md-3">
-            <div class="card text-center mb-0 h-100">
-                <div class="card-body">
-                    <div class="fs-2 fw-bold text-success">{{ $examSet->easy_count }}</div>
-                    <div class="text-muted small fw-semibold">Easy</div>
+                <div class="col-6 col-md-6">
+                    <div class="card text-center mb-0 h-100">
+                        <div class="card-body">
+                            @if ($examSet->question_type === 'objective')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">MCQ (4 & 2) Questions</div>
+                            @elseif ($examSet->question_type === 'subjective')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">Short & Long Questions</div>
+                            @elseif ($examSet->question_type === 'mcq_4')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">MCQ (4) Questions</div>
+                            @elseif ($examSet->question_type === 'mcq_2')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">MCQ (2) Questions</div>
+                            @elseif ($examSet->question_type === 'short_question')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">Short Questions</div>
+                            @elseif ($examSet->question_type === 'long_question')
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">Long Questions</div>
+                            @else
+                            <div class="fs-2 fw-bold text-primary">
+                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
+                            </div>
+                            <div class="text-muted small fw-semibold">Obj. & Sub. Questions</div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-4 col-md-2 mb-0 mb-md-3">
-            <div class="card text-center mb-0 h-100">
-                <div class="card-body">
-                    <div class="fs-2 fw-bold text-warning">{{ $examSet->medium_count }}</div>
-                    <div class="text-muted small fw-semibold">Medium</div>
+                <div class="col-4 col-md-4">
+                    <div class="card text-center py-1 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-success">{{ $examSet->easy_count }}</div>
+                            <div class="text-muted small fw-semibold">Easy</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-4 col-md-2 mb-0 mb-md-3">
-            <div class="card text-center mb-0 h-100">
-                <div class="card-body">
-                    <div class="fs-2 fw-bold text-danger">{{ $examSet->hard_count }}</div>
-                    <div class="text-muted small fw-semibold">Hard</div>
+                <div class="col-4 col-md-4">
+                    <div class="card text-center py-1 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-warning">{{ $examSet->medium_count }}</div>
+                            <div class="text-muted small fw-semibold">Medium</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4 col-md-4">
+                    <div class="card text-center py-1 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="fs-2 fw-bold text-danger">{{ $examSet->hard_count }}</div>
+                            <div class="text-muted small fw-semibold">Hard</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,12 +194,6 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-list-check text-theme fs-5"></i>
                             <h5 class="mb-0 fw-bold text-theme">Selected Questions</h5>
-                            {{-- Total marks live counter --}}
-                            {{-- @if($examSet->status === 'active' && !$examSet->published_exam_id)
-                            <span class="badge bg-primary ms-2">
-                                Total: <span id="liveTotalMarks">{{ $examSet->total_marks }}</span> marks
-                            </span>
-                            @endif --}}
                         </div>
                         <div class="btn-group w-50" role="group">
                             <button class="btn btn-sm btn-outline-secondary w-25 active" onclick="filterDiff('')" id="filter-all">All</button>
@@ -244,6 +271,16 @@
                                     </div>
                                     @endif
                                 </div>
+
+                                {{-- Question footer (correct answer) --}}
+                                @if($question->correct_answer)
+                                <div class="px-3 py-2 bg-light border-top small">
+                                    <p class="mb-0 small text-muted">
+                                        <i class="bi bi-check2-all text-success me-1"></i>
+                                        <strong class="text-success">Correct Answer:</strong> <span>{{ $question->correct_answer }}</span>
+                                    </p>
+                                </div>
+                                @endif
 
                             </div>
                             @empty

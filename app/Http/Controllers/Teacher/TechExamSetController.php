@@ -58,14 +58,7 @@ class TechExamSetController extends Controller
             ->sort()
             ->values();
 
-        // Stats to help the user know what's available
-        $questionStats = AcaQuestionLibrary::active()
-            ->select('topic', 'difficulty_level', DB::raw('count(*) as count'))
-            ->groupBy('topic', 'difficulty_level')
-            ->get()
-            ->groupBy('topic');
-
-        return view('teacher.modules.aiExamSets.form', compact('topics', 'questionStats'));
+        return view('teacher.modules.aiExamSets.form', compact('topics'));
     }
 
     // -------------------------------------------------------------------------
@@ -75,42 +68,39 @@ class TechExamSetController extends Controller
     public function store(Request $request)
     {
         $singleTypes = ['mcq_4', 'mcq_2', 'short_question', 'long_question'];
-        $isSingle    = in_array($request->question_type, $singleTypes);
+        $isSingle    = in_array($request->question_type, $singleTypes, true);
 
         $validated = $request->validate([
-            'title'            => 'required|string|max:200',
-            'topic'            => 'required|string|max:100',
-            'question_type'    => 'required|string|max:100',
-            'total_questions'  => 'required|integer|min:5|max:200',
-            'easy_percent'     => 'required|integer|min:0|max:100',
-            'medium_percent'   => 'required|integer|min:0|max:100',
-            'hard_percent'     => 'required|integer|min:0|max:100',
-            'qtype1_percent'   => 'required|integer|min:0|max:100',
-            'qtype2_percent'   => $isSingle ? 'nullable|integer' : 'required|integer|min:0|max:100',
-            'duration_minutes' => 'required|integer|min:10|max:300',
+            'title'              => 'required|string|max:200',
+            'topic'              => 'required|string|max:100|not_in:All',
+            'extra_instructions' => 'nullable|string|max:1000',
+            'question_type'      => 'required|in:All,objective,subjective,mcq_4,mcq_2,short_question,long_question',
+            'total_questions'    => 'required|integer|min:5|max:50',
+            'easy_percent'       => 'required|integer|min:0|max:100',
+            'medium_percent'     => 'required|integer|min:0|max:100',
+            'hard_percent'       => 'required|integer|min:0|max:100',
+            'qtype1_percent'     => 'required|integer|min:0|max:100',
+            'qtype2_percent'     => $isSingle ? 'nullable|integer' : 'required|integer|min:0|max:100',
+            'duration_minutes'   => 'required|integer|min:10|max:300',
         ]);
 
-        // For single types, force qt values
         if ($isSingle) {
             $validated['qtype1_percent'] = 100;
             $validated['qtype2_percent'] = 0;
         }
 
-        // Validate difficulty percentages
         $pctSum = $validated['easy_percent'] + $validated['medium_percent'] + $validated['hard_percent'];
         if ($pctSum !== 100) {
             return back()->withInput()
                 ->withErrors(['easy_percent' => "Difficulty percentages must add up to 100 (currently {$pctSum})."]);
         }
 
-        // Validate question type percentages — skip for single types
-        if (!$isSingle) {
-            $qtSum = $validated['qtype1_percent'] + $validated['qtype2_percent'];
-            if ($qtSum !== 100) {
-                return back()->withInput()
-                    ->withErrors(['qtype1_percent' => "Question type percentages must add up to 100 (currently {$qtSum})."]);
-            }
+        if (!$isSingle && ($validated['qtype1_percent'] + $validated['qtype2_percent']) !== 100) {
+            return back()->withInput()
+                ->withErrors(['qtype1_percent' => 'Question type percentages must add up to 100.']);
         }
+
+        set_time_limit(300);   // several Groq calls can exceed PHP's default 30s
 
         try {
             $examSet = $this->aiService->generate($validated);
@@ -118,10 +108,8 @@ class TechExamSetController extends Controller
             return redirect()
                 ->route('teacher.aiExamSets.show', $examSet)
                 ->with('success', "Exam set \"{$examSet->title}\" generated successfully using AI!");
-
         } catch (\RuntimeException $e) {
-            return back()->withInput()
-                ->withErrors(['ai' => $e->getMessage()]);
+            return back()->withInput()->withErrors(['ai' => $e->getMessage()]);
         }
     }
 
@@ -280,7 +268,6 @@ class TechExamSetController extends Controller
                     'question_text'    => $lib->question_text,
                     'difficulty_level' => $lib->difficulty_level ?? 'medium',
                     'marks'            => $assignedMark,
-                    // 'evaluation_type'  => $lib->correct_answer ? 'automatic' : 'manual',
                     'evaluation_type' => $this->resolveEvaluationType($lib->question_type, $lib->correct_answer),
                     'option_a'         => $lib->option_a,
                     'option_b'         => $lib->option_b,
@@ -297,8 +284,13 @@ class TechExamSetController extends Controller
             $examSet->update([
                 'published_exam_id' => $exam->id,
                 'status'            => 'archived',
-                'aca_updated_by'        => auth()->id(),
+                'aca_updated_by'    => auth()->id(),
             ]);
+
+            // AI-written questions become active in the library once the exam is published
+            AcaQuestionLibrary::whereIn('id', $examSet->question_ids ?? [])
+                ->where('source', 'ai')
+                ->update(['is_active' => true]);
 
             DB::commit();
 
@@ -334,6 +326,10 @@ class TechExamSetController extends Controller
 
     public function destroy(AcaExamSet $examSet)
     {
+        if (!$examSet->published_exam_id) {
+            AcaQuestionLibrary::whereIn('id', $examSet->question_ids ?? [])
+                ->where('source', 'ai')->where('is_active', false)->delete();
+        }
         $examSet->delete();
         return redirect()
             ->route('teacher.aiExamSets.index')

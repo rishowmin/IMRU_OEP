@@ -27,6 +27,7 @@ class AcaQuestionLibrary extends Model
         'option_d',
         'correct_answer',
         'question_figure',
+        'source',
         'is_active',
         'aca_created_by',
         'aca_updated_by',
