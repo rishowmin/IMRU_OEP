@@ -255,30 +255,6 @@
 
 @section('scripts')
 
-{{-- Active / Inactive toggle --}}
-<script>
-    function updateLabelText(checkbox) {
-        const label = document.getElementById("isActiveLabel");
-        const span = label.querySelector("span");
-        const icon = span.querySelector("i");
-        if (checkbox.checked) {
-            span.classList.replace("bg-danger", "bg-success");
-            icon.classList.replace("bi-x-square", "bi-check-square");
-            span.innerHTML = '<i class="bi bi-check-square me-1"></i> Active';
-        } else {
-            span.classList.replace("bg-success", "bg-danger");
-            icon.classList.replace("bi-check-square", "bi-x-square");
-            span.innerHTML = '<i class="bi bi-x-square me-1"></i> Deactive';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkbox = document.getElementById('is_active');
-        if (checkbox) updateLabelText(checkbox);
-    });
-
-</script>
-
 {{-- Figure image preview --}}
 <script>
     document.getElementById('question_figure')?.addEventListener('change', function () {
@@ -290,106 +266,124 @@
     });
 </script>
 
-{{-- MCQ option visibility based on question type --}}
 <script>
-    const questionType = document.getElementById('question_type');
-
     function handleOptions() {
-        if (!questionType) return;
-        const type = questionType.value;
-        const optionC    = document.getElementById('option_c_wrap');
-        const optionD    = document.getElementById('option_d_wrap');
-        const optionRow  = document.getElementById('option_row');
-        const answerInput    = document.getElementById('correct_answer');
-        const answerTextarea = document.getElementById('correct_answer_textarea');
+        const type = $('#question_type').val();
+        const isMcq = type === 'mcq_2' || type === 'mcq_4';
+        const is4 = type === 'mcq_4';
 
-        if (type === 'mcq_2') {
-            optionC.style.display = 'none';
-            optionD.style.display = 'none';
-            optionC.value = '';
-            optionD.value = '';
-            optionRow.style.display = '';
-        } else if (type === 'mcq_4') {
-            optionC.style.display = '';
-            optionD.style.display = '';
-            optionRow.style.display = '';
-        } else {
-            optionRow.style.display = 'none';
+        $('#option_row').toggle(isMcq);
+        $('#option_col_c, #option_col_d').toggle(is4);
+
+        if (!isMcq) {
+            $('#option_a, #option_b, #option_c, #option_d').val('');
+            $('input[name="correct_option"]').prop('checked', false);
+        } else if (!is4) {
+            $('#option_c, #option_d').val('');
+            $('input[name="correct_option"][value="c"], input[name="correct_option"][value="d"]').prop('checked', false);
         }
 
-        // Toggle correct answer field type
-        const isLong = type === 'short_question' || type === 'long_question';
-        if (isLong) {
-            answerTextarea.value = answerInput.value; // carry over any existing value
-            answerInput.classList.add('d-none');
-            answerInput.removeAttribute('name');
-            answerTextarea.classList.remove('d-none');
-            answerTextarea.setAttribute('name', 'correct_answer');
-        } else {
-            answerInput.value = answerTextarea.value; // carry back
-            answerTextarea.classList.add('d-none');
-            answerTextarea.removeAttribute('name');
-            answerInput.classList.remove('d-none');
-            answerInput.setAttribute('name', 'correct_answer');
-        }
+        $('#correct_answer_wrap').toggle(!isMcq);
+        $('#correct_answer').prop('disabled', isMcq);
+        $('#correct_answer_mcq').prop('disabled', !isMcq);
+
+        highlightCorrectOption();
     }
 
-    if (questionType) {
+    function highlightCorrectOption() {
+        $('#option_row .input-group-div').removeClass('option-correct');
+        $('input[name="correct_option"]:checked').closest('.input-group-div').addClass('option-correct');
+    }
+
+    $(document).ready(function () {
+        const $modal = $('#addCustomQuestionModal');
+
+        $('#question_type').select2({ dropdownParent: $modal, width: '100%' }).on('change', handleOptions);
+        $('#difficulty_level').select2({ dropdownParent: $modal, width: '100%' });
+        $('#evaluation_type').select2({ dropdownParent: $modal, width: '100%' });
+
         handleOptions();
-        questionType.addEventListener('change', handleOptions);
-    }
 
+        $(document).on('change', 'input[name="correct_option"]', highlightCorrectOption);
+
+        // Copy the ticked option's text into correct_answer before submitting
+        $('#customQuestionFormEl').on('submit', function (e) {
+            const type = $('#question_type').val();
+            if (type !== 'mcq_2' && type !== 'mcq_4') return;
+
+            const key = $('input[name="correct_option"]:checked').val();
+            if (!key) {
+                e.preventDefault();
+                alert('Please tick the correct option.');
+                return;
+            }
+
+            const text = $('#option_' + key).val().trim();
+            if (!text) {
+                e.preventDefault();
+                alert('The option you marked as correct is empty.');
+                return;
+            }
+
+            $('#correct_answer_mcq').val(text);
+        });
+    });
 </script>
 
 <script>
     // Reset modal for Add
     document.getElementById('addCustomQuestionModal').addEventListener('hidden.bs.modal', function () {
-        const form    = document.getElementById('customQuestionFormEl');
-        const baseUrl = "{{ route('admin.academic.exams.questionPaper.store', $exam->id) }}";
-
+        const form = document.getElementById('customQuestionFormEl');
         form.reset();
-        form.action = baseUrl;
-        document.getElementById('formMethod').value  = 'POST';
+        $('input[name="correct_option"]').prop('checked', false);
+        form.action = "{{ route('admin.academic.exams.questionPaper.store', $exam->id) }}";
+        document.getElementById('formMethod').value = 'POST';
         document.getElementById('question_id').value = '';
         document.getElementById('modalTitle').innerHTML = '<i class="bi bi-file-earmark-plus me-1"></i>Add Custom Question';
         document.getElementById('modalSubmitBtn').innerHTML = '<i class="bi bi-save me-1"></i>Add Question';
         document.getElementById('figure_preview_img').src = "{{ asset('assets/admin/img/img-prev.png') }}";
+
+        // refresh Select2 UI (this also runs handleOptions via the change listener)
+        $('#question_type, #difficulty_level, #evaluation_type').trigger('change');
     });
 
     // Populate modal for Edit
     document.querySelectorAll('.editQuestionBtn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            const data    = this.dataset;
-            const form    = document.getElementById('customQuestionFormEl');
-            const updateUrl = "{{ route('admin.academic.exams.questionPaper.update', ['exam' => $exam->id, 'question' => ':id']) }}"
-                                .replace(':id', data.id);
+            const data = this.dataset;
+            const form = document.getElementById('customQuestionFormEl');
 
-            form.action = updateUrl;
-            document.getElementById('formMethod').value      = 'PUT';
-            document.getElementById('question_id').value     = data.id;
-            document.getElementById('question_type').value   = data.question_type;
-            document.getElementById('question_text').value   = data.question_text;
-            document.getElementById('difficulty_level').value = data.difficulty_level;
-            document.getElementById('marks').value           = data.marks;
-            document.getElementById('evaluation_type').value = data.evaluation_type;
-            document.getElementById('option_a').value        = data.option_a;
-            document.getElementById('option_b').value        = data.option_b;
-            document.getElementById('option_c').value        = data.option_c;
-            document.getElementById('option_d').value        = data.option_d;
-            document.getElementById('correct_answer').value  = data.correct_answer;
-            document.getElementById('question_order').value  = data.question_order;
+            form.action = "{{ route('admin.academic.exams.questionPaper.update', ['exam' => $exam->id, 'question' => ':id']) }}".replace(':id', data.id);
+            document.getElementById('formMethod').value = 'PUT';
+            document.getElementById('question_id').value = data.id;
+            document.getElementById('question_text').value = data.question_text;
+            document.getElementById('marks').value = data.marks;
+            document.getElementById('option_a').value = data.option_a;
+            document.getElementById('option_b').value = data.option_b;
+            document.getElementById('option_c').value = data.option_c;
+            document.getElementById('option_d').value = data.option_d;
+            document.getElementById('correct_answer').value = data.correct_answer;
+            document.getElementById('question_order').value = data.question_order;
 
-            // Update figure preview
-            if (data.question_figure) {
-                document.getElementById('figure_preview_img').src = data.question_figure;
-            }
+            document.getElementById('figure_preview_img').src =
+                data.question_figure || "{{ asset('assets/admin/img/img-prev.png') }}";
 
-            // Update modal title and button
             document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-square me-1"></i>Edit Question';
             document.getElementById('modalSubmitBtn').innerHTML = '<i class="bi bi-save me-1"></i>Update Question';
 
-            // Trigger options toggle
-            handleOptions();
+            // Selects last (this runs handleOptions)
+            $('#difficulty_level').val(data.difficulty_level).trigger('change');
+            $('#evaluation_type').val(data.evaluation_type).trigger('change');
+            $('#question_type').val(data.question_type).trigger('change');
+
+            // Tick the radio whose text matches the saved answer
+            $('input[name="correct_option"]').prop('checked', false);
+            ['a', 'b', 'c', 'd'].forEach(function (k) {
+                if (data['option_' + k] && data['option_' + k] === data.correct_answer) {
+                    $('input[name="correct_option"][value="' + k + '"]').prop('checked', true);
+                }
+            });
+            highlightCorrectOption();
         });
     });
 </script>

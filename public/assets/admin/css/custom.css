@@ -695,56 +695,56 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 
 
 .stat-card {
-        border-left: 4px solid;
-        border-radius: 8px;
-    }
+    border-left: 4px solid;
+    border-radius: 8px;
+}
 
-    .stat-card.primary {
-        border-color: #0d6efd;
-    }
+.stat-card.primary {
+    border-color: #0d6efd;
+}
 
-    .stat-card.success {
-        border-color: #198754;
-    }
+.stat-card.success {
+    border-color: #198754;
+}
 
-    .stat-card.danger {
-        border-color: #dc3545;
-    }
+.stat-card.danger {
+    border-color: #dc3545;
+}
 
-    .stat-card.warning {
-        border-color: #ffc107;
-    }
+.stat-card.warning {
+    border-color: #ffc107;
+}
 
-    .stat-card.info {
-        border-color: #0dcaf0;
-    }
+.stat-card.info {
+    border-color: #0dcaf0;
+}
 
-    .difficulty-badge.Easy {
-        background: #d1e7dd;
-        color: #0a3622;
-    }
+.difficulty-badge.Easy {
+    background: #d1e7dd;
+    color: #0a3622;
+}
 
-    .difficulty-badge.Medium {
-        background: #fff3cd;
-        color: #664d03;
-    }
+.difficulty-badge.Medium {
+    background: #fff3cd;
+    color: #664d03;
+}
 
-    .difficulty-badge.Hard {
-        background: #ffe0b2;
-        color: #7f3700;
-    }
+.difficulty-badge.Hard {
+    background: #ffe0b2;
+    color: #7f3700;
+}
 
-    .difficulty-badge.Very.Hard {
-        background: #f8d7da;
-        color: #58151c;
-    }
+.difficulty-badge.Very.Hard {
+    background: #f8d7da;
+    color: #58151c;
+}
 
-    .difficulty-badge {
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.78rem;
-        font-weight: 600;
-    }
+.difficulty-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
 
 
 
@@ -901,7 +901,9 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
     height: 1.5rem;
 }
 
-.form-range.qt-range-input { --split: 50%; }
+.form-range.qt-range-input {
+    --split: 50%;
+}
 
 .form-range.qt-range-input::-webkit-slider-runnable-track {
     height: .5rem;
@@ -919,15 +921,18 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 
 
 .diff-range {
-    --a: 50;   /* where Easy ends   (0-100) */
-    --b: 80;   /* where Medium ends (0-100) */
+    --a: 50;
+    /* where Easy ends   (0-100) */
+    --b: 80;
+    /* where Medium ends (0-100) */
     --pa: calc(.5rem + (100% - 1rem) * var(--a) / 100);
     --pb: calc(.5rem + (100% - 1rem) * var(--b) / 100);
     position: relative;
     height: 1.5rem;
 }
 
-.diff-range::before {   /* the green / yellow / red track */
+.diff-range::before {
+    /* the green / yellow / red track */
     content: "";
     position: absolute;
     left: 0;
@@ -936,8 +941,8 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
     height: .5rem;
     border-radius: 1rem;
     background: linear-gradient(to right,
-        #198754 var(--pa), #ffc107 var(--pa),
-        #ffc107 var(--pb), #dc3545 var(--pb));
+            #198754 var(--pa), #ffc107 var(--pa),
+            #ffc107 var(--pb), #dc3545 var(--pb));
 }
 
 .diff-range-input {
@@ -951,15 +956,25 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
     padding: 0;
     background: transparent;
     outline: none;
-    pointer-events: none;   /* only the thumbs react to the mouse */
+    pointer-events: none;
+    /* only the thumbs react to the mouse */
     -webkit-appearance: none;
     appearance: none;
 }
 
-.diff-range-input.is-top { z-index: 2; }
+.diff-range-input.is-top {
+    z-index: 2;
+}
 
-.diff-range-input::-webkit-slider-runnable-track { height: .5rem; background: transparent; }
-.diff-range-input::-moz-range-track              { height: .5rem; background: transparent; }
+.diff-range-input::-webkit-slider-runnable-track {
+    height: .5rem;
+    background: transparent;
+}
+
+.diff-range-input::-moz-range-track {
+    height: .5rem;
+    background: transparent;
+}
 
 .diff-range-input::-webkit-slider-thumb,
 .form-range.qt-range-input::-webkit-slider-thumb {
@@ -991,5 +1006,29 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 .balance-mix-card {
     border: 2px dashed var(--theme-color);
     border-radius: 10px;
-    background: linear-gradient( 0deg, #e2f0fa, #fff );
+    background: linear-gradient(0deg, #e2f0fa, #fff);
+}
+
+
+
+
+
+.form-check-input.option-checkbox:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.form-check-input.option-checkbox:focus {
+    background-color: #198754;
+    border-color: #198754;
+    box-shadow: 0 0 0 .25rem rgba(25, 135, 84, 0.25);
+}
+
+.option-correct .input-group-text {
+    background-color: var(--bs-success-bg-subtle, #d1e7dd);
+    border-color: var(--bs-success, #a3cfbb) !important;
+}
+
+.option-correct .form-control {
+    border-color: var(--bs-success, #a3cfbb) !important;
 }

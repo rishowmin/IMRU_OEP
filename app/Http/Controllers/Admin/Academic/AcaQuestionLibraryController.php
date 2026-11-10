@@ -20,8 +20,8 @@ class AcaQuestionLibraryController extends Controller
 
     public function create()
     {
-        $courseList = AcaCourse::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questionsLibrary.form', compact('courseList'));
+        $topicList = AcaQuestionLibrary::whereNotNull('topic')->distinct()->orderBy('topic')->pluck('topic');
+        return view('admin.academic.questionsLibrary.form', compact('topicList'));
     }
 
     public function store(QuestionLibraryFormRequest $request)
@@ -66,8 +66,8 @@ class AcaQuestionLibraryController extends Controller
 
     public function edit(AcaQuestionLibrary $questionLib)
     {
-        $courseList = AcaCourse::orderBy('id', 'ASC')->where('deleted_at', NULL)->get();
-        return view('admin.academic.questionsLibrary.form', compact('questionLib', 'courseList'));
+        $topicList = AcaQuestionLibrary::whereNotNull('topic')->distinct()->orderBy('topic')->pluck('topic');
+        return view('admin.academic.questionsLibrary.form', compact('questionLib', 'topicList'));
     }
 
     public function update(QuestionLibraryFormRequest $request, AcaQuestionLibrary $questionLib)
