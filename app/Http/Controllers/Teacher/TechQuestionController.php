@@ -21,7 +21,16 @@ class TechQuestionController extends Controller
 
     public function create()
     {
-        $examList = AcaExam::orderBy('id', 'ASC')->where('aca_created_by', auth()->id())->where('deleted_at', NULL)->get();
+        $teacherId = auth()->id();
+        $examList = AcaExam::with('course')
+            ->where(function ($query) use ($teacherId) {
+                $query->where('aca_created_by', $teacherId)
+                    ->orWhereHas('course', function ($courseQuery) use ($teacherId) {
+                        $courseQuery->where('teacher_id', $teacherId);
+                    });
+            })
+            ->orderBy('id', 'ASC')
+            ->get();
         $courseList = AcaCourse::orderBy('id', 'ASC')->where('aca_created_by', auth()->id())->where('deleted_at', NULL)->get();
         return view('teacher.modules.questions.form', compact('examList', 'courseList'));
     }
@@ -70,7 +79,16 @@ class TechQuestionController extends Controller
 
     public function edit(AcaQuestion $question)
     {
-        $examList = AcaExam::orderBy('id', 'ASC')->where('aca_created_by', auth()->id())->where('deleted_at', NULL)->get();
+        $teacherId = auth()->id();
+        $examList = AcaExam::with('course')
+            ->where(function ($query) use ($teacherId) {
+                $query->where('aca_created_by', $teacherId)
+                    ->orWhereHas('course', function ($courseQuery) use ($teacherId) {
+                        $courseQuery->where('teacher_id', $teacherId);
+                    });
+            })
+            ->orderBy('id', 'ASC')
+            ->get();
         $courseList = AcaCourse::orderBy('id', 'ASC')->where('aca_created_by', auth()->id())->where('deleted_at', NULL)->get();
         return view('teacher.modules.questions.form', compact('question', 'examList', 'courseList'));
     }
