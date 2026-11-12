@@ -248,6 +248,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
             Route::get('/', 'index')->name('admin.academic.proctoring.index');
             Route::get('/report/id={attempt}',  'getReport')->name('admin.academic.proctoring.report');
             Route::get('/summary/id={attempt}', 'getSummary')->name('admin.academic.proctoring.summary');
+            Route::get('/video/id={attempt}', 'getWebcamVideo')->name('admin.academic.proctoring.video');
         });
 
     });
@@ -391,6 +392,7 @@ Route::prefix('teacher')->middleware('auth:teacher')->group(function () {
         Route::get('/', 'index')->name('teacher.proctoring.index');
         Route::get('/report/id={attempt}', 'getReport')->name('teacher.proctoring.report');
         Route::get('/summary/id={attempt}', 'getSummary')->name('teacher.proctoring.summary');
+        Route::get('/video/id={attempt}', 'getWebcamVideo')->name('teacher.proctoring.video');
     });
 
     // Teacher Profile
@@ -439,7 +441,8 @@ Route::prefix('student')->middleware('auth:student')->group(function () {
     Route::prefix('proctoring')->controller(StudProctoringController::class)->group(function () {
         Route::post('/tab-switch/id={attempt}',  'logTabSwitch')->name('student.proctoring.tabSwitch');
         Route::post('/clipboard/id={attempt}',   'logClipboard')->name('student.proctoring.clipboard');
-        Route::post('/webcam/id={attempt}',      'logWebcam')->name('student.proctoring.webcam');
+        Route::post('/webcam-video/id={attempt}', 'recordWebcamVideoChunk')->name('student.proctoring.webcamVideo');
+        Route::post('/webcam-video/id={attempt}/finish', 'finishWebcamVideo')->name('student.proctoring.webcamVideo.finish');
         Route::post('/event/id={attempt}',       'logEvent')->name('student.proctoring.event');
     });
 

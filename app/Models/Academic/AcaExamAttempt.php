@@ -6,10 +6,10 @@ use App\Models\Academic\AcaExam;
 use App\Models\Academic\AcaExamClipboardLog;
 use App\Models\Academic\AcaExamProctoringEvent;
 use App\Models\Academic\AcaExamTabSwitchLog;
-use App\Models\Academic\AcaExamWebcamLog;
 use App\Models\Admin;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Support\ExamDeviceName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,6 +25,8 @@ class AcaExamAttempt extends Model
         'exam_id',
         'started_at',
         'submitted_at',
+        'ip_address',
+        'device_name',
         'status',
         'is_active',
         'aca_updated_by',
@@ -42,6 +44,12 @@ class AcaExamAttempt extends Model
         'deleted_at' => 'datetime',
     ];
 
+    public function getDeviceNameAttribute($value): ?string
+    {
+        return ExamDeviceName::isUserAgent($value)
+            ? ExamDeviceName::fromUserAgent($value)
+            : $value;
+    }
 
     public function acaUpdatedBy()
     {
@@ -74,9 +82,9 @@ class AcaExamAttempt extends Model
         return $this->hasMany(AcaExamProctoringEvent::class, 'attempt_id');
     }
 
-    public function webcamLogs()
+    public function webcamVideo()
     {
-        return $this->hasMany(AcaExamWebcamLog::class, 'attempt_id');
+        return $this->hasOne(AcaExamWebcamVideo::class, 'attempt_id');
     }
 
     public function tabSwitchLogs()
@@ -101,10 +109,4 @@ class AcaExamAttempt extends Model
         return $this->clipboardLogs()->count();
     }
 
-    public function getHasSuspiciousWebcamAttribute()
-    {
-        return $this->webcamLogs()
-            ->whereIn('ai_flag', ['no_face', 'multiple_faces', 'suspicious'])
-            ->exists();
-    }
 }

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->foreignId('exam_id')->constrained('aca_exams')->cascadeOnDelete();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('device_name')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->string('status')->default('New')->comment('New, Old');

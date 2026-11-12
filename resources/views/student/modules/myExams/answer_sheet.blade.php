@@ -41,6 +41,14 @@ $canStart = false;
         <input type="hidden" name="stopped" id="stoppedFlag" value="0">
         <input type="hidden" name="stop_reason" id="stopReasonFlag" value="">
 
+        <div class="alert alert-info py-2 mb-3 d-none">
+            <i class="bi bi-info-circle me-1"></i>
+            Your IP address and a concise browser-detected device description are recorded for this exam.
+            @if($mappedRules->contains(fn ($map) => $map->rule?->key === 'webcam_required'))
+            Webcam video is also recorded for the duration of the exam.
+            @endif
+        </div>
+
         <div class="row g-3 justify-content-center">
 
             {{-- RIGHT: Questions --}}
@@ -270,7 +278,7 @@ $canStart = false;
         formSubmitting = true;
         document.getElementById('stoppedFlag').value  = stopped ? '1' : '0';
         document.getElementById('stopReasonFlag').value = reason ?? '';
-        await window.captureFinalWebcamSnapshot?.();
+        await window.stopWebcamRecording?.();
         document.getElementById('examAnswerForm').submit();
     }
 </script>
@@ -287,7 +295,8 @@ $canStart = false;
     const PROCTOR = {
         tabSwitch : '{{ route("student.proctoring.tabSwitch", ":id") }}'.replace(':id', ATTEMPT_ID),
         clipboard : '{{ route("student.proctoring.clipboard", ":id") }}'.replace(':id', ATTEMPT_ID),
-        webcam    : '{{ route("student.proctoring.webcam", ":id") }}'.replace(':id', ATTEMPT_ID),
+        webcamVideo : '{{ route("student.proctoring.webcamVideo", ":id") }}'.replace(':id', ATTEMPT_ID),
+        webcamVideoFinish : '{{ route("student.proctoring.webcamVideo.finish", ":id") }}'.replace(':id', ATTEMPT_ID),
         event     : '{{ route("student.proctoring.event", ":id") }}'.replace(':id', ATTEMPT_ID),
     };
 
@@ -791,8 +800,10 @@ $canStart = false;
         (function () {
             let stream              = null;
             let webcamCheckInterval = null;
-            let snapshotInterval    = null;
-            let snapshotInProgress  = null;
+            let mediaRecorder      = null;
+            let videoUploadQueue   = Promise.resolve();
+            let videoChunkIndex    = 0;
+            let videoUploadFailed = false;
 
             const overlay       = document.createElement('div');
             overlay.id          = 'webcam_overlay';
@@ -887,66 +898,105 @@ $canStart = false;
                 showProctoringWarning('⚠️ Warning: Webcam access is required. Please enable your camera.');
             }
 
-            async function captureSnapshot() {
-                if (!stream || !stream.active) return;
+            function reportVideoFailure(reason) {
+                if (videoUploadFailed) return;
+                videoUploadFailed = true;
+                console.error('[Webcam] Video recording failed:', reason);
+                logProctoring(PROCTOR.event, {
+                    event_type: 'webcam_video_recording_failed',
+                    severity: 'high',
+                    metadata: { reason: reason },
+                });
+                showProctoringWarning('⚠️ Webcam video recording was interrupted. Please notify your instructor.');
+            }
 
-                if (snapshotInProgress) {
-                    await snapshotInProgress;
+            async function uploadVideoChunk(blob, chunkIndex) {
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    const formData = new FormData();
+                    const chunk = blob.type ? blob : new Blob([blob], { type: mediaRecorder.mimeType });
+                    formData.append('video', chunk, 'webcam-chunk');
+                    formData.append('mime_type', mediaRecorder.mimeType.split(';')[0]);
+                    formData.append('chunk_index', String(chunkIndex));
+
+                    try {
+                        const response = await fetch(PROCTOR.webcamVideo, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': CSRF_TOKEN,
+                                'Accept': 'application/json',
+                            },
+                            body: formData,
+                        });
+                        if (response.ok) return;
+                        throw new Error('Video chunk upload returned status ' + response.status);
+                    } catch (error) {
+                        console.error('[Webcam] Video chunk upload failed:', error);
+                        if (attempt < 2) {
+                            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+                        }
+                    }
                 }
 
-                if (!stream || !stream.active) return;
+                reportVideoFailure('video_chunk_upload_failed');
+            }
 
-                snapshotInProgress = (async function () {
-                    try {
-                        const track    = stream.getVideoTracks()[0];
-                        const capture  = new ImageCapture(track);
-                        const blob     = await capture.takePhoto();
-                        const formData = new FormData();
-                        formData.append('image', blob, 'snapshot.jpg');
+            function startVideoRecording() {
+                if (!window.MediaRecorder || typeof MediaRecorder.isTypeSupported !== 'function') {
+                    reportVideoFailure('media_recorder_not_supported');
+                    return;
+                }
 
-                        const res = await fetch(PROCTOR.webcam, {
-                            method  : 'POST',
-                            headers : {
-                                'X-CSRF-TOKEN': CSRF_TOKEN,
-                                'Accept'      : 'application/json',
-                            },
-                            body    : formData,
-                        });
-                        if (!res.ok) {
-                            console.error('[Webcam] Snapshot upload failed. Status:', res.status);
-                            return false;
-                        }
+                const mimeType = [
+                    'video/webm;codecs=vp9',
+                    'video/webm;codecs=vp8',
+                    'video/webm',
+                    'video/mp4',
+                ].find(type => MediaRecorder.isTypeSupported(type));
 
-                        console.log('[Webcam] Snapshot sent. Status:', res.status);
-                        return true;
-                    } catch (err) {
-                        console.error('[Webcam] Snapshot failed:', err);
-                        return false;
-                    } finally {
-                        snapshotInProgress = null;
-                    }
-                })();
+                if (!mimeType) {
+                    reportVideoFailure('video_format_not_supported');
+                    return;
+                }
 
-                return snapshotInProgress;
+                try {
+                    mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: mimeType,
+                        videoBitsPerSecond: 1000000,
+                    });
+                    mediaRecorder.addEventListener('dataavailable', function (event) {
+                        if (!event.data.size) return;
+                        const chunkIndex = videoChunkIndex++;
+                        videoUploadQueue = videoUploadQueue.then(() => {
+                            if (!videoUploadFailed) return uploadVideoChunk(event.data, chunkIndex);
+                        }).catch(error => reportVideoFailure(error.message));
+                    });
+                    mediaRecorder.addEventListener('error', () => reportVideoFailure('media_recorder_error'));
+                    mediaRecorder.start(5000);
+                } catch (error) {
+                    reportVideoFailure(error.message || 'media_recorder_start_failed');
+                }
             }
 
             function startWebcam() {
                 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                     .then(function (s) {
+                        if (formSubmitting) {
+                            s.getTracks().forEach(track => track.stop());
+                            return;
+                        }
+
                         stream          = s;
                         video.srcObject = s;
-                        badge.innerHTML        = '<i class="bi bi-camera"></i> Live';
+                        badge.innerHTML        = '<i class="bi bi-record-circle"></i> Recording';
                         badge.style.background = '#198754';
                         console.log('[Webcam] Started successfully.');
 
-                        captureSnapshot();
-                        snapshotInterval = setInterval(captureSnapshot, 30000);
+                        startVideoRecording();
 
                         webcamCheckInterval = setInterval(function () {
                             const tracks = stream.getVideoTracks();
                             if (!stream.active || !tracks.length || tracks[0].readyState === 'ended') {
                                 clearInterval(webcamCheckInterval);
-                                clearInterval(snapshotInterval);
                                 onDenied('webcam_disconnected');
                             }
                         }, 3000);
@@ -963,18 +1013,30 @@ $canStart = false;
                 startWebcam();
             }
 
-            window.captureFinalWebcamSnapshot = async function () {
-                try {
-                    const captured = await captureSnapshot();
-                    if (captured === false) {
-                        showProctoringWarning('⚠️ Warning: The final webcam snapshot could not be recorded.');
-                    }
-                } finally {
-                    clearInterval(snapshotInterval);
-                    clearInterval(webcamCheckInterval);
-                    stream?.getTracks().forEach(t => t.stop());
-                    console.log('[Webcam] Stopped on submit.');
+            window.stopWebcamRecording = async function () {
+                clearInterval(webcamCheckInterval);
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    const stopped = new Promise(resolve => mediaRecorder.addEventListener('stop', resolve, { once: true }));
+                    mediaRecorder.stop();
+                    await stopped;
                 }
+                await videoUploadQueue;
+                if (!videoUploadFailed && videoChunkIndex > 0) {
+                    try {
+                        const response = await fetch(PROCTOR.webcamVideoFinish, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': CSRF_TOKEN,
+                                'Accept': 'application/json',
+                            },
+                        });
+                        if (!response.ok) throw new Error('Video finalization returned status ' + response.status);
+                    } catch (error) {
+                        reportVideoFailure(error.message);
+                    }
+                }
+                stream?.getTracks().forEach(t => t.stop());
+                console.log('[Webcam] Stopped on submit.');
             };
 
         })();

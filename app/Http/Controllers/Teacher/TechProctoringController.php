@@ -6,15 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Proctoring\LogClipboardRequest;
 use App\Http\Requests\Proctoring\LogEventRequest;
 use App\Http\Requests\Proctoring\LogTabSwitchRequest;
-use App\Http\Requests\Proctoring\LogWebcamRequest;
 use App\Models\Academic\AcaExamAttempt;
 use App\Models\Academic\AcaExamClipboardLog;
 use App\Models\Academic\AcaExamProctoringEvent;
 use App\Models\Academic\AcaExamTabSwitchLog;
-use App\Models\Academic\AcaExamWebcamLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class TechProctoringController extends Controller
@@ -24,20 +21,26 @@ class TechProctoringController extends Controller
     public function index()
     {
         $serialNo = 1;
+        $teacherId = auth()->id();
         $attempts = AcaExamAttempt::with([
             'student',
             'exam',
             'proctoringEvents',
-            'webcamLogs',
             'tabSwitchLogs',
             'clipboardLogs',
         ])
             ->where(function ($query) {
                 $query->whereHas('proctoringEvents')
-                    ->orWhereHas('webcamLogs');
+                    ->orWhereHas('tabSwitchLogs')
+                    ->orWhereHas('clipboardLogs')
+                    ->orWhereHas('webcamVideo')
+                    ->orWhereNotNull('started_at');
             })
-            ->whereHas('exam', function ($query) {
-                $query->where('aca_created_by', auth()->id());
+            ->whereHas('exam', function ($query) use ($teacherId) {
+                $query->whereHas('course', fn ($course) => $course->where('teacher_id', $teacherId))
+                    ->whereHas('course.enrollments', function ($enrollment) {
+                        $enrollment->whereColumn('aca_enrollments.student_id', 'aca_exam_attempts.student_id');
+                    });
             })
             ->latest()
             ->paginate(20);
@@ -49,11 +52,13 @@ class TechProctoringController extends Controller
 
     public function getReport(AcaExamAttempt $attempt)
     {
+        $this->authorizeTeacherAttempt($attempt);
+
         $attempt->load([
             'student',
             'exam',
             'proctoringEvents',
-            'webcamLogs',
+            'webcamVideo',
             'tabSwitchLogs',
             'clipboardLogs',
         ]);
@@ -61,10 +66,26 @@ class TechProctoringController extends Controller
         return view('teacher.modules.proctoring.report', compact('attempt'));
     }
 
+    public function getWebcamVideo(AcaExamAttempt $attempt)
+    {
+        $this->authorizeTeacherAttempt($attempt);
+
+        $video = $attempt->webcamVideo;
+        abort_unless($video && is_file($video->absolute_path), 404);
+
+        return response()->file($video->absolute_path, [
+            'Content-Type' => $video->mime_type,
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     // Admin: Summary
 
     public function getSummary(AcaExamAttempt $attempt): JsonResponse
     {
+        $this->authorizeTeacherAttempt($attempt);
+
         return response()->json([
             'success' => true,
             'data'    => [
@@ -73,7 +94,6 @@ class TechProctoringController extends Controller
                 'exam'                 => $attempt->exam->title ?? null,
                 'tab_switches'         => $attempt->tabSwitchLogs()->count(),
                 'clipboard_attempts'   => $attempt->clipboardLogs()->count(),
-                'webcam_flags'         => $attempt->webcamLogs()->suspicious()->count(),
                 'high_severity_events' => $attempt->proctoringEvents()->highSeverity()->count(),
                 'risk_level'           => $this->calculateRiskLevel($attempt),
             ],
@@ -87,11 +107,23 @@ class TechProctoringController extends Controller
         $score = 0;
         $score += $attempt->tabSwitchLogs()->count()              * 5;
         $score += $attempt->clipboardLogs()->count()              * 10;
-        $score += $attempt->webcamLogs()->suspicious()->count()   * 20;
         $score += $attempt->proctoringEvents()->highSeverity()->count() * 15;
 
         if ($score >= 60) return 'high';
         if ($score >= 30) return 'medium';
         return 'low';
+    }
+
+    private function authorizeTeacherAttempt(AcaExamAttempt $attempt): void
+    {
+        abort_unless(
+            $attempt->exam()
+                ->whereHas('course', fn ($query) => $query->where('teacher_id', auth()->id()))
+                ->whereHas('course.enrollments', function ($query) use ($attempt) {
+                    $query->where('student_id', $attempt->student_id);
+                })
+                ->exists(),
+            403
+        );
     }
 }

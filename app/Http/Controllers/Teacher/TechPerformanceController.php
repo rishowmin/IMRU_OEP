@@ -25,14 +25,17 @@ class TechPerformanceController extends Controller
     public function index()
     {
         $exams = AcaExam::with('course')
-            ->where('aca_created_by', auth()->id())
+            ->whereHas('course', fn ($query) => $query->where('teacher_id', auth()->id()))
             ->orderBy('exam_date', 'desc')
             ->get()
             ->map(function ($exam) {
+                $enrolledStudentIds = AcaEnrollment::where('course_id', $exam->course_id)
+                    ->select('student_id');
 
                 // ✅ COUNT DISTINCT student_id — counts unique students who submitted,
                 //    not total answer rows (which is one row per question per student).
                 $exam->total_submissions = AcaExamAnswer::where('exam_id', $exam->id)
+                    ->whereIn('student_id', $enrolledStudentIds)
                     ->distinct('student_id')
                     ->count('student_id');
 
@@ -40,7 +43,7 @@ class TechPerformanceController extends Controller
                 $exam->total_enrolled = AcaEnrollment::where('course_id', $exam->course_id)
                     ->count();
 
-                $exam->result_summary = AcaExamResult::where('exam_id', $exam->id)
+                $exam->result_summary = $this->enrolledResults($exam)
                     ->selectRaw("
                         COUNT(*) as total_result_rows,
                         SUM(CASE WHEN grading_status = 'complete' THEN 1 ELSE 0 END) as total_graded,
@@ -51,6 +54,11 @@ class TechPerformanceController extends Controller
                         MIN(percentage) as min_percentage
                     ")
                     ->first();
+
+                $exam->pass_count = $this->enrolledResults($exam)
+                    ->where('grading_status', 'complete')
+                    ->where('is_pass', true)
+                    ->count();
 
                 return $exam;
             });
@@ -64,21 +72,23 @@ class TechPerformanceController extends Controller
 
     public function examAnalytics(AcaExam $exam)
     {
+        $this->authorizeTeacherExam($exam);
+
         // Grade distribution
-        $gradeDistribution = AcaExamResult::where('exam_id', $exam->id)
+        $gradeDistribution = $this->enrolledResults($exam)
             ->selectRaw("grade, COUNT(*) as count")
             ->groupBy('grade')
             ->orderByRaw("FIELD(grade, 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D', 'F')")
             ->pluck('count', 'grade');
 
         // Pass/fail ratio
-        $passFailData = AcaExamResult::where('exam_id', $exam->id)
+        $passFailData = $this->enrolledResults($exam)
             ->selectRaw("is_pass, COUNT(*) as count")
             ->groupBy('is_pass')
             ->pluck('count', 'is_pass');
 
         // Score distribution (buckets: 0-10, 11-20, ... 91-100)
-        $scoreDistribution = AcaExamResult::where('exam_id', $exam->id)
+        $scoreDistribution = $this->enrolledResults($exam)
             ->selectRaw("
                 FLOOR(percentage / 10) * 10 AS score_bucket,
                 COUNT(*) as count
@@ -91,7 +101,7 @@ class TechPerformanceController extends Controller
             );
 
         // Summary statistics
-        $stats = AcaExamResult::where('exam_id', $exam->id)
+        $stats = $this->enrolledResults($exam)
             ->selectRaw("
                 COUNT(*) as total_students,
                 SUM(is_pass) as passed,
@@ -105,7 +115,7 @@ class TechPerformanceController extends Controller
             ->first();
 
         // All student results (table)
-        $results = AcaExamResult::where('exam_id', $exam->id)
+        $results = $this->enrolledResults($exam)
             ->with('student')
             ->orderBy('percentage', 'desc')
             ->get()
@@ -134,7 +144,9 @@ class TechPerformanceController extends Controller
 
     public function studentReport(AcaExam $exam, Student $student)
     {
-        $result = AcaExamResult::where('exam_id', $exam->id)
+        $this->authorizeTeacherExam($exam, $student);
+
+        $result = $this->enrolledResults($exam)
             ->where('student_id', $student->id)
             ->first();
 
@@ -149,11 +161,11 @@ class TechPerformanceController extends Controller
             ->get();
 
         // Rank of this student in this exam
-        $rank = AcaExamResult::where('exam_id', $exam->id)
+        $rank = $this->enrolledResults($exam)
             ->where('percentage', '>', $result->percentage)
             ->count() + 1;
 
-        $totalStudents = AcaExamResult::where('exam_id', $exam->id)->count();
+        $totalStudents = $this->enrolledResults($exam)->count();
 
         return view('teacher.modules.performance.student_report', compact(
             'exam',
@@ -171,7 +183,7 @@ class TechPerformanceController extends Controller
 
     private function getQuestionDifficulty(AcaExam $exam): \Illuminate\Support\Collection
     {
-        $assignedQuestionIds = AcaExamAnswer::where('exam_id', $exam->id)
+        $assignedQuestionIds = $this->enrolledAnswers($exam)
             ->distinct('question_id')
             ->pluck('question_id');
 
@@ -180,7 +192,7 @@ class TechPerformanceController extends Controller
         $questions = AcaQuestion::whereIn('id', $assignedQuestionIds)->get();
 
         return $questions->map(function ($question) use ($exam) {
-            $answers = AcaExamAnswer::where('exam_id', $exam->id)
+            $answers = $this->enrolledAnswers($exam)
                 ->where('question_id', $question->id)
                 ->with('reviewAnswer')
                 ->get();
@@ -214,5 +226,31 @@ class TechPerformanceController extends Controller
                 'difficulty'     => $difficulty,
             ];
         })->sortBy('correct_rate')->values();
+    }
+
+    private function enrolledAnswers(AcaExam $exam)
+    {
+        return AcaExamAnswer::where('exam_id', $exam->id)
+            ->whereIn('student_id', AcaEnrollment::where('course_id', $exam->course_id)->select('student_id'));
+    }
+
+    private function enrolledResults(AcaExam $exam)
+    {
+        return AcaExamResult::where('exam_id', $exam->id)
+            ->whereIn('student_id', AcaEnrollment::where('course_id', $exam->course_id)->select('student_id'));
+    }
+
+    private function authorizeTeacherExam(AcaExam $exam, ?Student $student = null): void
+    {
+        abort_unless($exam->course()->where('teacher_id', auth()->id())->exists(), 403);
+
+        if ($student) {
+            abort_unless(
+                AcaEnrollment::where('course_id', $exam->course_id)
+                    ->where('student_id', $student->id)
+                    ->exists(),
+                403
+            );
+        }
     }
 }

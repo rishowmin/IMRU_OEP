@@ -51,10 +51,10 @@
                                         <th>#</th>
                                         <th>Student</th>
                                         <th>Exam</th>
+                                        <th>IP Address</th>
+                                        <th>Device (browser-detected)</th>
                                         <th>Tab Switches</th>
                                         <th>Clipboard</th>
-                                        <th>Snapshots</th>
-                                        <th>Webcam Flags</th>
                                         <th>High Severity</th>
                                         <th>Risk</th>
                                         <th>Started At</th>
@@ -66,11 +66,9 @@
                                     @php
                                     $tabCount = $attempt->tabSwitchLogs->count();
                                     $clipCount = $attempt->clipboardLogs->count();
-                                    $snapshotCount = $attempt->webcamLogs->count();
-                                    $webcamCount = $attempt->webcamLogs->where('ai_flag', '!=', 'clear')->count();
                                     $highCount = $attempt->proctoringEvents->where('severity', 'high')->count();
 
-                                    $score = ($tabCount * 5) + ($clipCount * 10) + ($webcamCount * 20) + ($highCount * 15);
+                                    $score = ($tabCount * 5) + ($clipCount * 10) + ($highCount * 15);
                                     $risk = $score >= 60 ? 'high' : ($score >= 30 ? 'medium' : 'low');
 
                                     $riskBadge = match($risk) {
@@ -94,6 +92,12 @@
                                             <div class="fw-semibold">{{ $attempt->exam->exam_title ?? 'N/A' }}</div>
                                             <small class="text-muted">{{ $attempt->exam->exam_code ?? '' }}</small>
                                         </td>
+                                        <td>{{ $attempt->ip_address ?? '—' }}</td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 260px;" title="{{ $attempt->device_name ?? '' }}">
+                                                {{ $attempt->device_name ?? '—' }}
+                                            </span>
+                                        </td>
                                         <td>
                                             <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2">
                                                 <i class="bi bi-arrow-left-right me-1"></i>{{ $tabCount }}
@@ -102,16 +106,6 @@
                                         <td>
                                             <span class="badge bg-info bg-opacity-10 text-info border border-info px-2">
                                                 <i class="bi bi-clipboard-x me-1"></i>{{ $clipCount }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2">
-                                                <i class="bi bi-camera me-1"></i>{{ $snapshotCount }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-purple bg-opacity-10 text-secondary border border-secondary px-2">
-                                                <i class="bi bi-camera-video-off me-1"></i>{{ $webcamCount }}
                                             </span>
                                         </td>
                                         <td>

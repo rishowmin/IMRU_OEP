@@ -146,7 +146,7 @@
                                                 <label for="topic" class="form-label fw-bold mb-1"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
                                                 <div class="input-group">
                                                     <select name="topic" class="form-select @error('topic') is-invalid @enderror" id="topic-select">
-                                                        <option value="All">All Topics</option>
+                                                        <option selected disabled>Select Topic</option>
                                                         @foreach($topics as $topic)
                                                         <option value="{{ $topic }}" {{ old('topic') === $topic ? 'selected' : '' }}>{{ $topic }}</option>
                                                         @endforeach

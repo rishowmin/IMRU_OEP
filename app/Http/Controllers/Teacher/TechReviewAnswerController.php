@@ -25,11 +25,16 @@ class TechReviewAnswerController extends Controller
         $exams = AcaExam::whereHas('questions', function ($q) {
             $q->whereIn('question_type', ['short_question', 'long_question']);
         })
-        ->where('aca_created_by', auth()->id()) // Only exams created by this teacher
-        ->whereHas('examAnswers')
+        ->whereHas('course', fn ($query) => $query->where('teacher_id', auth()->id()))
+        ->whereHas('examAnswers', function ($query) {
+            $query->whereIn('student_id', AcaEnrollment::whereColumn('aca_enrollments.course_id', 'aca_exams.course_id')
+                ->select('student_id'));
+        })
         ->with(['course'])
         ->get()
         ->each(function ($exam) {
+            $enrolledStudentIds = AcaEnrollment::where('course_id', $exam->course_id)
+                ->select('student_id');
 
             // ── 1. Enrolled students for this course ──────────────────────
             $exam->total_enrolled = AcaEnrollment::where('course_id', $exam->course_id)
@@ -37,6 +42,7 @@ class TechReviewAnswerController extends Controller
 
             // ── 2. Distinct students who submitted ────────────────────────
             $studentIds = AcaExamAnswer::where('exam_id', $exam->id)
+                ->whereIn('student_id', $enrolledStudentIds)
                 ->distinct('student_id')
                 ->pluck('student_id');
 
@@ -50,6 +56,7 @@ class TechReviewAnswerController extends Controller
             foreach ($studentIds as $studentId) {
                 $subjectiveAnswers = AcaExamAnswer::where('exam_id', $exam->id)
                     ->where('student_id', $studentId)
+                    ->whereIn('student_id', $enrolledStudentIds)
                     ->whereHas('question', fn($q) =>
                         $q->whereIn('question_type', ['short_question', 'long_question'])
                     )
@@ -83,10 +90,15 @@ class TechReviewAnswerController extends Controller
 
     public function show(AcaExam $exam)
     {
+        $this->authorizeTeacherExam($exam);
+        $enrolledStudentIds = AcaEnrollment::where('course_id', $exam->course_id)
+            ->select('student_id');
+
         // ✅ FIX: Get distinct student IDs first, then load ALL their answers
         //    properly — not from a distinct('student_id') query which only
         //    returns one row per student and makes $totalSubjective always 0.
         $studentIds = AcaExamAnswer::where('exam_id', $exam->id)
+            ->whereIn('student_id', $enrolledStudentIds)
             ->distinct()
             ->pluck('student_id');
 
@@ -131,6 +143,8 @@ class TechReviewAnswerController extends Controller
 
     public function studentAnswers(AcaExam $exam, Student $student)
     {
+        $this->authorizeTeacherExam($exam, $student);
+
         $answers = AcaExamAnswer::where('exam_id', $exam->id)
             ->where('student_id', $student->id)
             ->with(['question', 'reviewAnswer'])
@@ -145,12 +159,25 @@ class TechReviewAnswerController extends Controller
 
     public function storeReview(Request $request, AcaExam $exam, Student $student)
     {
+        $this->authorizeTeacherExam($exam, $student);
+
         $request->validate([
             'reviews'                   => ['required', 'array'],
             'reviews.*.exam_answer_id'  => ['required', 'exists:aca_exam_answers,id'],
             'reviews.*.review'          => ['required', 'in:0,1'],
             'reviews.*.marks_awarded'   => ['required', 'numeric', 'min:0'],
         ]);
+
+        $answerIds = collect($request->input('reviews'))
+            ->pluck('exam_answer_id')
+            ->unique();
+        abort_unless(
+            AcaExamAnswer::whereIn('id', $answerIds)
+                ->where('exam_id', $exam->id)
+                ->where('student_id', $student->id)
+                ->count() === $answerIds->count(),
+            403
+        );
 
         // ── Save each subjective review ───────────────────────────────────
         foreach ($request->reviews as $item) {
@@ -193,5 +220,19 @@ class TechReviewAnswerController extends Controller
         return redirect()
             ->route('teacher.reviewAnswer.show', $exam->id)
             ->with('success', $message);
+    }
+
+    private function authorizeTeacherExam(AcaExam $exam, ?Student $student = null): void
+    {
+        abort_unless($exam->course()->where('teacher_id', auth()->id())->exists(), 403);
+
+        if ($student) {
+            abort_unless(
+                AcaEnrollment::where('course_id', $exam->course_id)
+                    ->where('student_id', $student->id)
+                    ->exists(),
+                403
+            );
+        }
     }
 }

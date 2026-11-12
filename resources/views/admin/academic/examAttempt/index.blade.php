@@ -59,6 +59,8 @@
                                         <th>#</th>
                                         <th>Student</th>
                                         <th>Exam</th>
+                                        <th>IP Address</th>
+                                        <th>Device (browser-detected)</th>
                                         <th>Started At</th>
                                         <th>Submitted At</th>
                                         <th>Status</th>
@@ -93,6 +95,9 @@
                                             </div>
                                             <small class="text-muted">{{ $attempt->exam->exam_code ?? '—' }}</small>
                                         </td>
+
+                                        <td>{{ $attempt->ip_address ?? '—' }}</td>
+                                        <td>{{ $attempt->device_name ?? '—' }}</td>
 
                                         <td>
                                             @if($attempt->started_at)

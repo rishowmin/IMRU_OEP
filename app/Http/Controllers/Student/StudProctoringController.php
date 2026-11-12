@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Proctoring\LogClipboardRequest;
 use App\Http\Requests\Proctoring\LogEventRequest;
 use App\Http\Requests\Proctoring\LogTabSwitchRequest;
-use App\Http\Requests\Proctoring\LogWebcamRequest;
+use App\Http\Requests\Proctoring\RecordWebcamVideoChunkRequest;
 use App\Models\Academic\AcaExamAttempt;
 use App\Models\Academic\AcaExamClipboardLog;
 use App\Models\Academic\AcaExamProctoringEvent;
 use App\Models\Academic\AcaExamTabSwitchLog;
-use App\Models\Academic\AcaExamWebcamLog;
+use App\Models\Academic\AcaExamWebcamVideo;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class StudProctoringController extends Controller
 {
@@ -76,42 +77,111 @@ class StudProctoringController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // ── Student: Log Webcam ────────────────────────────────────────
-
-    public function logWebcam(LogWebcamRequest $request, AcaExamAttempt $attempt): JsonResponse
+    public function recordWebcamVideoChunk(RecordWebcamVideoChunkRequest $request, AcaExamAttempt $attempt): JsonResponse
     {
-        $file      = $request->file('image');
-        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $mimeType = $request->input('mime_type');
+        $extension = [
+            'video/webm' => 'webm',
+            'video/mp4' => 'mp4',
+            'video/ogg' => 'ogv',
+        ][$mimeType] ?? null;
 
-        // ✅ Unique filename: attemptId_timestamp.jpg
-        $fileName   = $attempt->id . '_' . time() . '.' . $extension;
-        $uploadPath = public_path('assets/storage/proctoring/webcam/');
-
-        // ✅ Create directory if it doesn't exist
-        if (!file_exists($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
+        if ($extension === null) {
+            abort(422, 'Unsupported webcam video format.');
         }
 
-        $file->move($uploadPath, $fileName);
+        $file = $request->file('video');
+        $chunk = file_get_contents($file->getRealPath());
+        if ($chunk === false || $chunk === '') {
+            abort(422, 'Webcam video chunk is empty or unreadable.');
+        }
 
-        // TODO: Plug in AI service here (AWS Rekognition / Azure)
-        $aiFlag     = 'clear';
-        $confidence = 100.00;
+        DB::transaction(function () use ($attempt, $request, $chunk, $mimeType, $extension) {
+            $video = AcaExamWebcamVideo::where('attempt_id', $attempt->id)
+                ->lockForUpdate()
+                ->first();
 
-        AcaExamWebcamLog::create([
-            'attempt_id'  => $attempt->id,
-            'image_url'   => $fileName,
-            'ai_flag'     => $aiFlag,
-            'confidence'  => $confidence,
-            'captured_at' => now(),
-            // 'updated_by'  => auth('student')->id(),
-            'updated_by' => auth()->id(),
-        ]);
+            if (!$video && (int) $request->input('chunk_index') !== 0) {
+                abort(409, 'The first webcam video chunk is missing.');
+            }
 
-        return response()->json([
-            'success' => true,
-            'ai_flag' => $aiFlag,
-        ]);
+            if ($video && (int) $request->input('chunk_index') < $video->chunk_count) {
+                return;
+            }
+
+            if ($video && (int) $request->input('chunk_index') !== $video->chunk_count) {
+                abort(409, 'Webcam video chunks arrived out of order.');
+            }
+
+            if ($video && $video->ended_at) {
+                abort(409, 'The webcam video has already been finalized.');
+            }
+
+            $fileName = $attempt->id . '.' . $extension;
+            if (!$video) {
+                $video = AcaExamWebcamVideo::create([
+                    'attempt_id' => $attempt->id,
+                    'file_path' => $fileName,
+                    'mime_type' => $mimeType,
+                    'started_at' => now(),
+                ]);
+            } elseif ($video->mime_type !== $mimeType) {
+                abort(422, 'Webcam video format changed during recording.');
+            }
+
+            $directory = public_path(AcaExamWebcamVideo::STORAGE_DIRECTORY);
+            if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+                throw new RuntimeException('Unable to create webcam video directory.');
+            }
+
+            $handle = fopen($video->absolute_path, 'ab');
+            if ($handle === false) {
+                throw new RuntimeException('Unable to open webcam video for writing.');
+            }
+
+            try {
+                if (!flock($handle, LOCK_EX)) {
+                    throw new RuntimeException('Unable to lock webcam video for writing.');
+                }
+
+                $offset = 0;
+                $length = strlen($chunk);
+                while ($offset < $length) {
+                    $written = fwrite($handle, substr($chunk, $offset, 1048576));
+                    if ($written === false || $written === 0) {
+                        throw new RuntimeException('Unable to write webcam video chunk.');
+                    }
+                    $offset += $written;
+                }
+
+                if (!fflush($handle)) {
+                    throw new RuntimeException('Unable to flush webcam video chunk.');
+                }
+            } finally {
+                flock($handle, LOCK_UN);
+                fclose($handle);
+            }
+
+            $video->increment('chunk_count');
+            $video->increment('size_bytes', strlen($chunk));
+        });
+
+        return response()->json(['success' => true]);
+    }
+
+    public function finishWebcamVideo(AcaExamAttempt $attempt): JsonResponse
+    {
+        abort_unless((int) $attempt->student_id === (int) auth()->id(), 403);
+        abort_if($attempt->submitted_at !== null, 409, 'The exam attempt has already been submitted.');
+
+        $video = $attempt->webcamVideo;
+        if (!$video) {
+            abort(422, 'No webcam video was recorded.');
+        }
+
+        $video->update(['ended_at' => now()]);
+
+        return response()->json(['success' => true]);
     }
 
     // ── Student: Log General Event ─────────────────────────────────

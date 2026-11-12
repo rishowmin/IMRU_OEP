@@ -11,6 +11,7 @@ use App\Models\Academic\AcaExamResult;
 use App\Models\Academic\AcaExamRuleMap;
 use App\Models\Academic\AcaQuestion;
 use App\Services\ExamGradingService;
+use App\Support\ExamDeviceName;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -96,7 +97,7 @@ class StudMyExamController extends Controller
         return view('student.modules.myExams.show', compact('exam', 'isSubmitted'));
     }
 
-    public function startExam(AcaExam $exam)
+    public function startExam(Request $request, AcaExam $exam)
     {
         $student = auth()->id();
 
@@ -147,10 +148,27 @@ class StudMyExamController extends Controller
             ]
         );
 
-        if (!$attempt->exists || !$attempt->started_at) {
+        $startingAttempt = !$attempt->exists || !$attempt->started_at;
+        $attemptNeedsSave = $startingAttempt;
+        if ($startingAttempt) {
             $attempt->started_at = $now;
             $attempt->status = 'New';
             $attempt->is_active = true;
+        }
+
+        if ($startingAttempt || $attempt->ip_address === null) {
+            $attempt->ip_address = $request->ip();
+            $attemptNeedsSave = true;
+        }
+
+        $storedDeviceName = $attempt->getRawOriginal('device_name');
+        $deviceName = ExamDeviceName::fromUserAgent($request->userAgent());
+        if ($deviceName && ($startingAttempt || $storedDeviceName === null || ExamDeviceName::isUserAgent($storedDeviceName))) {
+            $attempt->device_name = $deviceName;
+            $attemptNeedsSave = true;
+        }
+
+        if ($attemptNeedsSave) {
             $attempt->save();
         }
 

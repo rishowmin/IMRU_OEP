@@ -27,8 +27,9 @@
                             </nav>
                         </div>
                         <div class="card-header-right">
-                            <a href="{{ route('admin.academic.proctoring.index') }}" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i>Back
+                            <a href="{{ route('admin.academic.proctoring.index') }}" class="btn btn-sm btn-outline-theme">
+                                <i class="bi bi-arrow-left-square"></i>
+                                <span class="ms-1">Back to List</span>
                             </a>
                         </div>
                     </div>
@@ -42,10 +43,9 @@
     @php
     $tabCount = $attempt->tabSwitchLogs->count();
     $clipCount = $attempt->clipboardLogs->count();
-    $webcamCount = $attempt->webcamLogs->where('ai_flag', '!=', 'clear')->count();
     $highCount = $attempt->proctoringEvents->where('severity', 'high')->count();
 
-    $score = ($tabCount * 5) + ($clipCount * 10) + ($webcamCount * 20) + ($highCount * 15);
+    $score = ($tabCount * 5) + ($clipCount * 10) + ($highCount * 15);
     $risk = $score >= 60 ? 'high' : ($score >= 30 ? 'medium' : 'low');
 
     $riskColor = match($risk) {
@@ -55,23 +55,14 @@
     };
     @endphp
 
-    {{-- Student & Risk Summary --}}
     <div class="row g-3 mb-3">
 
         {{-- Student Info --}}
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body px-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
+                <div class="card-body d-flex align-items-center gap-3 px-4 py-1">
 
-
-
-
-                        {{-- <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
-                            <i class="bi bi-person fs-4 text-primary"></i>
-                        </div> --}}
-
-                        <div class="avatar_sec d-flex align-items-center gap-3">
+                        <div class="avatar_sec d-flex gap-3">
 
                             @php
                             $student = $attempt->student;
@@ -95,26 +86,42 @@
                                 @endif
                             </div>
 
-                        </div>
-
-                        <div>
-                            <h5 class="fw-bold mb-0">{{ $attempt->student->first_name.' '.$attempt->student->last_name ?? 'N/A' }}</h5>
-                            <small class="text-muted">{{ $attempt->student->email ?? '' }}</small> <br>
-                            <small class="text-muted">ID # {{ $attempt->student->info->student_id_no ?? '' }}</small>
-                        </div>
-                        <div class="ms-auto text-end">
-                            <div class="fw-semibold text-dark">{{ $attempt->exam->exam_title ?? 'N/A' }}</div>
-                            <small class="text-muted">{{ $attempt->exam->exam_code ?? '' }}</small>
-                            <div class="mt-1">
-                                <small class="text-muted">
-                                    <i class="bi bi-clock me-1"></i>
-                                    {{ $attempt->started_at?->format('d M Y, h:i A') ?? 'N/A' }}
-                                    –
-                                    {{ $attempt->submitted_at?->format('h:i A') ?? 'Ongoing' }}
-                                </small>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ $attempt->student->first_name.' '.$attempt->student->last_name ?? 'N/A' }}</h5>
+                                {{-- <small class="text-muted">{{ $attempt->student->email ?? '' }}</small> <br>
+                                <small class="text-muted">ID # {{ $attempt->student->info->student_id_no ?? '' }}</small> --}}
+                                <ul class="small text-muted list-unstyled mb-0">
+                                    <li>{{ $attempt->student->email ?? '' }}</li>
+                                    <li class="mb-2">ID # {{ $attempt->student->info->student_id_no ?? '' }}</li>
+                                    <li>
+                                        <span class="me-1"><i class="bi bi-laptop"></i></span>
+                                        {{ $attempt->device_name ?? 'Not recorded' }}
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="ms-auto text-end">
+                            <div class="fw-semibold text-dark">
+                                <span>{{ $attempt->exam->exam_title ?? 'N/A' }}</span>
+                                [<span class="text-muted small">{{ $attempt->exam->exam_code ?? '' }}</span>]
+                            </div>
+
+                            <ul class="small text-muted list-unstyled mb-0">
+                                <li>
+                                    <span class="me-1"><i class="bi bi-calendar3"></i></span>
+                                    {{ $attempt->started_at?->format('d M Y') ?? 'N/A' }}
+                                </li>
+                                <li class="mb-2">
+                                    <span class="me-1"><i class="bi bi-clock"></i></span>
+                                    {{ $attempt->submitted_at?->format('h:i A') ?? 'Ongoing' }}
+                                </li>
+                                <li>
+                                    <span class="me-1"><i class="bi bi-globe"></i></span>
+                                    {{ $attempt->ip_address ?? 'Not recorded' }}
+                                </li>
+                            </ul>
+                        </div>
                 </div>
             </div>
         </div>
@@ -122,44 +129,38 @@
         {{-- Risk Score --}}
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100 border-{{ $riskColor }} border-start border-4">
-                <div class="card-body px-4 py-3 d-flex align-items-center gap-3">
+                <div class="card-body px-4 py-1 d-flex align-items-center justify-content-between gap-2">
                     <div>
-                        <small class="text-muted d-block mb-1">Overall Risk Level</small>
-                        <span class="badge bg-{{ $riskColor }} fs-6 px-4 py-2 rounded-pill">
-                            <i class="bi bi-shield-{{ $risk === 'low' ? 'check' : 'exclamation' }} me-1"></i>
+                        <small class="text-muted fw-bold d-block mb-2">Overall Risk Level</small>
+                        <span class="badge bg-{{ $riskColor }} px-3 py-2 rounded-pill">
                             {{ ucfirst($risk) }} Risk
                         </span>
-                        <div class="mt-2">
+                        <div>
                             <small class="text-muted">Score: <strong>{{ $score }}</strong> / 100+</small>
                         </div>
+                    </div>
+                    <div>
+                        <h1 class="display-3 mb-0"><i class="bi bi-shield-{{ $risk === 'low' ? 'check' : 'exclamation' }} text-{{ $riskColor }}"></i></h1>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Stats Cards --}}
-    <div class="row g-3 mb-3">
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center py-3">
+        {{-- Stats Cards --}}
+        <div class="col-4 col-lg-4">
+            <div class="card border-0 shadow-sm text-center py-3 mb-0">
                 <div class="fs-2 fw-bold text-warning">{{ $tabCount }}</div>
                 <small class="text-muted"><i class="bi bi-arrow-left-right me-1"></i>Tab Switches</small>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center py-3">
+        <div class="col-4 col-lg-4">
+            <div class="card border-0 shadow-sm text-center py-3 mb-0">
                 <div class="fs-2 fw-bold text-info">{{ $clipCount }}</div>
                 <small class="text-muted"><i class="bi bi-clipboard-x me-1"></i>Clipboard Attempts</small>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center py-3">
-                <div class="fs-2 fw-bold text-secondary">{{ $webcamCount }}</div>
-                <small class="text-muted"><i class="bi bi-camera-video-off me-1"></i>Webcam Flags</small>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center py-3">
+        <div class="col-4 col-lg-4">
+            <div class="card border-0 shadow-sm text-center py-3 mb-0">
                 <div class="fs-2 fw-bold text-danger">{{ $highCount }}</div>
                 <small class="text-muted"><i class="bi bi-exclamation-triangle me-1"></i>High Severity</small>
             </div>
@@ -263,7 +264,7 @@
             </div>
 
             {{-- Proctoring Events --}}
-            <div class="card border-0 shadow-sm mb-3">
+            <div class="card border-0 shadow-sm mb-0">
                 <div class="card-header bg-white border-bottom py-3 px-4">
                     <h6 class="fw-bold mb-0">
                         <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
@@ -324,47 +325,30 @@
 
         </div>
 
-        {{-- RIGHT: Webcam Snapshots --}}
+        {{-- Webcam Video --}}
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
+            @if($attempt->webcamVideo)
+            <div class="card border-0 shadow-sm mb-3">
                 <div class="card-header bg-white border-bottom py-3 px-4">
-                    <h6 class="fw-bold mb-0">
-                        <i class="bi bi-camera-video me-2 text-secondary"></i>
-                        Webcam Snapshots
-                        <span class="badge bg-secondary ms-2">{{ $attempt->webcamLogs->count() }}</span>
-                    </h6>
+                    <h6 class="fw-bold mb-0"><i class="bi bi-record-circle me-2 text-danger"></i>Webcam Recording</h6>
                 </div>
                 <div class="card-body">
-                    @if($attempt->webcamLogs->count())
-                    <div class="row g-2">
-                        @foreach($attempt->webcamLogs as $snap)
-                        <div class="col-6">
-                            <div class="position-relative">
-                                <img src="{{ asset('assets/storage/proctoring/webcam/' . $snap->image_url) }}" class="img-fluid rounded border w-100" style="height:100px;object-fit:cover;" alt="Snapshot">
-                                <span class="position-absolute top-0 start-0 m-1 badge bg-{{ $snap->ai_flag === 'clear' ? 'success' : 'danger' }} rounded-pill" style="font-size:10px;">
-                                    {{ ucfirst(str_replace('_', ' ', $snap->ai_flag)) }}
-                                </span>
-                                <div class="text-center mt-1">
-                                    <small class="text-muted" style="font-size:10px;">
-                                        {{ $snap->captured_at?->format('h:i:s A') }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    @else
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-camera-video-off fs-1 d-block mb-2 opacity-50"></i>
-                        <p class="mb-0 small">No snapshots recorded.</p>
-                    </div>
-                    @endif
+                    <video class="w-100 rounded" controls preload="metadata" src="{{ route('admin.academic.proctoring.video', $attempt) }}">
+                        Your browser does not support video playback.
+                    </video>
+                    <small class="badge badge-secondary text-muted d-block mt-2">
+                        {{ $attempt->webcamVideo->started_at?->format('d M Y, h:i:s A') }}
+                        · {{ number_format($attempt->webcamVideo->size_bytes / 1048576, 1) }} MB
+                        @if(!$attempt->webcamVideo->ended_at)
+                        · Recording may be incomplete
+                        @endif
+                    </small>
                 </div>
             </div>
+            @endif
         </div>
 
     </div>
 </section>
 
 @endsection
-

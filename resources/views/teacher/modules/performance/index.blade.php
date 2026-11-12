@@ -90,12 +90,7 @@
                                         // ── Avg Score & Pass Rate (complete students only) ─────
                                         $avgPct = (float) ($summary->avg_percentage ?? 0);
 
-                                        $passCount = $totalComplete > 0
-                                            ? \App\Models\Academic\AcaExamResult::where('exam_id', $exam->id)
-                                                ->where('grading_status', 'complete')
-                                                ->where('is_pass', true)
-                                                ->count()
-                                            : 0;
+                                        $passCount = (int) ($exam->pass_count ?? 0);
                                         $passRatePct = $totalComplete > 0
                                             ? round(($passCount / $totalComplete) * 100)
                                             : 0;
