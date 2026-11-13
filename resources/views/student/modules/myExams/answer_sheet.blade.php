@@ -41,6 +41,12 @@ $canStart = false;
         <input type="hidden" name="stopped" id="stoppedFlag" value="0">
         <input type="hidden" name="stop_reason" id="stopReasonFlag" value="">
 
+        @if($questionSelectionWarning)
+        <div class="alert alert-warning py-2 mb-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>{{ $questionSelectionWarning }}
+        </div>
+        @endif
+
         <div class="alert alert-info py-2 mb-3 d-none">
             <i class="bi bi-info-circle me-1"></i>
             Your IP address and a concise browser-detected device description are recorded for this exam.

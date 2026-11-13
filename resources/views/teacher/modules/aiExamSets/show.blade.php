@@ -73,11 +73,11 @@
                         <li class="my-2 d-flex align-items-center justify-content-between gap-1">
                             <strong><i class="bi bi-check-circle me-1"></i>Status</strong>
                             @if ($examSet->status === 'draft')
-                                <span class="badge bg-warning text-dark">Draft</span>
+                            <span class="badge bg-warning text-dark">Draft</span>
                             @elseif ($examSet->status === 'active')
-                                <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">Active</span>
                             @elseif ($examSet->status === 'archived')
-                                <span class="badge bg-secondary">Archived</span>
+                            <span class="badge bg-secondary">Archived</span>
                             @endif
                         </li>
                     </ul>
@@ -101,39 +101,31 @@
                     <div class="card text-center mb-0 h-100">
                         <div class="card-body">
                             @if ($examSet->question_type === 'objective')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }} </span>
+                            <span class="fs-2 fw-bold text-muted">& </span>
+                            <span class="fs-2 fw-bold text-primary">{{ $examSet->qt2_count }}</span>
                             <div class="text-muted small fw-semibold">MCQ (4 & 2) Questions</div>
                             @elseif ($examSet->question_type === 'subjective')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }} </span>
+                            <span class="fs-2 fw-bold text-muted">& </span>
+                            <span class="fs-2 fw-bold text-primary">{{ $examSet->qt2_count }}</span>
                             <div class="text-muted small fw-semibold">Short & Long Questions</div>
                             @elseif ($examSet->question_type === 'mcq_4')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }}</span>
                             <div class="text-muted small fw-semibold">MCQ (4) Questions</div>
                             @elseif ($examSet->question_type === 'mcq_2')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }}</span>
                             <div class="text-muted small fw-semibold">MCQ (2) Questions</div>
                             @elseif ($examSet->question_type === 'short_question')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }}</span>
                             <div class="text-muted small fw-semibold">Short Questions</div>
                             @elseif ($examSet->question_type === 'long_question')
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }}</span>
                             <div class="text-muted small fw-semibold">Long Questions</div>
                             @else
-                            <div class="fs-2 fw-bold text-primary">
-                                {{ $examSet->qt1_count }} & {{ $examSet->qt2_count }}
-                            </div>
+                            <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }} </span>
+                            <span class="fs-2 fw-bold text-muted">& </span>
+                            <span class="fs-2 fw-bold text-primary">{{ $examSet->qt2_count }}</span>
                             <div class="text-muted small fw-semibold">Obj. & Sub. Questions</div>
                             @endif
                         </div>
@@ -187,36 +179,59 @@
     <div class="row g-3">
 
         <div class="col-lg-8">
-            <div class="card">
+            <div class="card mb-0">
 
                 <div class="card-header border-bottom py-3">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-list-check text-theme fs-5"></i>
-                            <h5 class="mb-0 fw-bold text-theme">Selected Questions</h5>
-                        </div>
-                        <div class="btn-group w-50" role="group">
-                            <button class="btn btn-sm btn-outline-secondary w-25 active" onclick="filterDiff('')" id="filter-all">All</button>
-                            <button class="btn btn-sm btn-outline-success w-25" onclick="filterDiff('easy')" id="filter-easy">Easy</button>
-                            <button class="btn btn-sm btn-outline-warning w-25" onclick="filterDiff('medium')" id="filter-medium">Medium</button>
-                            <button class="btn btn-sm btn-outline-danger w-25" onclick="filterDiff('hard')" id="filter-hard">Hard</button>
-                        </div>
+                    <div class="d-flex align-item-center justify-content-between">
+                        <h6 class="card-title p-0 m-0">
+                            <i class="bi bi-list-check text-theme me-1"></i>
+                            Selected Questions
+                        </h6>
                     </div>
                 </div>
 
                 {{-- Marks edit form (only when active + not published) --}}
                 @if($examSet->status === 'active' && !$examSet->published_exam_id)
-                <form id="marksForm"
-                    action="{{ route('teacher.aiExamSets.updateMarks', $examSet) }}"
-                    method="POST">
+                <form id="marksForm" action="{{ route('teacher.aiExamSets.updateMarks', $examSet) }}" method="POST">
                     @csrf
-                @endif
+                    @endif
 
                     <div class="card-body p-3">
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="btn-group w-100 mb-3" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-25 active" data-group="all">All</button>
+
+                                {{-- Question type --}}
+                                @if ($examSet->question_type === 'objective')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="mcq_4">MCQ 4</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary w-25" data-group="type" data-value="mcq_2">MCQ 2</button>
+                                @elseif ($examSet->question_type === 'subjective')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="short_question">Short Q.</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary w-25" data-group="type" data-value="long_question">Long Q.</button>
+                                @elseif ($examSet->question_type === 'mcq_4')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="mcq_4">MCQ 4</button>
+                                @elseif ($examSet->question_type === 'mcq_2')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="mcq_2">MCQ 2</button>
+                                @elseif ($examSet->question_type === 'short_question')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="short_question">Short Q.</button>
+                                @elseif ($examSet->question_type === 'long_question')
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="long_question">Long Q.</button>
+                                @else
+                                <button type="button" class="btn btn-sm btn-outline-info w-25" data-group="type" data-value="objective">Objective</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary w-25" data-group="type" data-value="subjective">Subjective</button>
+                                @endif
+
+                                {{-- Difficulty --}}
+                                <button type="button" class="btn btn-sm btn-outline-success w-25" data-group="difficulty" data-value="easy">Easy</button>
+                                <button type="button" class="btn btn-sm btn-outline-warning w-25" data-group="difficulty" data-value="medium">Medium</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger w-25" data-group="difficulty" data-value="hard">Hard</button>
+                            </div>
+                        </div>
+
                         <div id="question-list" class="d-flex flex-column gap-2">
                             @forelse($questions as $index => $question)
-                            <div class="question-card border mb-2 overflow-hidden {{ $question->difficulty_level }}"
-                                data-difficulty="{{ $question->difficulty_level }}">
+                            <div class="question-card border mb-2 overflow-hidden {{ $question->difficulty_level }}" data-difficulty="{{ $question->difficulty_level }}" data-type="{{ $question->question_type }}">
 
                                 {{-- Question header strip --}}
                                 <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-light">
@@ -241,11 +256,11 @@
                                     {{-- ✅ MARKS: editable if active, readonly if not --}}
                                     <div class="d-flex align-items-center gap-1">
                                         @if($examSet->status === 'active' && !$examSet->published_exam_id)
-                                            {{-- Editable input --}}
-                                            <input type="number" name="marks[{{ $question->id }}]" class="form-control form-control-sm marks-input text-end" style="width: 70px;" value="{{ $question->marks ?? 1 }}" min="0" max="100" step="0.5" data-original="{{ $question->marks ?? 1 }}" oninput="recalcTotal()">
+                                        {{-- Editable input --}}
+                                        <input type="number" name="marks[{{ $question->id }}]" class="form-control form-control-sm marks-input text-end" style="width: 70px;" value="{{ $question->marks ?? 1 }}" min="0" max="100" step="0.5" data-original="{{ $question->marks ?? 1 }}" oninput="recalcTotal()">
                                         @else
-                                            {{-- Read-only display --}}
-                                            <span class="fw-semibold text-muted small">{{ $question->marks ?? 1 }}</span>
+                                        {{-- Read-only display --}}
+                                        <span class="fw-semibold text-muted small">{{ $question->marks ?? 1 }}</span>
                                         @endif
                                         <span class="text-muted small">mark{{ ($question->marks ?? 1) != 1 ? 's' : '' }}</span>
                                     </div>
@@ -305,8 +320,8 @@
                     </div>
                     @endif
 
-                {{-- Close form if active --}}
-                @if($examSet->status === 'active' && !$examSet->published_exam_id)
+                    {{-- Close form if active --}}
+                    @if($examSet->status === 'active' && !$examSet->published_exam_id)
                 </form>
                 @endif
 
@@ -318,13 +333,66 @@
             <div class="card mb-3">
 
                 <div class="card-header">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold text-theme">Difficulty Distribution</h5>
+                    <div class="d-flex align-item-center justify-content-between">
+                        <h6 class="card-title p-0 m-0">
+                            <i class="bi bi-percent text-theme me-1"></i>
+                            Question Distribution
+                        </h6>
                     </div>
                 </div>
 
                 <div class="card-body">
+
+                    {{-- Question type --}}
+                    @php
+                    $typeCounts = $questions->groupBy('question_type')->map->count();
+                    $typeTotal = max($questions->count(), 1);
+
+                    // Each row: label, color, and which real question types it counts
+                    $rowDefs = [
+                    'objective' => ['label' => 'Objective', 'color' => 'info', 'types' => ['mcq_4', 'mcq_2']],
+                    'subjective' => ['label' => 'Subjective', 'color' => 'primary', 'types' => ['short_question', 'long_question']],
+                    'mcq_4' => ['label' => 'MCQ (4 options)', 'color' => 'info', 'types' => ['mcq_4']],
+                    'mcq_2' => ['label' => 'MCQ (2 options)', 'color' => 'primary', 'types' => ['mcq_2']],
+                    'short_question' => ['label' => 'Short Question', 'color' => 'info', 'types' => ['short_question']],
+                    'long_question' => ['label' => 'Long Question', 'color' => 'primary', 'types' => ['long_question']],
+                    ];
+
+                    // Which rows to show for each exam set type
+                    $visibleRows = match ($examSet->question_type) {
+                    'objective' => ['mcq_4', 'mcq_2'],
+                    'subjective' => ['short_question', 'long_question'],
+                    'mcq_4' => ['mcq_4'],
+                    'mcq_2' => ['mcq_2'],
+                    'short_question' => ['short_question'],
+                    'long_question' => ['long_question'],
+                    default => ['objective', 'subjective'], // All
+                    };
+                    @endphp
+
+                    <h6 class="small text-uppercase text-muted fw-bold mb-2">By Question Type</h6>
+                    @foreach($visibleRows as $key)
+                    @php
+                    $row = $rowDefs[$key];
+                    $count = collect($row['types'])->sum(fn ($t) => $typeCounts[$t] ?? 0);
+                    $pct = round(($count / $typeTotal) * 100);
+                    @endphp
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-{{ $row['color'] }} fw-semibold">{{ $row['label'] }}</small>
+                            <small class="text-muted">{{ $count }} ({{ $pct }}%)</small>
+                        </div>
+                        <div class="progress" style="height:6px">
+                            <div class="progress-bar bg-{{ $row['color'] }}" style="width:{{ $pct }}%"></div>
+                        </div>
+                    </div>
+                    @endforeach
+
+                    <hr class="my-3">
+
+                    {{-- Difficulty --}}
                     @php $breakdown = $examSet->difficulty_breakdown; @endphp
+                    <h6 class="small text-uppercase text-muted fw-bold mb-2">By Difficulty</h6>
                     @foreach(['easy'=>'success','medium'=>'warning','hard'=>'danger'] as $diff=>$color)
                     <div class="mb-2">
                         <div class="d-flex justify-content-between mb-1">
@@ -338,30 +406,33 @@
                     @endforeach
                 </div>
 
-                <div class="card-footer py-1">
+                <div class="card-footer py-2">
                     <div class="d-flex justify-content-between">
                         <small class="text-muted">Total Marks</small>
-                        <strong>
+                        <small class="fw-semibold">
                             @if($examSet->status === 'active' && !$examSet->published_exam_id)
                             <span id="liveTotalMarks">{{ $examSet->total_marks }}</span> marks
                             @else
                             {{ $examSet->total_marks }} marks
                             @endif
-                        </strong>
+                        </small>
                     </div>
                     <div class="d-flex justify-content-between">
                         <small class="text-muted">Duration</small>
-                        <strong>{{ $examSet->duration_minutes }} mins</strong>
+                        <small class="fw-semibold">{{ $examSet->duration_minutes }} mins</small>
                     </div>
                 </div>
 
             </div>
 
-            <div class="card mb-3">
+            <div class="card mb-0">
 
                 <div class="card-header">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold text-theme">Exam Status</h5>
+                    <div class="d-flex align-item-center justify-content-between">
+                        <h6 class="card-title p-0 m-0">
+                            <i class="bi bi-check-circle text-theme me-1"></i>
+                            Exam Status
+                        </h6>
                     </div>
                 </div>
 
@@ -387,14 +458,13 @@
 
             {{-- ✅ CASE 1: Active + not published → show Publish form --}}
             @if($examSet->status === 'active' && !$examSet->published_exam_id)
-            <div class="card border-0 shadow-sm mb-3 publish-card">
+            <div class="card border-0 shadow-sm mt-3 mb-0 publish-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#198754" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                        <h6 class="fw-bold mb-0 text-success">Publish as Exam</h6>
+                        <h6 class="fw-bold mb-0 text-success">
+                            <i class="bi bi-check2-circle text-theme"></i>
+                            Publish as Exam
+                        </h6>
                     </div>
                     <p class="text-muted small mb-3">
                         Select a course. The system will automatically create an exam
@@ -440,7 +510,7 @@
 
             {{-- ✅ CASE 2: Already published → show link --}}
             @elseif($examSet->published_exam_id)
-            <div class="card border-0 shadow-sm mb-3 published-card">
+            <div class="card border-0 shadow-sm mt-3 mb-0 published-card">
                 <div class="card-body text-center py-4">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="1.5" class="mb-2">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -458,7 +528,7 @@
 
             {{-- CASE 3: Draft → prompt to activate --}}
             @else
-            <div class="card border-0 shadow-sm bg-light mb-3">
+            <div class="card border-0 shadow-sm bg-light mt-3 mb-0">
                 <div class="card-body text-center py-4">
                     <p class="text-muted small mb-0">
                         Set status to <strong>Active</strong> above to publish this exam to a course.
@@ -482,26 +552,55 @@
 @section('scripts')
 
 <script>
-    function filterDiff(diff) {
-        document.querySelectorAll('#question-list .question-card').forEach(card => {
-            card.style.display = (!diff || card.dataset.difficulty === diff) ? '' : 'none';
-        });
-    }
-</script>
+    (function() {
+        const state = {
+            type: ''
+            , difficulty: ''
+        };
+        const groups = {
+            objective: ['mcq_4', 'mcq_2']
+            , subjective: ['short_question', 'long_question']
+        , };
+        const buttons = document.querySelectorAll('[data-group]');
 
-<script>
-    function filterDiff(diff) {
-        document.querySelectorAll('#question-list .question-card').forEach(card => {
-            card.style.display = (!diff || card.dataset.difficulty === diff) ? '' : 'none';
-        });
-        document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('filter-' + (diff || 'all')).classList.add('active');
-    }
+        function matchesType(cardType) {
+            if (!state.type) return true;
+            return (groups[state.type] || [state.type]).includes(cardType);
+        }
+
+        function applyFilters() {
+            document.querySelectorAll('#question-list .question-card').forEach(card => {
+                const ok = matchesType(card.dataset.type) &&
+                    (!state.difficulty || card.dataset.difficulty === state.difficulty);
+                card.style.display = ok ? '' : 'none';
+            });
+
+            buttons.forEach(btn => {
+                const g = btn.dataset.group;
+                const active = g === 'all' ?
+                    !state.type && !state.difficulty :
+                    state[g] === btn.dataset.value;
+                btn.classList.toggle('active', active);
+            });
+        }
+
+        buttons.forEach(btn => btn.addEventListener('click', () => {
+            const g = btn.dataset.group;
+            if (g === 'all') {
+                state.type = state.difficulty = '';
+            } else {
+                // click again to deselect
+                state[g] = state[g] === btn.dataset.value ? '' : btn.dataset.value;
+            }
+            applyFilters();
+        }));
+    })();
+
 </script>
 
 <script>
     // Open modal only after basic validation passes
-    document.getElementById('openPublishModal').addEventListener('click', function () {
+    document.getElementById('openPublishModal').addEventListener('click', function() {
         const form = document.getElementById('publishExamForm');
 
         // Trigger native HTML5 validation first
@@ -516,13 +615,14 @@
     });
 
     // When user confirms in modal — submit the real form
-    document.getElementById('confirmPublishBtn').addEventListener('click', function () {
+    document.getElementById('confirmPublishBtn').addEventListener('click', function() {
         // Show loading state
         this.disabled = true;
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creating...';
 
         document.getElementById('publishExamForm').submit();
     });
+
 </script>
 
 <script>
@@ -539,13 +639,15 @@
 
     // Highlight changed marks inputs
     document.querySelectorAll('.marks-input').forEach(input => {
-        input.addEventListener('input', function () {
+        input.addEventListener('input', function() {
             const original = parseFloat(this.dataset.original);
-            const current  = parseFloat(this.value);
+            const current = parseFloat(this.value);
             this.classList.toggle('border-warning', current !== original);
-            this.classList.toggle('text-warning',   current !== original);
+            this.classList.toggle('text-warning', current !== original);
         });
     });
+
 </script>
 
 @endsection
+

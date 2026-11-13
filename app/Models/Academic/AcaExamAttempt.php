@@ -71,11 +71,17 @@ class AcaExamAttempt extends Model
         return $this->belongsTo(AcaExam::class, 'exam_id');
     }
 
-
-
-
-
-    
+    public function assignedQuestions()
+    {
+        return $this->belongsToMany(
+            AcaQuestion::class,
+            'aca_exam_attempt_questions',
+            'attempt_id',
+            'question_id'
+        )->withPivot('question_order')
+            ->withTimestamps()
+            ->orderByPivot('question_order');
+    }
 
     public function proctoringEvents()
     {

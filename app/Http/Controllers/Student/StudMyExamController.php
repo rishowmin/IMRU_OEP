@@ -10,20 +10,25 @@ use App\Models\Academic\AcaExamAttempt;
 use App\Models\Academic\AcaExamResult;
 use App\Models\Academic\AcaExamRuleMap;
 use App\Models\Academic\AcaQuestion;
+use App\Services\ExamQuestionSelectionService;
 use App\Services\ExamGradingService;
 use App\Support\ExamDeviceName;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StudMyExamController extends Controller
 {
     protected ExamGradingService $gradingService;
+    protected ExamQuestionSelectionService $questionSelection;
 
-    public function __construct(ExamGradingService $gradingService)
-    {
+    public function __construct(
+        ExamGradingService $gradingService,
+        ExamQuestionSelectionService $questionSelection
+    ) {
         $this->gradingService = $gradingService;
+        $this->questionSelection = $questionSelection;
     }
 
     public function index()
@@ -141,36 +146,77 @@ class StudMyExamController extends Controller
                 ->with('error', 'You have already submitted this exam.');
         }
 
-        $attempt = AcaExamAttempt::firstOrNew(
-            [
-                'student_id' => $student,
-                'exam_id'    => $exam->id,
-            ]
-        );
+        [$attempt, $questions] = DB::transaction(function () use ($exam, $student, $request, $now) {
+            AcaExam::whereKey($exam->id)->lockForUpdate()->firstOrFail();
 
-        $startingAttempt = !$attempt->exists || !$attempt->started_at;
-        $attemptNeedsSave = $startingAttempt;
-        if ($startingAttempt) {
-            $attempt->started_at = $now;
-            $attempt->status = 'New';
-            $attempt->is_active = true;
-        }
+            $attempt = AcaExamAttempt::where('student_id', $student)
+                ->where('exam_id', $exam->id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($startingAttempt || $attempt->ip_address === null) {
-            $attempt->ip_address = $request->ip();
-            $attemptNeedsSave = true;
-        }
+            if (!$attempt) {
+                $attempt = new AcaExamAttempt([
+                    'student_id' => $student,
+                    'exam_id' => $exam->id,
+                ]);
+            }
 
-        $storedDeviceName = $attempt->getRawOriginal('device_name');
-        $deviceName = ExamDeviceName::fromUserAgent($request->userAgent());
-        if ($deviceName && ($startingAttempt || $storedDeviceName === null || ExamDeviceName::isUserAgent($storedDeviceName))) {
-            $attempt->device_name = $deviceName;
-            $attemptNeedsSave = true;
-        }
+            $startingAttempt = !$attempt->exists || !$attempt->started_at;
+            $attemptNeedsSave = $startingAttempt;
+            if ($startingAttempt) {
+                $attempt->started_at = $now;
+                $attempt->status = 'New';
+                $attempt->is_active = true;
+            }
 
-        if ($attemptNeedsSave) {
-            $attempt->save();
-        }
+            if ($startingAttempt || $attempt->ip_address === null) {
+                $attempt->ip_address = $request->ip();
+                $attemptNeedsSave = true;
+            }
+
+            $storedDeviceName = $attempt->getRawOriginal('device_name');
+            $deviceName = ExamDeviceName::fromUserAgent($request->userAgent());
+            if ($deviceName && ($startingAttempt || $storedDeviceName === null || ExamDeviceName::isUserAgent($storedDeviceName))) {
+                $attempt->device_name = $deviceName;
+                $attemptNeedsSave = true;
+            }
+
+            if ($attemptNeedsSave) {
+                $attempt->save();
+            }
+
+            if (!$attempt->assignedQuestions()->exists()) {
+                $distributionPool = AcaQuestion::where('exam_id', $exam->id)
+                    ->get();
+                $pool = $distributionPool->where('is_active', true)->values();
+                $previousQuestionSets = DB::table('aca_exam_attempt_questions')
+                    ->join('aca_exam_attempts', 'aca_exam_attempts.id', '=', 'aca_exam_attempt_questions.attempt_id')
+                    ->where('aca_exam_attempts.exam_id', $exam->id)
+                    ->whereNull('aca_exam_attempts.deleted_at')
+                    ->select('aca_exam_attempt_questions.attempt_id', 'aca_exam_attempt_questions.question_id')
+                    ->get()
+                    ->groupBy('attempt_id')
+                    ->map(fn ($questions) => $questions->pluck('question_id')->map(fn ($id) => (int) $id)->all())
+                    ->values()
+                    ->all();
+                $selectedQuestions = $this->questionSelection->select(
+                    $pool,
+                    (int) $exam->total_questions,
+                    $previousQuestionSets,
+                    $distributionPool
+                );
+
+                $assignments = [];
+                foreach ($selectedQuestions as $index => $question) {
+                    $assignments[$question->id] = ['question_order' => $index + 1];
+                }
+                if ($assignments) {
+                    $attempt->assignedQuestions()->attach($assignments);
+                }
+            }
+
+            return [$attempt, $attempt->assignedQuestions()->get()];
+        });
 
         $elapsedSeconds = $attempt->started_at->diffInSeconds($now);
         $durationSeconds = ($exam->exam_duration_min ?? 0) * 60;
@@ -178,8 +224,13 @@ class StudMyExamController extends Controller
         $secondsUntilEnd = max(0, $now->diffInSeconds($endDT, false));
         $remainingSeconds = min($remainingDuration, $secondsUntilEnd);
 
-        // Ratio-aware question selection
-        $questions = $this->selectProportionalQuestions($exam);
+        $questionSelectionWarning = $questions->count() < (int) $exam->total_questions
+            ? sprintf(
+                'Only %d of %d requested questions are available for this exam.',
+                $questions->count(),
+                $exam->total_questions
+            )
+            : null;
 
         // Load mapped active rules for this exam
         $mappedRules = AcaExamRuleMap::where('exam_id', $exam->id)
@@ -196,7 +247,8 @@ class StudMyExamController extends Controller
             'exam',
             'attempt',
             'remainingSeconds',
-            'mappedRules'
+            'mappedRules',
+            'questionSelectionWarning'
         ));
     }
 
@@ -244,10 +296,16 @@ class StudMyExamController extends Controller
             'stop_reason' => ['nullable', 'string'],
         ]);
 
-        // ── Security: fetch all valid question IDs for this exam ──────────
-        $validQuestionIds = AcaQuestion::where('exam_id', $examId)
-            ->pluck('id')
-            ->map(fn($id) => (int) $id)
+        $attempt = AcaExamAttempt::where('student_id', $student)
+            ->where('exam_id', $examId)
+            ->first();
+        if (!$attempt) {
+            return redirect()->route('student.myExams')
+                ->with('error', 'Please start the exam before submitting answers.');
+        }
+        $assignedQuestionIds = $attempt->assignedQuestions()
+            ->pluck('aca_questions.id')
+            ->map(fn ($id) => (int) $id)
             ->toArray();
 
         // ── The form submits ALL assigned question IDs as keys (via hidden inputs).
@@ -255,12 +313,6 @@ class StudMyExamController extends Controller
         //    unanswered → value = "" (empty string from hidden input)
         //    We store both; empty string is normalised to null.
         $submittedAnswers = $request->input('answers', []);
-
-        // Only keep IDs that truly belong to this exam (security check)
-        $assignedQuestionIds = array_filter(
-            array_map('intval', array_keys($submittedAnswers)),
-            fn($id) => in_array($id, $validQuestionIds)
-        );
 
         $records = [];
         $now     = now();
@@ -284,12 +336,14 @@ class StudMyExamController extends Controller
         }
 
         // Insert all 10 rows (answered + unanswered)
-        AcaExamAnswer::insert($records);
+        if ($records) {
+            AcaExamAnswer::insert($records);
+        }
 
-        AcaExamAttempt::updateOrCreate(
-            ['student_id' => $student, 'exam_id' => $examId],
-            ['submitted_at' => $now, 'status' => 'Old', 'is_active' => true]
-        );
+        $attempt->submitted_at = $now;
+        $attempt->status = 'Old';
+        $attempt->is_active = true;
+        $attempt->save();
 
         // ✅ AUTO-GRADE immediately after submission
         try {
@@ -398,73 +452,4 @@ class StudMyExamController extends Controller
         return view('student.modules.myExams.exam_rules', compact('exam', 'instructions', 'rules'));
     }
 
-    private function selectProportionalQuestions(AcaExam $exam): Collection
-    {
-        $need    = (int) $exam->total_questions;
-        $examSet = \App\Models\Academic\AcaExamSet::where('published_exam_id', $exam->id)->first();
-
-        $pool = AcaQuestion::where('exam_id', $exam->id)
-            ->where('is_active', true)
-            ->get();
-
-        if (!$examSet || $pool->count() <= $need) {
-            return $pool->shuffle()->take($need)->values();
-        }
-
-        $totalInPool = $pool->count();
-
-        $objectiveTypes  = ['mcq_4', 'mcq_2'];
-        $subjectiveTypes = ['short_question', 'long_question'];
-
-        // Scale qt1=12, qt2=8 out of 20  →  obj=6, sub=4 of 10
-        $typeTargets = $this->scaleRatios([
-            'obj' => $examSet->qt1_count,
-            'sub' => $examSet->qt2_count,
-        ], $totalInPool, $need);
-
-        $objTarget = $typeTargets['obj'];
-        $subTarget = $typeTargets['sub'];
-
-        $objPool = $pool->filter(fn($q) => in_array($q->question_type, $objectiveTypes))->shuffle()->values();
-        $subPool = $pool->filter(fn($q) => in_array($q->question_type, $subjectiveTypes))->shuffle()->values();
-
-        $objPicked = $objPool->take($objTarget);
-        $subPicked = $subPool->take($subTarget);
-
-        // If either pool ran short, fill from the other type's surplus
-        $shortfall = $need - $objPicked->count() - $subPicked->count();
-        if ($shortfall > 0) {
-            $usedIds  = $objPicked->pluck('id')->merge($subPicked->pluck('id'))->toArray();
-            $filler   = $pool->whereNotIn('id', $usedIds)->shuffle()->take($shortfall);
-            $selected = $objPicked->merge($subPicked)->merge($filler);
-        } else {
-            $selected = $objPicked->merge($subPicked);
-        }
-
-        return $selected->shuffle()->take($need)->values();
-    }
-
-    private function scaleRatios(array $counts, int $originalTotal, int $newTotal): array
-    {
-        if ($originalTotal === 0) {
-            $each = (int) floor($newTotal / max(count($counts), 1));
-            return array_map(fn() => $each, $counts);
-        }
-
-        $scaled    = [];
-        $allocated = 0;
-
-        foreach ($counts as $key => $count) {
-            $scaled[$key] = (int) floor(($count / $originalTotal) * $newTotal);
-            $allocated   += $scaled[$key];
-        }
-
-        $remainder = $newTotal - $allocated;
-        if ($remainder > 0) {
-            arsort($counts);
-            $scaled[array_key_first($counts)] += $remainder;
-        }
-
-        return $scaled;
-    }
 }
