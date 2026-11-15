@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-auth-transition="dashboard">
 
 <head>
     <meta charset="utf-8">
@@ -36,11 +36,14 @@
     <!-- Main CSS Files -->
     <link href="{{ asset('assets/admin/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/admin/css/custom.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/admin/css/auth-preloader.css') }}" rel="stylesheet">
 
     @yield('styles')
-  </head>
+</head>
 
 <body>
+
+    @include('shared.auth-preloader')
 
     @include('student.layouts.inc.header')
     @include('student.layouts.inc.sidebar')
@@ -66,6 +69,7 @@
     <!-- Main JS File -->
     <script src="{{ asset('assets/admin/js/main.js') }}"></script>
     <script src="{{ asset('assets/admin/js/custom.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/auth-preloader.js') }}"></script>
 
     @yield('scripts')
 </body>
