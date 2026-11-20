@@ -80,6 +80,20 @@
                             <span class="badge bg-secondary">Archived</span>
                             @endif
                         </li>
+                        <li class="my-2 d-flex align-items-center justify-content-between gap-1">
+                            <strong><i class="bi bi-book me-1"></i>Syllabus</strong>
+                            @php
+                            $syllabusFileNames = collect($examSet->syllabus_files ?? [])
+                            ->map(fn ($file) => is_array($file) ? ($file['name'] ?? '') : $file)
+                            ->filter(fn ($fileName) => is_string($fileName) && $fileName !== '')
+                            ->values();
+                            @endphp
+                            @if($syllabusFileNames->isNotEmpty())
+                            <span title="{{ $syllabusFileNames->implode(', ') }}">{{ $syllabusFileNames->count() }} Files</span>
+                            @else
+                            <span>No Files</span>
+                            @endif
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -88,9 +102,10 @@
         {{-- Stats --}}
         <div class="col-md-8">
             <div class="row g-2">
+                {{-- Question Type --}}
                 <div class="col-6 col-md-6">
-                    <div class="card text-center mb-0 h-100">
-                        <div class="card-body">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
                             <div class="fs-2 fw-bold text-theme">{{ $examSet->total_questions }}</div>
                             <div class="text-muted small fw-semibold">Questions</div>
                         </div>
@@ -98,8 +113,8 @@
                 </div>
 
                 <div class="col-6 col-md-6">
-                    <div class="card text-center mb-0 h-100">
-                        <div class="card-body">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
                             @if ($examSet->question_type === 'objective')
                             <span class="fs-2 fw-bold text-info">{{ $examSet->qt1_count }} </span>
                             <span class="fs-2 fw-bold text-muted">& </span>
@@ -132,9 +147,10 @@
                     </div>
                 </div>
 
+                {{-- Difficulty --}}
                 <div class="col-4 col-md-4">
-                    <div class="card text-center py-1 mb-0 h-100">
-                        <div class="card-body">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
                             <div class="fs-2 fw-bold text-success">{{ $examSet->easy_count }}</div>
                             <div class="text-muted small fw-semibold">Easy</div>
                         </div>
@@ -142,8 +158,8 @@
                 </div>
 
                 <div class="col-4 col-md-4">
-                    <div class="card text-center py-1 mb-0 h-100">
-                        <div class="card-body">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
                             <div class="fs-2 fw-bold text-warning">{{ $examSet->medium_count }}</div>
                             <div class="text-muted small fw-semibold">Medium</div>
                         </div>
@@ -151,10 +167,65 @@
                 </div>
 
                 <div class="col-4 col-md-4">
-                    <div class="card text-center py-1 mb-0 h-100">
-                        <div class="card-body">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
                             <div class="fs-2 fw-bold text-danger">{{ $examSet->hard_count }}</div>
                             <div class="text-muted small fw-semibold">Hard</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Bloom's Taxonomy --}}
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-remember">{{ $examSet->remember_count }}</div>
+                            <div class="text-muted small fw-semibold">Remember</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-understand">{{ $examSet->understand_count }}</div>
+                            <div class="text-muted small fw-semibold">Understand</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-apply">{{ $examSet->apply_count }}</div>
+                            <div class="text-muted small fw-semibold">Apply</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-analyze">{{ $examSet->analyze_count }}</div>
+                            <div class="text-muted small fw-semibold">Analyze</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-evaluate">{{ $examSet->evaluate_count }}</div>
+                            <div class="text-muted small fw-semibold">Evaluate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-2 col-md-2">
+                    <div class="card text-center mb-0">
+                        <div class="card-body px-1 py-3">
+                            <div class="fs-2 fw-bold color-create">{{ $examSet->create_count }}</div>
+                            <div class="text-muted small fw-semibold">Create</div>
                         </div>
                     </div>
                 </div>
@@ -238,19 +309,42 @@
 
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-semibold text-dark small">Q{{ $index + 1 }}.</span>
+
+                                        @php
+                                            $filterType = request('question_type', 'all'); // adjust to your filter variable
+                                            $type = $question->question_type;
+
+                                            $badgeClass = match ($filterType) {
+                                                'all' => in_array($type, ['mcq_2', 'mcq_4']) ? 'bg-info' : 'bg-primary',
+                                                'objective' => $type === 'mcq_2' ? 'bg-info' : 'bg-primary',
+                                                'subjective' => $type === 'short_question' ? 'bg-info' : 'bg-primary',
+                                                default => 'bg-info', // mcq_2, mcq_4, short_question, long_question
+                                            };
+
+                                            $badgeLabel = match ($type) {
+                                                'mcq_2' => 'MCQ (2)',
+                                                'mcq_4' => 'MCQ (4)',
+                                                'short_question' => 'Short Q.',
+                                                'long_question' => 'Long Q.',
+                                                default => '',
+                                            };
+                                        @endphp
+                                        <span class="badge rounded-pill {{ $badgeClass }}" title="Question Type">
+                                            {{ $badgeLabel }}
+                                        </span>
+
                                         <span class="badge rounded-pill
                                             @if($question->difficulty_level === 'easy') bg-success
                                             @elseif($question->difficulty_level === 'medium') bg-warning text-dark
-                                            @else bg-danger @endif">
+                                            @else bg-danger @endif" title="Question Type">
                                             {{ ucfirst($question->difficulty_level) }}
                                         </span>
-                                        <span class="badge bg-info text-dark rounded-pill small">
-                                            @if($question->question_type == 'mcq_2') MCQ (2 options)
-                                            @elseif($question->question_type == 'mcq_4') MCQ (4 options)
-                                            @elseif($question->question_type == 'short_question') Short Question
-                                            @elseif($question->question_type == 'long_question') Long Question
-                                            @endif
+
+                                        @if($question->bloom_level)
+                                        <span class="badge rounded-pill bg-{{ $question->bloom_level }}-light color-{{ $question->bloom_level }} border border-{{ $question->bloom_level }}" title="Bloom's Taxonomy Level">
+                                            {{ ucfirst($question->bloom_level) }}
                                         </span>
+                                        @endif
                                     </div>
 
                                     {{-- ✅ MARKS: editable if active, readonly if not --}}
@@ -271,14 +365,17 @@
                                 <div class="px-3 py-3 bg-body">
                                     <p class="mb-0 fw-semibold lh-base">{!! $question->question_text !!}</p>
 
-                                    @if($question->option_a)
+                                    @if($question->option_a !== null && $question->option_a !== '')
                                     <div class="row g-2 mt-2">
                                         @foreach(['a' => $question->option_a, 'b' => $question->option_b, 'c' => $question->option_c, 'd' => $question->option_d] as $key => $opt)
-                                        @if($opt)
+                                        @if($opt !== null && $opt !== '')
+                                        @php
+                                        $isCorrectAnswer = $question->correct_answer === $opt;
+                                        @endphp
                                         <div class="col-md-6">
-                                            <div class="d-flex align-items-start gap-2 bg-body-secondary rounded-2 px-2 py-1 h-100">
-                                                <span class="badge bg-secondary-subtle text-secondary fw-bold">{{ strtoupper($key) }}</span>
-                                                <span class="small text-muted">{{ $opt }}</span>
+                                            <div class="d-flex align-items-start gap-2 {{ $isCorrectAnswer ? 'bg-success-subtle border border-success' : 'bg-body-secondary border border-secondary-subtle' }} rounded-2 px-2 py-1 h-100 small">
+                                                <span class="badge {{ $isCorrectAnswer ? 'bg-success' : 'bg-secondary-subtle text-secondary' }} fw-bold">{{ strtoupper($key) }}</span>
+                                                <span class="small {{ $isCorrectAnswer ? 'text-success fw-semibold' : 'text-muted' }}">{{ $opt }}</span>
                                             </div>
                                         </div>
                                         @endif
@@ -286,16 +383,6 @@
                                     </div>
                                     @endif
                                 </div>
-
-                                {{-- Question footer (correct answer) --}}
-                                @if($question->correct_answer)
-                                <div class="px-3 py-2 bg-light border-top small">
-                                    <p class="mb-0 small text-muted">
-                                        <i class="bi bi-check2-all text-success me-1"></i>
-                                        <strong class="text-success">Correct Answer:</strong> <span>{{ $question->correct_answer }}</span>
-                                    </p>
-                                </div>
-                                @endif
 
                             </div>
                             @empty
@@ -404,6 +491,39 @@
                         </div>
                     </div>
                     @endforeach
+
+                    @php
+                    $bloomLabels = [
+                    'remember' => 'Remember',
+                    'understand' => 'Understand',
+                    'apply' => 'Apply',
+                    'analyze' => 'Analyze',
+                    'evaluate' => 'Evaluate',
+                    'create' => 'Create',
+                    ];
+                    $bloomQuestionCounts = $questions->whereNotNull('bloom_level')->groupBy('bloom_level')->map->count();
+                    $bloomTotal = $bloomQuestionCounts->sum();
+                    @endphp
+                    @if($bloomTotal > 0)
+                    <hr class="my-3">
+                    <h6 class="small text-uppercase text-muted fw-bold mb-2">By Bloom's Taxonomy</h6>
+                    @foreach($bloomLabels as $level => $label)
+                    @php
+                    $count = $bloomQuestionCounts[$level] ?? 0;
+                    $target = $examSet->{$level . '_count'} ?? $count;
+                    $pct = round($count / max($bloomTotal, 1) * 100);
+                    @endphp
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="color-{{ $level }} fw-semibold">{{ $label }}</small>
+                            <small class="text-muted">{{ $count }} / {{ $target }} ({{ $pct }}%)</small>
+                        </div>
+                        <div class="progress" style="height:6px">
+                            <div class="progress-bar bg-{{ $level }}" style="width:{{ $pct }}%"></div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @endif
                 </div>
 
                 <div class="card-footer py-2">
@@ -650,4 +770,3 @@
 </script>
 
 @endsection
-

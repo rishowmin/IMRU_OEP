@@ -119,29 +119,45 @@
                                                 {{-- Meta Badges --}}
                                                 <div class="d-flex flex-wrap gap-1 mb-2">
 
-                                                    <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 11px;">
-                                                        @if($lib->question_type == 'mcq_4') <i class="bi bi-ui-checks me-1"></i>MCQ 4
-                                                        @elseif($lib->question_type == 'mcq_2') <i class="bi bi-ui-checks me-1"></i>MCQ 2
-                                                        @elseif($lib->question_type == 'short_question') <i class="bi bi-chat-left-text me-1"></i>Short Q.
-                                                        @else <i class="bi bi-text-paragraph me-1"></i>Long Q.
-                                                        @endif
-                                                    </span>
+                                                    @if($lib->question_type == 'mcq_2')
+                                                    <span class="badge rounded-pill bg-info-light text-info border border-info" style="font-size: 11px;">MCQ 2</span>
+                                                    @endif
+                                                    @if($lib->question_type == 'mcq_4')
+                                                    <span class="badge rounded-pill bg-primary-light text-primary border border-primary" style="font-size: 11px;">MCQ 4</span>
+                                                    @endif
+                                                    @if($lib->question_type == 'short_question')
+                                                    <span class="badge rounded-pill bg-info-light text-info border border-info" style="font-size: 11px;">Short Q.</span>
+                                                    @endif
+                                                    @if($lib->question_type == 'long_question')
+                                                    <span class="badge rounded-pill bg-primary-light text-primary border border-primary" style="font-size: 11px;">Long Q.</span>
+                                                    @endif
 
                                                     @php
                                                         $difficultyLevel = $lib->difficulty_level ?? 'medium';
                                                         $difficultyClass = match($difficultyLevel) {
-                                                            'easy'   => 'bg-success-subtle text-success border-success-subtle',
-                                                            'hard'   => 'bg-danger-subtle text-danger border-danger-subtle',
-                                                            default  => 'bg-warning-subtle text-warning border-warning-subtle',
-                                                        };
-                                                        $difficultyIcon = match($difficultyLevel) {
-                                                            'easy'  => 'bi-battery-half',
-                                                            'hard'  => 'bi-battery-full',
-                                                            default => 'bi-battery',
+                                                            'easy'   => 'bg-success-light text-success border-success',
+                                                            'hard'   => 'bg-danger-light text-danger border-danger',
+                                                            default  => 'bg-warning-light text-warning border-warning',
                                                         };
                                                     @endphp
                                                     <span class="badge rounded-pill border {{ $difficultyClass }}" style="font-size: 11px;">
-                                                        <i class="bi {{ $difficultyIcon }} me-1"></i>{{ ucfirst($difficultyLevel) }}
+                                                        {{ ucfirst($difficultyLevel) }}
+                                                    </span>
+
+                                                    @php
+                                                        $bloomLevel = $lib->bloom_level ?? 'remember';
+                                                        $bloomClass = match($bloomLevel) {
+                                                            'remember'      => 'bg-remember-light color-remember border-remember',
+                                                            'understand'    => 'bg-understand-light color-understand border-understand',
+                                                            'apply'         => 'bg-apply-light color-apply border-apply',
+                                                            'analyze'       => 'bg-analyze-light color-analyze border-analyze',
+                                                            'evaluate'      => 'bg-evaluate-light color-evaluate border-evaluate',
+                                                            'create'        => 'bg-create-light color-create border-create',
+                                                            // default         => 'bg-warning-light text-warning border-warning',
+                                                        };
+                                                    @endphp
+                                                    <span class="badge rounded-pill border {{ $bloomClass }}" style="font-size: 11px;">
+                                                        {{ ucfirst($bloomLevel) }}
                                                     </span>
 
                                                     @if($lib->question_figure)
@@ -154,7 +170,7 @@
 
                                                 {{-- Correct Answer / Evaluation --}}
                                                 @if($lib->correct_answer)
-                                                <div class="d-flex align-items-center gap-1 text-success" style="font-size: 12px;">
+                                                <div class="d-flex align-items-baseline gap-3 text-success" style="font-size: 12px;">
                                                     <span class="badge rounded-pill border text-bg-success" style="font-size: 11px;">
                                                         <i class="bi bi-check-circle-fill me-1"></i>Correct Answer
                                                     </span>

@@ -23,11 +23,21 @@ class QuestionFormRequest extends FormRequest
      */
     public function rules()
     {
+        $bloomLevelRule = $this->routeIs(
+            'admin.academic.questions.store',
+            'admin.academic.questions.update',
+            'teacher.questions.store',
+            'teacher.questions.update'
+        )
+            ? 'required|in:remember,understand,apply,analyze,evaluate,create'
+            : 'nullable|in:remember,understand,apply,analyze,evaluate,create';
+
         return [
             'exam_id' => 'required|exists:aca_exams,id',
             'question_type' => 'required|string',
             'question_text' => 'required|string',
             'difficulty_level' => 'required|string',
+            'bloom_level' => $bloomLevelRule,
             'marks' => 'required|numeric|min:1|max:100',
             'evaluation_type' => 'required|string',
             'option_a' => 'nullable|string',
@@ -52,6 +62,8 @@ class QuestionFormRequest extends FormRequest
             'question_text.string' => 'The question text must be a string.',
             'difficulty_level.required' => 'The difficulty level is required.',
             'difficulty_level.string' => 'The difficulty level must be a string.',
+            'bloom_level.required' => "Bloom's Taxonomy level is required.",
+            'bloom_level.in' => "Select a valid Bloom's Taxonomy level.",
             'marks.required' => 'The marks are required.',
             'marks.numeric' => 'The marks must be a number.',
             'marks.min' => 'The marks must be at least 1.',

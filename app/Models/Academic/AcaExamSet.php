@@ -17,16 +17,27 @@ class AcaExamSet extends Model
         'topic',
         'question_type',
         'total_questions',
+
+        'qt1_count',
+        'qt2_count',
+
         'easy_count',
         'medium_count',
         'hard_count',
-        'qt1_count',
-        'qt2_count',
+
+        'remember_count',
+        'understand_count',
+        'apply_count',
+        'analyze_count',
+        'evaluate_count',
+        'create_count',
+
         'duration_minutes',
         'total_marks',
         'ai_reasoning',
         'question_ids',
         'custom_marks',
+        'syllabus_files',
         'randomization_seed',
         'status',
         'published_exam_id',
@@ -39,6 +50,7 @@ class AcaExamSet extends Model
     protected $casts = [
         'question_ids'  => 'array',
         'custom_marks'  => 'array',
+        'syllabus_files' => 'array',
     ];
 
     // -------------------------------------------------------------------------

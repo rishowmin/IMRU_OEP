@@ -4,9 +4,16 @@
     --theme-light-color: #f0f0f0;
     --theme-color-secondary: #15A6FF;
 
-
     --theme-color-hover: #15A6FF;
     --theme-color-secondary-hover: #1e85c5;
+
+    /* Blooms Taxonomy Colors */
+    --bloom-remember: #3e55a5;
+    --bloom-understand: #3f95d0;
+    --bloom-apply: #25803b;
+    --bloom-analyze: #83c442;
+    --bloom-evaluate: #f6c918;
+    --bloom-create: #f5582d;
 }
 
 a {
@@ -919,6 +926,15 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 
 
 
+.syllabus-dropzone-input {
+    border: 2px dashed var(--theme-color);
+    border-radius: 6px;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+
+
 
 .diff-range {
     --a: 50;
@@ -1004,8 +1020,8 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 }
 
 .balance-mix-card {
-    border: 2px dashed var(--theme-color);
-    border-radius: 10px;
+    border: 2px solid var(--theme-color);
+    border-radius: 6px;
     background: linear-gradient(0deg, #e2f0fa, #fff);
 }
 
@@ -1031,4 +1047,104 @@ div.dt-container div.dt-layout-row div.dt-layout-cell.dt-layout-end {
 
 .option-correct .form-control {
     border-color: var(--bs-success, #a3cfbb) !important;
+}
+
+
+
+
+
+.color-remember {
+    color: var(--bloom-remember) !important;
+}
+
+.color-understand {
+    color: var(--bloom-understand) !important;
+}
+
+.color-apply {
+    color: var(--bloom-apply) !important;
+}
+
+.color-analyze {
+    color: var(--bloom-analyze) !important;
+}
+
+.color-evaluate {
+    color: var(--bloom-evaluate) !important;
+}
+
+.color-create {
+    color: var(--bloom-create) !important;
+}
+
+.border-remember {
+    border-color: var(--bloom-remember) !important;
+}
+
+.border-understand {
+    border-color: var(--bloom-understand) !important;
+}
+
+.border-apply {
+    border-color: var(--bloom-apply) !important;
+}
+
+.border-analyze {
+    border-color: var(--bloom-analyze) !important;
+}
+
+.border-evaluate {
+    border-color: var(--bloom-evaluate) !important;
+}
+
+.border-create {
+    border-color: var(--bloom-create) !important;
+}
+
+.bg-remember {
+    background: var(--bloom-remember) !important;
+}
+
+.bg-understand {
+    background: var(--bloom-understand) !important;
+}
+
+.bg-apply {
+    background: var(--bloom-apply) !important;
+}
+
+.bg-analyze {
+    background: var(--bloom-analyze) !important;
+}
+
+.bg-evaluate {
+    background: var(--bloom-evaluate) !important;
+}
+
+.bg-create {
+    background: var(--bloom-create) !important;
+}
+
+.bg-remember-light {
+    background: color-mix(in srgb, var(--bloom-remember) 10%, transparent) !important;
+}
+
+.bg-understand-light {
+    background: color-mix(in srgb, var(--bloom-understand) 10%, transparent) !important;
+}
+
+.bg-apply-light {
+    background: color-mix(in srgb, var(--bloom-apply) 10%, transparent) !important;
+}
+
+.bg-analyze-light {
+    background: color-mix(in srgb, var(--bloom-analyze) 10%, transparent) !important;
+}
+
+.bg-evaluate-light {
+    background: color-mix(in srgb, var(--bloom-evaluate) 10%, transparent) !important;
+}
+
+.bg-create-light {
+    background: color-mix(in srgb, var(--bloom-create) 10%, transparent) !important;
 }

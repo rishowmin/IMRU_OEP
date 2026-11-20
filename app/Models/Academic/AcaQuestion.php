@@ -21,6 +21,7 @@ class AcaQuestion extends Model
         'question_type',
         'question_text',
         'difficulty_level',
+        'bloom_level',
         'marks',
         'evaluation_type',
         'option_a',

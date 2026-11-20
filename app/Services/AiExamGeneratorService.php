@@ -15,6 +15,8 @@ use Illuminate\Support\Collection;
  */
 class AiExamGeneratorService
 {
+    private const BLOOM_LEVELS = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
+
     private string $model;
 
     public function __construct(private AiQuestionGeneratorService $questionGenerator)
@@ -37,15 +39,18 @@ class AiExamGeneratorService
             $config['qtype1_percent'] ?? 100,
             $config['qtype2_percent'] ?? 0,
         );
+        $bloomTargets = isset($config['bloom_percentages'])
+            ? $this->calculateBloomTargets($config['total_questions'], $config['bloom_percentages'])
+            : [];
 
         $created = $this->questionGenerator->generate(
             $config['topic'],
-            $this->buildSpecs($diffTargets, $qtTargets),
+            $this->buildSpecs($diffTargets, $qtTargets, $bloomTargets),
             $config['extra_instructions'] ?? null,
             $this->auditFields()
         );
 
-        return $this->persistExamSet($config, $created, $qtTargets);
+        return $this->persistExamSet($config, $created, $qtTargets, $bloomTargets);
     }
 
     // -------------------------------------------------------------------------
@@ -85,20 +90,44 @@ class AiExamGeneratorService
         ];
     }
 
+    private function calculateBloomTargets(int $total, array $percentages): array
+    {
+        $targets = [];
+        $cumulativePercentage = 0;
+        $previousCutoff = 0;
+
+        foreach (self::BLOOM_LEVELS as $level) {
+            $cumulativePercentage += $percentages[$level];
+            $cutoff = (int) round($total * $cumulativePercentage / 100);
+            $targets[$level] = $cutoff - $previousCutoff;
+            $previousCutoff = $cutoff;
+        }
+
+        return $targets;
+    }
+
     /**
      * One "slot" per question to write:
      * [['question_type' => 'mcq_4', 'difficulty_level' => 'easy'], ...]
      */
-    private function buildSpecs(array $diffTargets, array $qtTargets): array
+    private function buildSpecs(array $diffTargets, array $qtTargets, array $bloomTargets = []): array
     {
         $levels = [];
+        $bloomLevels = [];
 
         foreach ($diffTargets as $level => $count) {
             $levels = array_merge($levels, array_fill(0, $count, $level));
         }
 
+        foreach ($bloomTargets as $level => $count) {
+            $bloomLevels = array_merge($bloomLevels, array_fill(0, $count, $level));
+        }
+
         // Shuffle so difficulty is independent of question type (totals stay exact)
         shuffle($levels);
+        if ($bloomLevels) {
+            shuffle($bloomLevels);
+        }
 
         $specs = [];
 
@@ -109,6 +138,7 @@ class AiExamGeneratorService
                 $specs[] = [
                     'question_type'    => $types[$n % count($types)],   // rotate when a bucket has 2 types
                     'difficulty_level' => array_shift($levels),
+                    'bloom_level'      => $bloomLevels ? array_shift($bloomLevels) : null,
                 ];
             }
         }
@@ -128,7 +158,7 @@ class AiExamGeneratorService
         ];
     }
 
-    private function persistExamSet(array $config, Collection $created, array $qtTargets): AcaExamSet
+    private function persistExamSet(array $config, Collection $created, array $qtTargets, array $bloomTargets = []): AcaExamSet
     {
         $idsFor = fn (string $level) => $created->where('difficulty_level', $level)->pluck('id')->values()->all();
 
@@ -144,6 +174,12 @@ class AiExamGeneratorService
             'easy_count'       => count($easy),
             'medium_count'     => count($medium),
             'hard_count'       => count($hard),
+            'remember_count'   => $bloomTargets['remember'] ?? 0,
+            'understand_count' => $bloomTargets['understand'] ?? 0,
+            'apply_count'      => $bloomTargets['apply'] ?? 0,
+            'analyze_count'    => $bloomTargets['analyze'] ?? 0,
+            'evaluate_count'   => $bloomTargets['evaluate'] ?? 0,
+            'create_count'     => $bloomTargets['create'] ?? 0,
             'qt1_count'        => $created->whereIn('question_type', $qtTargets['qt1_types'])->count(),
             'qt2_count'        => $created->whereIn('question_type', $qtTargets['qt2_types'])->count(),
             'duration_minutes' => $config['duration_minutes'],
@@ -159,6 +195,7 @@ class AiExamGeneratorService
             ),
             'question_ids'     => $created->pluck('id')->values()->all(),
             'custom_marks'     => null,
+            'syllabus_files'   => $config['syllabus_file_metadata'] ?? null,
             'status'           => 'draft',
         ]));
     }

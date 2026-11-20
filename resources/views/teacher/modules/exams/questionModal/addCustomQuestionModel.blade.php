@@ -24,7 +24,7 @@
                             {{-- Row 1: Question Type, Difficulty, Evaluation, Marks --}}
                             <div class="row g-2">
                                 {{-- Question Type --}}
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <label class="form-label fw-bold small mb-1">Question Type <span class="text-danger">*</span></label>
                                     <select class="form-select @error('question_type') is-invalid @enderror" id="question_type" name="question_type" required>
                                         <option value="mcq_4" {{ old('question_type') == 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
@@ -38,7 +38,7 @@
                                 </div>
 
                                 {{-- Difficulty  --}}
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <label class="form-label fw-bold small mb-1">Difficulty <span class="text-danger">*</span></label>
                                     <select class="form-select @error('difficulty_level') is-invalid @enderror" id="difficulty_level" name="difficulty_level" required>
                                         <option value="easy" {{ old('difficulty_level') == 'easy' ? 'selected' : '' }}>Easy</option>
@@ -50,8 +50,27 @@
                                     @enderror
                                 </div>
 
+                                {{-- Bloom's Taxonomy Level --}}
+                                <div class="col-sm-4">
+                                    <label class="form-label fw-bold small mb-1">Bloom's Taxonomy <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('bloom_level') is-invalid @enderror" id="bloom_level" name="bloom_level" required>
+                                        <option value="remember" {{ old('bloom_level') == 'remember' ? 'selected' : '' }}>Remember</option>
+                                        <option value="understand" {{ old('bloom_level') == 'understand' ? 'selected' : '' }}>Understand</option>
+                                        <option value="apply" {{ old('bloom_level') == 'apply' ? 'selected' : '' }}>Apply</option>
+                                        <option value="analyze" {{ old('bloom_level') == 'analyze' ? 'selected' : '' }}>Analyze</option>
+                                        <option value="evaluate" {{ old('bloom_level') == 'evaluate' ? 'selected' : '' }}>Evaluate</option>
+                                        <option value="create" {{ old('bloom_level') == 'create' ? 'selected' : '' }}>Create</option>
+                                    </select>
+                                    @error('bloom_level')
+                                    <div class="invalid-feedback d-block">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+
                                 {{-- Evaluation  --}}
-                                <div class="col-sm-3">
+                                <div class="col-sm-6">
                                     <label class="form-label fw-bold small mb-1">Evaluation <span class="text-danger">*</span></label>
                                     <select class="form-select @error('evaluation_type') is-invalid @enderror" id="evaluation_type" name="evaluation_type" required>
                                         <option value="automatic" {{ old('evaluation_type', 'automatic') == 'automatic' ? 'selected' : '' }}>Automatic</option>
@@ -63,7 +82,7 @@
                                 </div>
 
                                 {{-- Marks  --}}
-                                <div class="col-sm-3">
+                                <div class="col-sm-6">
                                     <label class="form-label fw-bold small mb-1">Marks <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control  @error('marks') is-invalid @enderror" id="marks" name="marks" value="{{ old('marks', 1) }}" min="0" step="0.5" required>
                                     @error('marks')

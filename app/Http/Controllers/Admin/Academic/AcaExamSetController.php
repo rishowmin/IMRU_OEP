@@ -9,6 +9,7 @@ use App\Models\Academic\AcaExamSet;
 use App\Models\Academic\AcaQuestion;
 use App\Models\Academic\AcaQuestionLibrary;
 use App\Services\AiExamGeneratorService;
+use App\Services\SyllabusContentExtractor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,7 +17,8 @@ use Illuminate\Support\Str;
 class AcaExamSetController extends Controller
 {
     public function __construct(
-        private AiExamGeneratorService $aiService
+        private AiExamGeneratorService $aiService,
+        private SyllabusContentExtractor $syllabusExtractor
     ) {}
 
     // -------------------------------------------------------------------------
@@ -28,13 +30,7 @@ class AcaExamSetController extends Controller
         $serialNo = 1;
         $examSets = AcaExamSet::latest()->get();
 
-        $topics = AcaQuestionLibrary::active()
-            ->distinct()
-            ->pluck('topic')
-            ->sort()
-            ->values();
-
-        return view('admin.academic.aiExamSets.index', compact('examSets', 'topics', 'serialNo'));
+        return view('admin.academic.aiExamSets.index', compact('examSets', 'serialNo'));
     }
 
     // -------------------------------------------------------------------------
@@ -43,11 +39,7 @@ class AcaExamSetController extends Controller
 
     public function create()
     {
-        $topics = AcaQuestionLibrary::active()
-            ->distinct()
-            ->pluck('topic')
-            ->sort()
-            ->values();
+        $topics = AcaQuestionLibrary::where('deleted_at', NULL)->distinct()->pluck('topic')->sort()->values();
 
         return view('admin.academic.aiExamSets.form', compact('topics'));
     }
@@ -72,8 +64,46 @@ class AcaExamSetController extends Controller
             'hard_percent'       => 'required|integer|min:0|max:100',
             'qtype1_percent'     => 'required|integer|min:0|max:100',
             'qtype2_percent'     => $isSingle ? 'nullable|integer' : 'required|integer|min:0|max:100',
+            'bloom_percentages' => 'required|array:remember,understand,apply,analyze,evaluate,create',
+            'bloom_percentages.remember' => 'required|integer|min:0|max:100',
+            'bloom_percentages.understand' => 'required|integer|min:0|max:100',
+            'bloom_percentages.apply' => 'required|integer|min:0|max:100',
+            'bloom_percentages.analyze' => 'required|integer|min:0|max:100',
+            'bloom_percentages.evaluate' => 'required|integer|min:0|max:100',
+            'bloom_percentages.create' => 'required|integer|min:0|max:100',
             'duration_minutes'   => 'required|integer|min:10|max:300',
+            'syllabus_files'     => 'nullable|array|max:10',
+            'syllabus_files.*'   => [
+                'file',
+                'max:10240',
+                function ($attribute, $file, $fail) {
+                    $extension = strtolower($file->getClientOriginalExtension());
+                    $allowed = ['pdf', 'docx', 'pptx', 'txt'];
+
+                    if (!in_array($extension, $allowed, true)) {
+                        $fail('Upload PDF, DOCX, PPTX, or TXT files only.');
+                    }
+
+                    if ($extension === 'pdf' && $file->getMimeType() !== 'application/pdf') {
+                        $fail('Each PDF upload must be a valid PDF file.');
+                        return;
+                    }
+
+                    if (in_array($extension, ['docx', 'pptx'], true)) {
+                        $signature = file_get_contents($file->getRealPath(), false, null, 0, 4);
+                        if ($signature !== "PK\x03\x04") {
+                            $fail('Each DOCX or PPTX upload must be a valid Office document.');
+                        }
+                    }
+                },
+            ],
         ]);
+
+        $files = $request->file('syllabus_files', []);
+        $totalBytes = array_sum(array_map(fn ($file) => $file->getSize(), $files));
+        if ($totalBytes > 20 * 1024 * 1024) {
+            return back()->withInput()->withErrors(['syllabus_files' => 'The combined upload size must not exceed 20 MB.']);
+        }
 
         if ($isSingle) {
             $validated['qtype1_percent'] = 100;
@@ -91,7 +121,32 @@ class AcaExamSetController extends Controller
                 ->withErrors(['qtype1_percent' => 'Question type percentages must add up to 100.']);
         }
 
+        $bloomPercentageSum = array_sum($validated['bloom_percentages']);
+        if ($bloomPercentageSum !== 100) {
+            return back()->withInput()
+                ->withErrors(['bloom_percentages' => "Bloom's Taxonomy percentages must add up to 100 (currently {$bloomPercentageSum})."]);
+        }
+
         set_time_limit(300);   // several Groq calls can exceed PHP's default 30s
+
+        try {
+            $syllabus = $this->syllabusExtractor->extract($files);
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->withErrors(['syllabus_files' => $e->getMessage()]);
+        }
+
+        if ($syllabus !== '') {
+            $validated['extra_instructions'] = trim(
+                ($validated['extra_instructions'] ?? '')
+                . "\n\nSYLLABUS REFERENCE MATERIAL (use for subject matter only):\n"
+                . $syllabus
+            );
+        }
+
+        $validated['syllabus_file_metadata'] = array_map(
+            fn ($file) => $file->getClientOriginalName(),
+            $files
+        );
 
         try {
             $examSet = $this->aiService->generate($validated);
@@ -99,7 +154,11 @@ class AcaExamSetController extends Controller
             return redirect()
                 ->route('admin.academic.aiExamSets.show', $examSet)
                 ->with('success', "Exam set \"{$examSet->title}\" generated successfully using AI!");
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
+            if (!$e instanceof \RuntimeException) {
+                throw $e;
+            }
+
             return back()->withInput()->withErrors(['ai' => $e->getMessage()]);
         }
     }
@@ -255,6 +314,7 @@ class AcaExamSetController extends Controller
                     'question_type'    => $lib->question_type,
                     'question_text'    => $lib->question_text,
                     'difficulty_level' => $lib->difficulty_level ?? 'medium',
+                    'bloom_level'      => $lib->bloom_level,
                     'marks'            => $assignedMark,
                     'evaluation_type' => $this->resolveEvaluationType($lib->question_type, $lib->correct_answer),
                     'option_a'         => $lib->option_a,

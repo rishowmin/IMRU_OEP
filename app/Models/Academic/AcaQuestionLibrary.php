@@ -19,6 +19,7 @@ class AcaQuestionLibrary extends Model
         'topic',
         'question_type',
         'difficulty_level',
+        'bloom_level',
         'marks',
         'question_text',
         'option_a',

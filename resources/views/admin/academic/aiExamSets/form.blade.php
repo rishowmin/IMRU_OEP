@@ -40,241 +40,420 @@
 
 <section class="section">
 
-    <div class="row">
-
+    <div class="row g-3">
         <div class="col-lg-12">
 
-            <div class="accordion mb-3" id="accordionGenerateExamSetsByAi">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingGenerateExamSetsByAi">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGenerateExamSetsByAi" aria-expanded="true" aria-controls="collapseGenerateExamSetsByAi">
-                            <h6 class="card-title p-0 m-0">
-                                <i class="bi bi-pencil-square"></i>
-                                Create Exam Set
-                            </h6>
-                        </button>
-                    </h2>
-                    <div id="collapseGenerateExamSetsByAi" class="accordion-collapse collapse show" aria-labelledby="headingGenerateExamSetsByAi" data-bs-parent="#accordionGenerateExamSetsByAi">
-                        <div class="accordion-body">
+            <form method="POST" action="{{ route('admin.academic.aiExamSets.store') }}" id="exam-form" enctype="multipart/form-data">
+                @csrf
 
-                            <form method="POST" action="{{ route('admin.academic.aiExamSets.store') }}" id="exam-form">
-                                @csrf
+                @error('ai')
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    {{ $message }}
+                </div>
+                @enderror
 
-                                <div class="row g-4">
-                                    <div class="col-md-8">
-                                        <div class="row g-2">
+                <div class="card mb-0">
+                    <div class="card-body">
 
-                                            {{-- Exam Title --}}
-                                            <div class="col-md-12">
-                                                <label for="title" class="form-label fw-bold mb-1"><small>Exam Title</small> <small class="text-danger">*</small></label>
-                                                <div class="input-group">
-                                                    <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="e.g. Midterm Exam — Computer Networks">
-                                                </div>
+                        <div class="row g-3">
 
-                                                <div class="d-flex align-items-center">
-                                                    @error('title')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @enderror
-                                                </div>
+                            <div class="col-md-8">
+                                <div class="row g-2">
+
+                                    {{-- Exam Title --}}
+                                    <div class="col-md-12">
+                                        <label for="title" class="form-label fw-bold mb-1"><small>Exam Title</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="e.g. Midterm Exam — Computer Networks">
+                                        </div>
+
+                                        <div class="d-flex align-items-center">
+                                            @error('title')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
                                             </div>
-
-                                            {{-- Total Questions --}}
-                                            <div class="col-md-4">
-                                                <label for="total_questions" class="form-label fw-bold mb-1"><small>Total Questions</small> <small class="text-danger">*</small></label>
-                                                <div class="input-group">
-                                                    <input type="number" name="total_questions" class="form-control @error('total_questions') is-invalid @enderror" value="{{ old('total_questions', 30) }}" min="5" max="200">
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('total_questions')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Duration (min) --}}
-                                            <div class="col-md-4">
-                                                <label for="duration_minutes" class="form-label fw-bold mb-1"><small>Duration (min)</small> <small class="text-danger">*</small></label>
-                                                <div class="input-group">
-                                                    <input type="number" name="duration_minutes" class="form-control" value="{{ old('duration_minutes', 60) }}" min="10" max="300">
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('duration_minutes')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Question Type --}}
-                                            <div class="col-md-4">
-                                                <label for="question_type" class="form-label fw-bold mb-1"><small>Question Type</small> <small class="text-danger">*</small></label>
-                                                <div class="input-group">
-                                                    <select name="question_type" class="form-select @error('question_type') is-invalid @enderror" id="question-type-select">
-                                                        <option value="All">All</option>
-                                                        <option value="objective" {{ old('question_type') === 'objective' ? 'selected' : '' }}>Objective (4 & 2 Options)</option>
-                                                        <option value="subjective" {{ old('question_type') === 'subjective' ? 'selected' : '' }}>Subjective (Short & Long)</option>
-                                                        <option value="mcq_4" {{ old('question_type') === 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
-                                                        <option value="mcq_2" {{ old('question_type') === 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
-                                                        <option value="short_question" {{ old('question_type') === 'short_question' ? 'selected' : '' }}>Short Question</option>
-                                                        <option value="long_question" {{ old('question_type') === 'long_question' ? 'selected' : '' }}>Long Question</option>
-
-                                                    </select>
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('question_type')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Topic / Subject --}}
-                                            <div class="col-md-12">
-                                                <label for="topic" class="form-label fw-bold mb-1"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
-                                                <div class="input-group">
-                                                    <select name="topic" class="form-select @error('topic') is-invalid @enderror" id="topic-select">
-                                                        <option selected disabled>Select Topic</option>
-                                                        @foreach($topics as $topic)
-                                                        <option value="{{ $topic }}" {{ old('topic') === $topic ? 'selected' : '' }}>{{ $topic }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-
-                                                <div class="d-flex align-items-center">
-                                                    @error('topic')
-                                                    <div class="invalid-feedback d-block">
-                                                        <i class="bi bi-exclamation-circle"></i>
-                                                        {{ $message }}
-                                                    </div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Extra Instructions --}}
-                                            <div class="col-md-12">
-                                                <label for="extra_instructions" class="form-label fw-bold mb-1"><small>Extra Instructions <span class="text-muted fw-normal">(optional)</span></small></label>
-                                                <textarea name="extra_instructions" id="extra_instructions" class="form-control" rows="3" maxlength="1000" placeholder="e.g. Focus on chapter 3, use practical scenarios">{{ old('extra_instructions') }}</textarea>
-                                            </div>
-
+                                            @enderror
                                         </div>
                                     </div>
 
+                                    {{-- Total Questions --}}
                                     <div class="col-md-4">
-                                        <div class="card balance-mix-card mb-0">
-                                            <div class="card-header border-2 border-theme">
-                                                <h6 class="mb-0 text-theme fw-bold">
-                                                    <i class="bi bi-sliders me-1"></i>
-                                                    Balance Mix
-                                                </h6>
+                                        <label for="total_questions" class="form-label fw-bold mb-1"><small>Total Questions</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <input type="number" name="total_questions" class="form-control @error('total_questions') is-invalid @enderror" value="{{ old('total_questions', 30) }}" min="5" max="200">
+                                        </div>
+
+                                        <div class="d-flex align-items-center">
+                                            @error('total_questions')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
                                             </div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                                            <div class="card-body pt-2">
+                                    {{-- Duration (min) --}}
+                                    <div class="col-md-4">
+                                        <label for="duration_minutes" class="form-label fw-bold mb-1"><small>Duration (min)</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <input type="number" name="duration_minutes" class="form-control" value="{{ old('duration_minutes', 60) }}" min="10" max="300">
+                                        </div>
 
-                                                <div class="row mb-2">
-                                                    {{-- Question Type --}}
-                                                    <div class="col-md-12">
-                                                        <label for="qt-range" class="form-label fw-bold mb-1"><small>Question Type</small></label>
+                                        <div class="d-flex align-items-center">
+                                            @error('duration_minutes')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                                                        <div>
-                                                            {{-- hidden fields: these are what the controller receives --}}
-                                                            <input type="hidden" name="qtype1_percent" id="qt1_pct" value="{{ old('qtype1_percent', 50) }}">
-                                                            <input type="hidden" name="qtype2_percent" id="qt2_pct" value="{{ old('qtype2_percent', 50) }}">
+                                    {{-- Question Type --}}
+                                    <div class="col-md-4">
+                                        <label for="question_type" class="form-label fw-bold mb-1"><small>Question Type</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <select name="question_type" class="form-select @error('question_type') is-invalid @enderror" id="question-type-select">
+                                                <option value="All">All</option>
+                                                <option value="objective" {{ old('question_type') === 'objective' ? 'selected' : '' }}>Objective (4 & 2 Options)</option>
+                                                <option value="subjective" {{ old('question_type') === 'subjective' ? 'selected' : '' }}>Subjective (Short & Long)</option>
+                                                <option value="mcq_4" {{ old('question_type') === 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
+                                                <option value="mcq_2" {{ old('question_type') === 'mcq_2' ? 'selected' : '' }}>MCQ (2 Options)</option>
+                                                <option value="short_question" {{ old('question_type') === 'short_question' ? 'selected' : '' }}>Short Question</option>
+                                                <option value="long_question" {{ old('question_type') === 'long_question' ? 'selected' : '' }}>Long Question</option>
 
-                                                            <div class="qt-range" id="qt-range">
-                                                                <input type="range" class="form-range qt-range-input" id="qt-range-1" min="0" max="100" step="5" value="{{ old('qtype1_percent', 50) }}">
-                                                            </div>
+                                            </select>
+                                        </div>
 
-                                                            <div class="row g-0 small mt-1">
-                                                                <div class="col-6 text-start">
-                                                                    <div class="text-start">
-                                                                        <h6 class="mb-0"><span id="qt1-value" class="badge bg-info">50%</span></h6>
-                                                                        <span id="qtype1-label" class="fw-bold small">Objective</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-6 text-end">
-                                                                    <div class="text-end">
-                                                                        <h6 class="mb-0"><span id="qt2-value" class="badge bg-primary">50%</span></h6>
-                                                                        <span id="qtype2-label" class="fw-bold small">Subjective</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                        <div class="d-flex align-items-center">
+                                            @error('question_type')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                                                    <hr class="border-1 border-theme my-3 font-light opacity-100">
+                                    {{-- Topic / Subject --}}
+                                    <div class="col-md-12">
+                                        <label for="topic" class="form-label fw-bold mb-1"><small>Topic / Subject</small> <small class="text-danger">*</small></label>
+                                        <div class="input-group">
+                                            <select name="topic" class="form-select @error('topic') is-invalid @enderror" id="topic-select">
+                                                <option selected disabled>Select Topic</option>
+                                                @foreach($topics as $topic)
+                                                <option value="{{ $topic }}" {{ old('topic') === $topic ? 'selected' : '' }}>{{ $topic }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                                                    {{-- Difficulty Mix --}}
-                                                    <div class="col-md-12">
-                                                        <label for="diff-range-1" class="form-label fw-bold mb-1"><small>Question Difficulty</small></label>
+                                        <div class="d-flex align-items-center">
+                                            @error('topic')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                                                        <div>
-                                                            {{-- hidden fields: these are what the controller receives --}}
-                                                            <input type="hidden" name="easy_percent"   id="easy_pct"   value="{{ old('easy_percent', 50) }}">
-                                                            <input type="hidden" name="medium_percent" id="medium_pct" value="{{ old('medium_percent', 30) }}">
-                                                            <input type="hidden" name="hard_percent"   id="hard_pct"   value="{{ old('hard_percent', 20) }}">
+                                    {{-- Extra Instructions --}}
+                                    <div class="col-md-12">
+                                        <label for="extra_instructions" class="form-label fw-bold mb-1"><small>Extra Instructions <span class="text-muted fw-normal">(optional)</span></small></label>
+                                        <textarea name="extra_instructions" id="extra_instructions" class="form-control" rows="3" maxlength="1000" placeholder="e.g. Focus on chapter 3, use practical scenarios">{{ old('extra_instructions') }}</textarea>
+                                    </div>
 
-                                                            <div class="diff-range" id="diff-range">
-                                                                <input type="range" class="diff-range-input" id="diff-range-1" min="0" max="100" step="5" value="{{ (int) old('easy_percent', 50) }}" aria-label="Easy and Medium boundary">
-                                                                <input type="range" class="diff-range-input" id="diff-range-2" min="0" max="100" step="5" value="{{ (int) old('easy_percent', 50) + (int) old('medium_percent', 30) }}" aria-label="Medium and Hard boundary">
-                                                            </div>
+                                    {{-- Syllabus files --}}
+                                    <div class="col-md-12">
+                                        <label for="syllabus-files" class="form-label fw-bold mb-1"><small>Syllabus Files <span class="text-muted fw-normal">(optional)</span></small></label>
+                                        <div id="syllabus-dropzone" class="card syllabus-dropzone-input bg-light mb-0" role="button" tabindex="0" aria-describedby="syllabus-file-help">
+                                            <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
+                                            <h6 class="mb-1 fw-bold">Drop files or click to browse</h6>
+                                            <p id="syllabus-file-help" class="text-muted small mb-0">PDF, DOCX, PPTX, or TXT. Up to 10 files (20 MB total); long files are excerpted for AI context.</p>
+                                            <input type="file" name="syllabus_files[]" id="syllabus-files" class="d-none" accept=".pdf,.docx,.pptx,.txt" multiple>
+                                        </div>
+                                        @error('syllabus_files')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @foreach($errors->get('syllabus_files.*') as $messages)
+                                        @foreach($messages as $message)
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @endforeach
+                                        @endforeach
+                                        <ul id="syllabus-file-list" class="list-group list-group-flush mb-0" aria-live="polite"></ul>
+                                    </div>
 
-                                                            <div class="row g-0 small mt-1">
-                                                                <div class="col-4 text-start">
-                                                                    <h6 class="mb-0"><span id="easy-value" class="badge bg-success">50%</span></h6>
-                                                                    <span class="fw-bold small">Easy</span>
-                                                                </div>
-                                                                <div class="col-4 text-center">
-                                                                    <h6 class="mb-0"><span id="medium-value" class="badge bg-warning text-dark">30%</span></h6>
-                                                                    <span class="fw-bold small">Medium</span>
-                                                                </div>
-                                                                <div class="col-4 text-end">
-                                                                    <h6 class="mb-0"><span id="hard-value" class="badge bg-danger">20%</span></h6>
-                                                                    <span class="fw-bold small">Hard</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                </div>
+                            </div>
 
-                                                </div>
+                            <div class="col-md-4">
+                                {{-- Question Type --}}
+                                <div class="card balance-mix-card mb-2">
+                                    <div class="card-header border-2 border-theme">
+                                        <h6 class="mb-0 text-theme fw-bold">
+                                            <i class="bi bi-sliders me-1"></i>
+                                            Question Type Mix
+                                        </h6>
+                                    </div>
 
+                                    <div class="card-body pt-2">
+
+                                        <div class="row g-0 small mt-1">
+                                            <div class="col-6 text-start">
+                                                <h6><span id="qt1-value" class="badge bg-info">50%</span></h6>
+                                            </div>
+                                            <div class="col-6 text-end">
+                                                <h6><span id="qt2-value" class="badge bg-primary">50%</span></h6>
+                                            </div>
+                                        </div>
+
+                                        {{-- hidden fields: these are what the controller receives --}}
+                                        <input type="hidden" name="qtype1_percent" id="qt1_pct" value="{{ old('qtype1_percent', 50) }}">
+                                        <input type="hidden" name="qtype2_percent" id="qt2_pct" value="{{ old('qtype2_percent', 50) }}">
+
+                                        <div class="qt-range" id="qt-range">
+                                            <input type="range" class="form-range qt-range-input" id="qt-range-1" min="0" max="100" step="5" value="{{ old('qtype1_percent', 50) }}">
+                                        </div>
+
+                                        <div class="row g-0 small mt-1">
+                                            <div class="col-6 text-start lh-1">
+                                                <span id="qtype1-label" class="fw-bold small">Objective</span> <br>
+                                                <span id="qt1-count" class="fw-semibold small">15 Q.</span>
+                                            </div>
+                                            <div class="col-6 text-end lh-1">
+                                                <span id="qtype2-label" class="fw-bold small">Subjective</span> <br>
+                                                <span id="qt2-count" class="fw-semibold small">15 Q.</span>
                                             </div>
 
                                         </div>
 
                                     </div>
 
-                                    <hr>
+                                </div>
 
-                                    <div class="col-md-12 mt-0">
-                                        <div class="form-submit-button">
-                                            <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">
-                                                <i class="bi bi-lightning-charge me-2"></i>
-                                                Generate with AI
-                                            </button>
-                                            <p class="text-center text-muted small mt-2 mb-0">This may take 5–10 seconds while AI selects questions.</p>
+                                {{-- Difficulty Mix --}}
+                                <div class="card balance-mix-card mb-2">
+                                    <div class="card-header border-2 border-theme">
+                                        <h6 class="mb-0 text-theme fw-bold">
+                                            <i class="bi bi-sliders me-1"></i>
+                                            Difficulty Mix
+                                        </h6>
+                                    </div>
+
+                                    <div class="card-body pt-2">
+
+                                        <div class="row g-0 small mt-1">
+                                            <div class="col-4 text-start">
+                                                <h6><span id="easy-value" class="badge bg-success">50%</span></h6>
+                                            </div>
+                                            <div class="col-4 text-center">
+                                                <h6><span id="medium-value" class="badge bg-warning text-dark">30%</span></h6>
+                                            </div>
+                                            <div class="col-4 text-end">
+                                                <h6><span id="hard-value" class="badge bg-danger">20%</span></h6>
+                                            </div>
+                                        </div>
+
+                                        {{-- hidden fields: these are what the controller receives --}}
+                                        <input type="hidden" name="easy_percent" id="easy_pct" value="{{ old('easy_percent', 50) }}">
+                                        <input type="hidden" name="medium_percent" id="medium_pct" value="{{ old('medium_percent', 30) }}">
+                                        <input type="hidden" name="hard_percent" id="hard_pct" value="{{ old('hard_percent', 20) }}">
+
+                                        <div class="diff-range" id="diff-range">
+                                            <input type="range" class="diff-range-input" id="diff-range-1" min="0" max="100" step="5" value="{{ (int) old('easy_percent', 50) }}" aria-label="Easy and Medium boundary">
+                                            <input type="range" class="diff-range-input" id="diff-range-2" min="0" max="100" step="5" value="{{ (int) old('easy_percent', 50) + (int) old('medium_percent', 30) }}" aria-label="Medium and Hard boundary">
+                                        </div>
+
+                                        <div class="row g-0 small mt-1">
+                                            <div class="col-4 text-start lh-1">
+                                                <span class="fw-bold small">Easy</span> <br>
+                                                <span id="easy-count" class="fw-semibold small">15 Q.</span>
+                                            </div>
+                                            <div class="col-4 text-center lh-1">
+                                                <span class="fw-bold small">Medium</span> <br>
+                                                <span id="medium-count" class="fw-semibold small">9 Q.</span>
+                                            </div>
+                                            <div class="col-4 text-end lh-1">
+                                                <span class="fw-bold small">Hard</span> <br>
+                                                <span id="hard-count" class="fw-semibold small">15 Q.</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                {{-- Bloom's Taxonomy --}}
+                                <div class="card balance-mix-card mb-0">
+                                    <div class="card-header border-2 border-theme">
+                                        <h6 class="mb-0 text-theme fw-bold">
+                                            <i class="bi bi-sliders me-1"></i>
+                                            Bloom's Taxonomy Mix
+                                        </h6>
+                                    </div>
+
+                                    <div class="card-body py-2">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="bg-remember-light border border-remember rounded p-2">
+                                                    <label for="bloom-remember" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-remember">
+                                                        <span class="small">Remember</span>
+                                                        <span class="badge rounded-pill bg-remember small" id="bloom-count-remember">6 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-remember" name="bloom_percentages[remember]" class="form-control border border-remember" min="0" max="100" step="1" value="{{ old('bloom_percentages.remember', 20) }}" aria-label="Remember percentage">
+                                                        <span class="input-group-text bg-remember-light border border-remember">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-understand-light border border-understand rounded p-2">
+                                                    <label for="bloom-understand" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-understand">
+                                                        <span class="small">Understand</span>
+                                                        <span class="badge rounded-pill bg-understand small" id="bloom-count-understand">6 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-understand" name="bloom_percentages[understand]" class="form-control border border-understand" min="0" max="100" step="1" value="{{ old('bloom_percentages.understand', 20) }}" aria-label="Understand percentage">
+                                                        <span class="input-group-text bg-understand-light border border-understand">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-apply-light border border-apply rounded p-2">
+                                                    <label for="bloom-apply" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-apply">
+                                                        <span class="small">Apply</span>
+                                                        <span class="badge rounded-pill bg-apply small" id="bloom-count-apply">6 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-apply" name="bloom_percentages[apply]" class="form-control border border-apply" min="0" max="100" step="1" value="{{ old('bloom_percentages.apply', 20) }}" aria-label="Apply percentage">
+                                                        <span class="input-group-text bg-apply-light border border-apply">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-analyze-light border border-analyze rounded p-2">
+                                                    <label for="bloom-analyze" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-analyze">
+                                                        <span class="small">Analyze</span>
+                                                        <span class="badge rounded-pill bg-analyze small" id="bloom-count-analyze">6 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-analyze" name="bloom_percentages[analyze]" class="form-control border border-analyze" min="0" max="100" step="1" value="{{ old('bloom_percentages.analyze', 20) }}" aria-label="Analyze percentage">
+                                                        <span class="input-group-text bg-analyze-light border border-analyze">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-evaluate-light border border-evaluate rounded p-2">
+                                                    <label for="bloom-evaluate" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-evaluate">
+                                                        <span class="small">Evaluate</span>
+                                                        <span class="badge rounded-pill bg-evaluate small" id="bloom-count-evaluate">3 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-evaluate" name="bloom_percentages[evaluate]" class="form-control border border-evaluate" min="0" max="100" step="1" value="{{ old('bloom_percentages.evaluate', 10) }}" aria-label="Evaluate percentage">
+                                                        <span class="input-group-text bg-evaluate-light border border-evaluate">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-create-light border border-create rounded p-2">
+                                                    <label for="bloom-create" class="d-flex align-items-center justify-content-between form-label fw-semibold small mb-1 color-create">
+                                                        <span class="small">Create</span>
+                                                        <span class="badge rounded-pill bg-create small" id="bloom-count-create">3 Q.</span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" id="bloom-create" name="bloom_percentages[create]" class="form-control border border-create" min="0" max="100" step="1" value="{{ old('bloom_percentages.create', 10) }}" aria-label="Create percentage">
+                                                        <span class="input-group-text bg-create-light border border-create">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @error('bloom_percentages')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.remember')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.understand')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.apply')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.analyze')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.evaluate')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                        @error('bloom_percentages.create')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+
+                                    </div>
+
+                                    <div class="card-footer bg-transparent border-top border-2 border-theme">
+                                        <div class="d-flex align-items-center justify-content-between small fw-semibold" id="bloom-percent-total" aria-live="polite">
+                                            <p class="mb-0">Total:</p>
+                                            <p class="mb-0" id="bloom-percent-value">100%</p>
                                         </div>
                                     </div>
 
                                 </div>
-                            </form>
+
+                            </div>
 
                         </div>
+
                     </div>
+
+                    <div class="card-footer">
+                        <div class="row g-2">
+                            <div class="col-md-12 mt-0">
+                                <div class="form-submit-button">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">
+                                        <i class="bi bi-lightning-charge me-2"></i>
+                                        Generate with AI
+                                    </button>
+                                    <p class="text-center text-muted small mt-2 mb-0">This may take a few minutes while AI reviews your materials and writes the questions.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+
+            </form>
 
         </div>
 
@@ -283,16 +462,15 @@
                 <div class="card-body">
                     <h6 class="fw-bold mb-2" style="font-size:.85rem"><i class="bi bi-robot me-1"></i> How AI works here</h6>
                     <ul class="text-muted small mb-0 ps-4">
-                        <li>Reads your entire question bank for the selected topic</li>
-                        <li>Selects questions matching your difficulty targets</li>
-                        <li>Avoids similar/duplicate questions</li>
-                        <li>Ensures variety in question types</li>
+                        <li>Uses your selected topic and uploaded syllabus files as subject-matter context</li>
+                        <li>Targets the requested Bloom level independently of difficulty and question type</li>
+                        <li>Writes original questions matching your selected targets</li>
+                        <li>Avoids duplicating questions already in the question bank</li>
                         <li>Each candidate gets a uniquely shuffled version</li>
                     </ul>
                 </div>
             </div>
         </div>
-
     </div>
 
 </section>
@@ -304,177 +482,338 @@
 @section('scripts')
 
 <script>
-(function () {
-    'use strict';
+    (function() {
+        'use strict';
 
-    // Labels under the Question Type slider.
-    // 2 labels = split slider, 1 label = single type (slider locked at 100%).
-    const QTYPE_CONFIG = {
-        'All':            ['Objective', 'Subjective'],
-        'objective':      ['MCQ 4',     'MCQ 2'],
-        'subjective':     ['Short Q.',  'Long Q.'],
-        'mcq_4':          ['MCQ 4'],
-        'mcq_2':          ['MCQ 2'],
-        'short_question': ['Short Q.'],
-        'long_question':  ['Long Q.'],
-    };
+        // Labels under the Question Type slider.
+        // 2 labels = split slider, 1 label = single type (slider locked at 100%).
+        const QTYPE_CONFIG = {
+            'All': ['Objective', 'Subjective']
+            , 'objective': ['MCQ 4', 'MCQ 2']
+            , 'subjective': ['Short Q.', 'Long Q.']
+            , 'mcq_4': ['MCQ 4']
+            , 'mcq_2': ['MCQ 2']
+            , 'short_question': ['Short Q.']
+            , 'long_question': ['Long Q.']
+        , };
 
-    const byId      = id => document.getElementById(id);
-    const setText   = (id, text) => { const el = byId(id); if (el) el.textContent = text; };
-    const setHidden = (id, hide) => { const el = byId(id); if (el) el.classList.toggle('d-none', hide); };
+        const byId = id => document.getElementById(id);
+        const setText = (id, text) => {
+            const el = byId(id);
+            if (el) el.textContent = text;
+        };
+        const setHidden = (id, hide) => {
+            const el = byId(id);
+            if (el) el.classList.toggle('d-none', hide);
+        };
 
-    let wasSingle = false;
+        function initSyllabusDropzone() {
+            const input = byId('syllabus-files');
+            const dropzone = byId('syllabus-dropzone');
+            const fileList = byId('syllabus-file-list');
+            if (!input || !dropzone || !fileList) return;
 
-    // ── Difficulty: ONE track, TWO thumbs ────────────────────────────────────
-    // thumb 1 (a) = where Easy ends, thumb 2 (b) = where Medium ends.
-    //   Easy = a      Medium = b - a      Hard = 100 - b
-    // Independent of the Question Type dropdown.
-    function renderDiffRange(changed) {
-        const r1 = byId('diff-range-1');
-        const r2 = byId('diff-range-2');
-        if (!r1 || !r2) return;
+            let selectedFiles = [];
+            const formatSize = bytes => bytes < 1024 * 1024 ?
+                Math.ceil(bytes / 1024) + ' KB' :
+                (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 
-        let a = parseInt(r1.value) || 0;
-        let b = parseInt(r2.value) || 0;
+            function renderFiles() {
+                const transfer = new DataTransfer();
+                selectedFiles.forEach(file => transfer.items.add(file));
+                input.files = transfer.files;
+                fileList.replaceChildren();
 
-        // The thumbs may touch but never cross
-        if (a > b) {
-            if (changed === r1) { a = b; } else { b = a; }
-            r1.value = a;
-            r2.value = b;
+                selectedFiles.forEach((file, index) => {
+                    const item = document.createElement('li');
+                    item.className = 'bg-primary-light border border-1 border-primary rounded d-flex align-items-center justify-content-between px-2 py-1 mt-1 small';
+
+                    const details = document.createElement('span');
+                    details.className = 'text-truncate me-3';
+                    details.textContent = file.name + ' (' + formatSize(file.size) + ')';
+
+                    const remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'btn btn-sm btn-outline-danger flex-shrink-0 border-0';
+                    remove.setAttribute('aria-label', 'Remove ' + file.name);
+                    remove.innerHTML = '<i class="bi bi-x-lg"></i>';
+                    remove.addEventListener('click', () => {
+                        selectedFiles.splice(index, 1);
+                        renderFiles();
+                    });
+
+                    item.append(details, remove);
+                    fileList.append(item);
+                });
+            }
+
+            function addFiles(files) {
+                Array.from(files).forEach(file => {
+                    const duplicate = selectedFiles.some(existing =>
+                        existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
+                    );
+                    if (!duplicate) selectedFiles.push(file);
+                });
+                renderFiles();
+            }
+
+            dropzone.addEventListener('click', event => {
+                if (event.target === input || event.target.closest('button')) return;
+                input.click();
+            });
+            dropzone.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    input.click();
+                }
+            });
+            input.addEventListener('change', () => addFiles(input.files));
+
+            ['dragenter', 'dragover'].forEach(eventName => dropzone.addEventListener(eventName, event => {
+                event.preventDefault();
+                dropzone.classList.add('border-primary', 'bg-primary-light');
+            }));
+            ['dragleave', 'drop'].forEach(eventName => dropzone.addEventListener(eventName, event => {
+                event.preventDefault();
+                dropzone.classList.remove('border-primary', 'bg-primary-light');
+            }));
+            dropzone.addEventListener('drop', event => addFiles(event.dataTransfer.files));
         }
 
-        const easy   = a;
-        const medium = b - a;
-        const hard   = 100 - b;
+        function renderBloomCounts() {
+            const totalInput = document.querySelector('input[name="total_questions"]');
+            const totalQuestions = Math.max(0, parseInt(totalInput ? totalInput.value : 0) || 0);
+            const levels = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
+            const percentages = {};
+            let percentageTotal = 0;
 
-        byId('easy_pct').value   = easy;      // hidden fields: these are submitted
-        byId('medium_pct').value = medium;
-        byId('hard_pct').value   = hard;
+            levels.forEach(level => {
+                const input = document.querySelector('input[name="bloom_percentages[' + level + ']"]');
+                percentages[level] = Math.max(0, Math.min(100, parseInt(input ? input.value : 0) || 0));
+                percentageTotal += percentages[level];
+            });
 
-        setText('easy-value',   easy + '%');
-        setText('medium-value', medium + '%');
-        setText('hard-value',   hard + '%');
+            const totalLabel = byId('bloom-percent-total');
+            setText('bloom-percent-value', percentageTotal + '%');
+            totalLabel.classList.toggle('text-danger', percentageTotal !== 100);
+            totalLabel.classList.toggle('text-success', percentageTotal === 100);
 
-        const wrap = byId('diff-range');      // paints the green / yellow / red track
-        wrap.style.setProperty('--a', a);
-        wrap.style.setProperty('--b', b);
+            let cumulativePercentage = 0;
+            let previousCutoff = 0;
+            levels.forEach(level => {
+                const countLabel = byId('bloom-count-' + level);
+                if (percentageTotal !== 100) {
+                    countLabel.textContent = '— Q.';
+                    return;
+                }
 
-        // When both thumbs meet, keep the one that can still move on top
-        r1.classList.toggle('is-top', a > 50);
-        r2.classList.toggle('is-top', a <= 50);
-    }
+                cumulativePercentage += percentages[level];
+                const cutoff = Math.round(totalQuestions * cumulativePercentage / 100);
+                countLabel.textContent = (cutoff - previousCutoff) + ' Q.';
+                previousCutoff = cutoff;
+            });
+        }
 
-    // ── Question Type slider ─────────────────────────────────────────────────
-    // Slider value = share of the FIRST type (left segment).
-    function renderQtSlider() {
-        const range = byId('qt-range-1');
-        if (!range) return;
+        // ── Question counts under each slider ────────────────────────────────────
+        // Uses cumulative rounding so the parts always add up to the exact total.
+        function renderCounts() {
+            const totalInput = document.querySelector('input[name="total_questions"]');
+            const total = Math.max(0, parseInt(totalInput ? totalInput.value : 0) || 0);
 
-        const qt1 = parseInt(range.value) || 0;
-        const qt2 = 100 - qt1;
+            // Question type
+            const qt1 = parseInt(byId('qt1_pct').value) || 0;
+            const qt1Count = Math.round(total * qt1 / 100);
+            setText('qt1-count', qt1Count + ' Q.');
+            setText('qt2-count', (total - qt1Count) + ' Q.');
 
-        byId('qt1_pct').value = qt1;          // hidden fields: these are submitted
-        byId('qt2_pct').value = qt2;
+            // Difficulty
+            const a = parseInt(byId('easy_pct').value) || 0;
+            const b = a + (parseInt(byId('medium_pct').value) || 0);
+            const easyCount = Math.round(total * a / 100);
+            const midCut = Math.round(total * b / 100);
+            setText('easy-count', easyCount + ' Q.');
+            setText('medium-count', (midCut - easyCount) + ' Q.');
+            setText('hard-count', (total - midCut) + ' Q.');
+        }
 
-        setText('qt1-value', qt1 + '%');
-        setText('qt2-value', qt2 + '%');
+        let wasSingle = false;
 
-        range.style.setProperty('--split', qt1 + '%');
-    }
+        // ── Difficulty: ONE track, TWO thumbs ────────────────────────────────────
+        // thumb 1 (a) = where Easy ends, thumb 2 (b) = where Medium ends.
+        //   Easy = a      Medium = b - a      Hard = 100 - b
+        // Independent of the Question Type dropdown.
+        function renderDiffRange(changed) {
+            const r1 = byId('diff-range-1');
+            const r2 = byId('diff-range-2');
+            if (!r1 || !r2) return;
 
-    // Runs on page load and every time the Question Type dropdown changes
-    function syncQtypeLabels() {
-        const select = byId('question-type-select');
-        const range  = byId('qt-range-1');
-        if (!select || !range) return;
+            let a = parseInt(r1.value) || 0;
+            let b = parseInt(r2.value) || 0;
 
-        const labels   = QTYPE_CONFIG[select.value] || QTYPE_CONFIG['All'];
-        const isSingle = labels.length === 1;
+            // The thumbs may touch but never cross
+            if (a > b) {
+                if (changed === r1) {
+                    a = b;
+                } else {
+                    b = a;
+                }
+                r1.value = a;
+                r2.value = b;
+            }
 
-        setText('qtype1-label', labels[0]);
+            const easy = a;
+            const medium = b - a;
+            const hard = 100 - b;
 
-        if (isSingle) {
-            range.value    = 100;
-            range.disabled = true;
-        } else {
-            setText('qtype2-label', labels[1]);
-            range.disabled = false;
+            byId('easy_pct').value = easy; // hidden fields: these are submitted
+            byId('medium_pct').value = medium;
+            byId('hard_pct').value = hard;
 
-            if (wasSingle) {
-                range.value = 50;             // coming back from a single type: reset the split
+            setText('easy-value', easy + '%');
+            setText('medium-value', medium + '%');
+            setText('hard-value', hard + '%');
+
+            const wrap = byId('diff-range'); // paints the green / yellow / red track
+            wrap.style.setProperty('--a', a);
+            wrap.style.setProperty('--b', b);
+
+            // When both thumbs meet, keep the one that can still move on top
+            r1.classList.toggle('is-top', a > 50);
+            r2.classList.toggle('is-top', a <= 50);
+
+            renderCounts();
+        }
+
+        // ── Question Type slider ─────────────────────────────────────────────────
+        // Slider value = share of the FIRST type (left segment).
+        function renderQtSlider() {
+            const range = byId('qt-range-1');
+            if (!range) return;
+
+            const qt1 = parseInt(range.value) || 0;
+            const qt2 = 100 - qt1;
+
+            byId('qt1_pct').value = qt1; // hidden fields: these are submitted
+            byId('qt2_pct').value = qt2;
+
+            setText('qt1-value', qt1 + '%');
+            setText('qt2-value', qt2 + '%');
+
+            range.style.setProperty('--split', qt1 + '%');
+
+            renderCounts();
+        }
+
+        // Runs on page load and every time the Question Type dropdown changes
+        function syncQtypeLabels() {
+            const select = byId('question-type-select');
+            const range = byId('qt-range-1');
+            if (!select || !range) return;
+
+            const labels = QTYPE_CONFIG[select.value] || QTYPE_CONFIG['All'];
+            const isSingle = labels.length === 1;
+
+            setText('qtype1-label', labels[0]);
+
+            if (isSingle) {
+                range.value = 100;
+                range.disabled = true;
+            } else {
+                setText('qtype2-label', labels[1]);
+                range.disabled = false;
+
+                if (wasSingle) {
+                    range.value = 50; // coming back from a single type: reset the split
+                }
+            }
+
+            setHidden('qtype2-label', isSingle);
+            setHidden('qt2-value', isSingle);
+            setHidden('qt2-count', isSingle);
+
+            wasSingle = isSingle;
+            renderQtSlider();
+        }
+
+        // ── Select2 (isolated, so a problem here cannot break the rest of the form) ──
+        function initSelect2() {
+            if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) {
+                console.warn('[exam form] Select2 is not loaded. Plain dropdowns are used instead. ' +
+                    'Make sure jQuery and select2.js are included before this section.');
+                return;
+            }
+
+            const oldTopic = @json(old('topic'));
+
+            jQuery('#topic-select').select2({
+                tags: true
+                , width: '100%'
+                , placeholder: 'Select or type a topic'
+            });
+            jQuery('#question-type-select').select2({
+                width: '100%'
+            });
+
+            // Keep a typed (new) topic after a validation error
+            if (oldTopic) {
+                const exists = jQuery('#topic-select option').filter((i, o) => o.value === oldTopic).length > 0;
+
+                if (!exists) {
+                    jQuery('#topic-select').append(new Option(oldTopic, oldTopic, true, true));
+                }
+
+                jQuery('#topic-select').val(oldTopic).trigger('change');
             }
         }
 
-        setHidden('qtype2-label', isSingle);
-        setHidden('qt2-value', isSingle);
+        function init() {
+            const select = byId('question-type-select');
+            initSyllabusDropzone();
 
-        wasSingle = isSingle;
-        renderQtSlider();
-    }
-
-    // ── Select2 (isolated, so a problem here cannot break the rest of the form) ──
-    function initSelect2() {
-        if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) {
-            console.warn('[exam form] Select2 is not loaded. Plain dropdowns are used instead. '
-                + 'Make sure jQuery and select2.js are included before this section.');
-            return;
-        }
-
-        const oldTopic = @json(old('topic'));
-
-        jQuery('#topic-select').select2({ tags: true, width: '100%', placeholder: 'Select or type a topic' });
-        jQuery('#question-type-select').select2({ width: '100%' });
-
-        // Keep a typed (new) topic after a validation error
-        if (oldTopic) {
-            const exists = jQuery('#topic-select option').filter((i, o) => o.value === oldTopic).length > 0;
-
-            if (!exists) {
-                jQuery('#topic-select').append(new Option(oldTopic, oldTopic, true, true));
+            // Select2 fires jQuery change events. A jQuery handler also receives native ones,
+            // so this one binding covers both a plain select and a Select2 one.
+            if (window.jQuery) {
+                jQuery(select).on('change', syncQtypeLabels);
+            } else {
+                select.addEventListener('change', syncQtypeLabels);
             }
 
-            jQuery('#topic-select').val(oldTopic).trigger('change');
+            byId('qt-range-1').addEventListener('input', renderQtSlider);
+            byId('diff-range-1').addEventListener('input', e => renderDiffRange(e.target));
+            byId('diff-range-2').addEventListener('input', e => renderDiffRange(e.target));
+            const totalInput = document.querySelector('input[name="total_questions"]');
+            if (totalInput) {
+                ['input', 'change', 'keyup'].forEach(evt => totalInput.addEventListener(evt, renderCounts));
+                ['input', 'change', 'keyup'].forEach(evt => totalInput.addEventListener(evt, renderBloomCounts));
+            }
+            document.querySelectorAll('input[name^="bloom_percentages["]').forEach(input => {
+                ['input', 'change'].forEach(evt => input.addEventListener(evt, renderBloomCounts));
+            });
+
+            byId('exam-form').addEventListener('submit', function() {
+                const btn = byId('submit-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI is writing questions...';
+            });
+
+            syncQtypeLabels();
+            renderDiffRange(null);
+            renderBloomCounts();
+
+            try {
+                initSelect2();
+            } catch (e) {
+                console.error('[exam form] Select2 init failed:', e);
+            }
         }
-    }
 
-    function init() {
-        const select = byId('question-type-select');
-
-        // Select2 fires jQuery change events. A jQuery handler also receives native ones,
-        // so this one binding covers both a plain select and a Select2 one.
-        if (window.jQuery) {
-            jQuery(select).on('change', syncQtypeLabels);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
         } else {
-            select.addEventListener('change', syncQtypeLabels);
+            init();
         }
+    })();
 
-        byId('qt-range-1').addEventListener('input', renderQtSlider);
-        byId('diff-range-1').addEventListener('input', e => renderDiffRange(e.target));
-        byId('diff-range-2').addEventListener('input', e => renderDiffRange(e.target));
-
-        byId('exam-form').addEventListener('submit', function () {
-            const btn = byId('submit-btn');
-            btn.disabled  = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI is writing questions...';
-        });
-
-        syncQtypeLabels();
-        renderDiffRange(null);
-
-        try {
-            initSelect2();
-        } catch (e) {
-            console.error('[exam form] Select2 init failed:', e);
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-})();
 </script>
 
 @endsection

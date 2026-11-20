@@ -59,13 +59,14 @@
                                 <thead>
                                     <tr>
                                         <th width="7%">#</th>
-                                        <th width="25%">Question</th>
-                                        <th width="15%">Topic</th>
-                                        <th width="10%">Type</th>
+                                        <th width="22%">Question</th>
+                                        <th width="13%">Topic</th>
+                                        <th width="9%">Type</th>
                                         <th width="10%">Difficulty</th>
-                                        <th width="10%">Marks</th>
-                                        <th width="10%">Status</th>
-                                        <th width="13%">Actions</th>
+                                        <th width="12%">Bloom's Taxonomy</th>
+                                        <th width="8%">Marks</th>
+                                        <th width="9%">Status</th>
+                                        <th width="10%">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,6 +105,7 @@
                                             <span class="badge rounded-pill bg-danger">Hard</span>
                                             @endif
                                         </td>
+                                        <td>{{ $question->bloom_level ? ucfirst($question->bloom_level) : 'N/A' }}</td>
                                         <td>{{ $question->marks ?? 'N/A' }}</td>
                                         <td>
                                             @if($question->is_active == '1')
@@ -176,7 +178,7 @@
                                     @empty
 
                                     <tr>
-                                        <td colspan="8" class="text-center">
+                                        <td colspan="9" class="text-center">
                                             <strong>
                                                 <i class="bi bi-exclamation-triangle me-1"></i>
                                                 <span>No @yield('title') Available</span>

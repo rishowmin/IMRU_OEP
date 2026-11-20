@@ -14,11 +14,24 @@ return new class extends Migration
             $table->string('topic')->default('General');
             $table->string('question_type')->default('All')->comment('e.g. all, objective, subjective, mcq_4, mcq_2, short_question, long_question');
             $table->unsignedInteger('total_questions');
+
+            // Questionon Type Count
+            $table->unsignedInteger('qt1_count')->default(0);
+            $table->unsignedInteger('qt2_count')->default(0);
+
+            // Difficulty Count
             $table->unsignedInteger('easy_count')->default(0);
             $table->unsignedInteger('medium_count')->default(0);
             $table->unsignedInteger('hard_count')->default(0);
-            $table->unsignedInteger('qt1_count')->default(0);
-            $table->unsignedInteger('qt2_count')->default(0);
+
+            // Bloom's Taxonomy Count
+            $table->unsignedInteger('remember_count')->default(0);
+            $table->unsignedInteger('understand_count')->default(0);
+            $table->unsignedInteger('apply_count')->default(0);
+            $table->unsignedInteger('analyze_count')->default(0);
+            $table->unsignedInteger('evaluate_count')->default(0);
+            $table->unsignedInteger('create_count')->default(0);
+
             $table->unsignedInteger('duration_minutes')->default(60);
             $table->unsignedInteger('total_marks')->default(0);
 
@@ -31,6 +44,7 @@ return new class extends Migration
                   ->comment('Ordered list of selected question IDs');
             $table->json('custom_marks')->nullable()
                   ->comment('Custom Marks for Each Questions');
+            $table->json('syllabus_files')->nullable();
 
             // Randomization seed per candidate (for reproducibility)
             $table->string('randomization_seed')->nullable();

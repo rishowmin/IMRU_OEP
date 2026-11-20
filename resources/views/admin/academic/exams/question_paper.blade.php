@@ -46,7 +46,7 @@
     <div class="row">
 
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm mb-0">
                 <div class="card-header py-3">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                         <div class="exam-card-left">
@@ -77,155 +77,130 @@
                         @if ($exam->questions->count() > 0)
                         <div class="d-flex flex-column gap-3">
                             @foreach ($exam->questions as $question)
-                            <div class="border shadow-sm overflow-hidden">
-                                <div class="row g-0">
+                            @php
+                                $typeMap = [
+                                    'mcq_2'          => ['MCQ 2',   'info'],
+                                    'mcq_4'          => ['MCQ 4',   'primary'],
+                                    'short_question' => ['Short Q.', 'info'],
+                                ];
+                                [$typeLabel, $typeColor] = $typeMap[$question->question_type] ?? ['Long Q.', 'primary'];
 
-                                    {{-- Sidebar --}}
-                                    <div class="col-2 bg-light border-end d-flex flex-column align-items-center gap-2 p-3">
+                                $difficultyMap = [
+                                    'easy'   => 'success',
+                                    'medium' => 'warning',
+                                    'hard'   => 'danger',
+                                ];
+                                $difficultyColor = $difficultyMap[$question->difficulty_level] ?? 'danger';
 
-                                        <h6 class="text-muted fw-bold mb-1">Q{{ $serialNo++ }}.</h6>
+                                $bloomMap = [
+                                    'remember'   => ['Remember',   'remember'],
+                                    'understand' => ['Understand', 'understand'],
+                                    'apply'      => ['Apply',      'apply'],
+                                    'analyze'    => ['Analyze',    'analyze'],
+                                    'evaluate'   => ['Evaluate',   'evaluate'],
+                                    'create'     => ['Create',     'create'],
+                                ];
+                                [$bloomLabel, $bloomColor] = $bloomMap[$question->bloom_level] ?? ['Create', 'create'];
 
-                                        {{-- Difficulty --}}
-                                        <div class="difficulty-level w-100 small">
-                                            @if($question->difficulty_level == 'easy')
-                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle w-100 text-center">Easy</span>
-                                            @elseif($question->difficulty_level == 'medium')
-                                            <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle w-100 text-center">Medium</span>
-                                            @else
-                                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle w-100 text-center">Hard</span>
-                                            @endif
-                                        </div>
+                                $isMcq   = in_array($question->question_type, ['mcq_2', 'mcq_4']);
+                                $options = ['A' => $question->option_a, 'B' => $question->option_b, 'C' => $question->option_c, 'D' => $question->option_d];
+                                $marks   = intval($question->marks);
+                            @endphp
 
-                                        {{-- Question Type --}}
-                                        <div class="question-type w-100 small">
-                                            @if($question->question_type == 'mcq_2')
-                                            <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle w-100 text-center">MCQ 2</span>
-                                            @elseif($question->question_type == 'mcq_4')
-                                            <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle w-100 text-center">MCQ 4</span>
-                                            @elseif($question->question_type == 'short_question')
-                                            <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle w-100 text-center">Short Q.</span>
-                                            @else
-                                            <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle w-100 text-center">Long Q.</span>
-                                            @endif
-                                        </div>
+                            <div class="card border border-theme shadow-sm mb-0">
 
-                                        {{-- Evaluation Type --}}
-                                        <div class="evaluation-type w-100 small">
-                                            @if($question->evaluation_type == 'automatic')
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle w-100 text-center">Automatic</span>
-                                            @else
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle w-100 text-center">Manual</span>
-                                            @endif
-                                        </div>
+                                {{-- Header: number, meta badges, actions --}}
+                                <div class="card-header border-bottom border-theme bg-body-tertiary d-flex flex-wrap align-items-center gap-2 py-2">
 
-                                        {{-- Action Buttons --}}
-                                        <div class="d-flex gap-1 mt-2">
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-outline-warning editQuestionBtn"
-                                            data-id="{{ $question->id }}"
-                                            data-exam_id="{{ $exam->id }}"
-                                            data-question_type="{{ $question->question_type }}"
-                                            data-question_text="{{ $question->question_text }}"
-                                            data-difficulty_level="{{ $question->difficulty_level }}"
-                                            data-marks="{{ $question->marks }}"
-                                            data-evaluation_type="{{ $question->evaluation_type }}"
-                                            data-option_a="{{ $question->option_a }}"
-                                            data-option_b="{{ $question->option_b }}"
-                                            data-option_c="{{ $question->option_c }}"
-                                            data-option_d="{{ $question->option_d }}"
-                                            data-correct_answer="{{ $question->correct_answer }}"
-                                            data-question_order="{{ $question->question_order }}"
-                                            data-question_figure="{{ $question->question_figure ? asset('storage/question_figure/' . $question->question_figure) : '' }}"
-                                            data-bs-toggle="modal" data-bs-target="#addCustomQuestionModal" title="Edit">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <a href="javascript:void(0)" class="btn btn-outline-danger btn-sm deleteBtn" data-id="{{ $question->id }}" data-exam="{{ $exam->id }}" data-bs-toggle="modal" data-bs-target="#delete_modal" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
+                                    <span class="badge rounded-pill bg-{{ $typeColor }}-light text-{{ $typeColor }} border border-{{ $typeColor }}">
+                                        {{ $typeLabel }}
+                                    </span>
 
+                                    <span class="badge rounded-pill bg-{{ $difficultyColor }}-light text-{{ $difficultyColor }} border border-{{ $difficultyColor }}">
+                                        {{ ucfirst($question->difficulty_level) }}
+                                    </span>
+
+                                    <span class="badge rounded-pill bg-{{ $bloomColor }}-light color-{{ $bloomColor }} border border-{{ $bloomColor }}">
+                                        {{ $bloomLabel }}
+                                    </span>
+
+                                    <span class="badge rounded-pill bg-secondary-light text-secondary border border-secondary">
+                                        {{ $question->evaluation_type == 'automatic' ? 'Automatic' : 'Manual' }}
+                                    </span>
+
+                                    {{-- Action buttons --}}
+                                    <div class="ms-auto d-flex gap-1">
+                                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-warning editQuestionBtn"
+                                        data-id="{{ $question->id }}"
+                                        data-exam_id="{{ $exam->id }}"
+                                        data-question_type="{{ $question->question_type }}"
+                                        data-question_text="{{ $question->question_text }}"
+                                        data-difficulty_level="{{ $question->difficulty_level }}"
+                                        data-bloom_level="{{ $question->bloom_level }}"
+                                        data-marks="{{ $question->marks }}"
+                                        data-evaluation_type="{{ $question->evaluation_type }}"
+                                        data-option_a="{{ $question->option_a }}"
+                                        data-option_b="{{ $question->option_b }}"
+                                        data-option_c="{{ $question->option_c }}"
+                                        data-option_d="{{ $question->option_d }}"
+                                        data-correct_answer="{{ $question->correct_answer }}"
+                                        data-question_order="{{ $question->question_order }}"
+                                        data-question_figure="{{ $question->question_figure ? asset('storage/question_figure/' . $question->question_figure) : '' }}"
+                                        data-bs-toggle="modal" data-bs-target="#addCustomQuestionModal" title="Edit">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger deleteBtn"
+                                        data-id="{{ $question->id }}" data-exam="{{ $exam->id }}"
+                                        data-bs-toggle="modal" data-bs-target="#delete_modal" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </div>
-                                    {{-- end sidebar --}}
-
-                                    {{-- Question Body --}}
-                                    <div class="col-10 p-3">
-
-                                        {{-- Question Text --}}
-                                        <p class="fw-semibold mb-3">
-                                            {{ $question->question_text }}
-                                        </p>
-
-                                        {{-- Question Figure --}}
-                                        @if($question->question_figure)
-                                        <div class="border rounded text-center p-2 mb-3 mx-auto w-50">
-                                            <img src="{{ asset('storage/question_figure/' . $question->question_figure) }}" alt="Question Figure" class="img-fluid" style="max-height: 140px; object-fit: contain;">
-                                        </div>
-                                        @endif
-
-                                        {{-- MCQ Options --}}
-                                        @if(in_array($question->question_type, ['mcq_2', 'mcq_4']))
-                                        <div class="row g-2 mb-3">
-
-                                            @if($question->option_a)
-                                            <div class="col-12 col-md-6">
-                                                <div class="d-flex align-items-center gap-2 rounded px-3 py-2 border {{ $question->correct_answer == $question->option_a ? 'bg-success-subtle border-success-subtle' : 'bg-light' }}">
-                                                    <p class="badge rounded-1 mb-0 {{ $question->correct_answer == $question->option_a ? 'bg-success' : 'bg-secondary' }}">A</p>
-                                                    <p class="mb-0 {{ $question->correct_answer == $question->option_a ? 'text-success fw-medium' : '' }}">{{ $question->option_a }}</p>
-                                                </div>
-                                            </div>
-                                            @endif
-
-                                            @if($question->option_b)
-                                            <div class="col-12 col-md-6">
-                                                <div class="d-flex align-items-center gap-2 rounded px-3 py-2 border {{ $question->correct_answer == $question->option_b ? 'bg-success-subtle border-success-subtle' : 'bg-light' }}">
-                                                    <p class="badge rounded-1 mb-0 {{ $question->correct_answer == $question->option_b ? 'bg-success' : 'bg-secondary' }}">B</p>
-                                                    <p class="mb-0 {{ $question->correct_answer == $question->option_b ? 'text-success fw-medium' : '' }}">{{ $question->option_b }}</p>
-                                                </div>
-                                            </div>
-                                            @endif
-
-                                            @if($question->option_c)
-                                            <div class="col-12 col-md-6">
-                                                <div class="d-flex align-items-center gap-2 rounded px-3 py-2 border {{ $question->correct_answer == $question->option_c ? 'bg-success-subtle border-success-subtle' : 'bg-light' }}">
-                                                    <p class="badge rounded-1 mb-0 {{ $question->correct_answer == $question->option_c ? 'bg-success' : 'bg-secondary' }}">C</p>
-                                                    <p class="mb-0 {{ $question->correct_answer == $question->option_c ? 'text-success fw-medium' : '' }}">{{ $question->option_c }}</p>
-                                                </div>
-                                            </div>
-                                            @endif
-
-                                            @if($question->option_d)
-                                            <div class="col-12 col-md-6">
-                                                <div class="d-flex align-items-center gap-2 rounded px-3 py-2 border {{ $question->correct_answer == $question->option_d ? 'bg-success-subtle border-success-subtle' : 'bg-light' }}">
-                                                    <p class="badge rounded-1 mb-0 {{ $question->correct_answer == $question->option_d ? 'bg-success' : 'bg-secondary' }}">D</p>
-                                                    <p class="mb-0 {{ $question->correct_answer == $question->option_d ? 'text-success fw-medium' : '' }}">{{ $question->option_d }}</p>
-                                                </div>
-                                            </div>
-                                            @endif
-
-                                        </div>
-                                        @endif
-
-                                        {{-- Footer: Answer + Marks --}}
-                                        <div class="d-flex align-items-baseline justify-content-between pt-2 border-top">
-                                            <div class="answer-col">
-                                                @if($question->correct_answer)
-                                                <p class="mb-0 text-muted fw-bold small">Correct Answer</p>
-                                                <p class="mb-0 small">
-                                                    {{ $question->correct_answer }}
-                                                </p>
-                                                @else
-                                                <span class="text-muted fst-italic small">Requires manual evaluation</span>
-                                                @endif
-                                            </div>
-                                            <div class="marks-col d-flex align-items-baseline gap-1">
-                                                <p class="mb-0 text-muted fw-bold fs-6">{{ intval($question->marks) }}</p>
-                                                <p class="mb-0 small">mark{{ intval($question->marks) != 1 ? 's' : '' }}</p>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    {{-- end col --}}
                                 </div>
-                                {{-- end row g-0 --}}
+
+                                {{-- Body --}}
+                                <div class="card-body">
+
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <h5 class="mb-0 fw-bold text-muted">
+                                            <span class="badge rounded-pill bg-theme px-4 py-2">Q {{ $serialNo++ }}.</span>
+                                        </h5>
+                                        <h6 class="mb-0 fw-bold text-muted">
+                                            <span>{{ $marks }}</span>
+                                            <span class="fw-normal small">mark{{ $marks != 1 ? 's' : '' }}</span>
+                                        </h6>
+                                    </div>
+
+                                    <p class="fw-semibold fs-6 mb-1">{{ $question->question_text }}</p>
+
+                                    @if($question->question_figure)
+                                    <div class="ratio ratio-16x9 w-50 mx-auto mb-3 border rounded bg-light">
+                                        <img src="{{ asset('storage/question_figure/' . $question->question_figure) }}"
+                                            alt="Question Figure"
+                                            class="object-fit-contain p-2">
+                                    </div>
+                                    @endif
+
+                                    @if($isMcq)
+                                    <div class="row g-2">
+                                        @foreach($options as $letter => $option)
+                                            @if($option)
+                                                @php $isCorrect = $question->correct_answer == $option; @endphp
+                                                <div class="col-12 col-md-6">
+                                                    <div class="d-flex align-items-center gap-2 rounded border px-3 py-2 {{ $isCorrect ? 'bg-success-subtle border-success-subtle' : 'bg-light' }}">
+                                                        <span class="badge rounded-1 {{ $isCorrect ? 'bg-success' : 'bg-secondary' }}">{{ $letter }}</span>
+                                                        <span class="flex-grow-1 {{ $isCorrect ? 'text-success-emphasis fw-medium' : '' }}">{{ $option }}</span>
+                                                        @if($isCorrect)
+                                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    @endif
+
+                                </div>
+
                             </div>
                             {{-- end card --}}
                             @endforeach
@@ -300,6 +275,7 @@
 
         $('#question_type').select2({ dropdownParent: $modal, width: '100%' }).on('change', handleOptions);
         $('#difficulty_level').select2({ dropdownParent: $modal, width: '100%' });
+        $('#bloom_level').select2({ dropdownParent: $modal, width: '100%' });
         $('#evaluation_type').select2({ dropdownParent: $modal, width: '100%' });
 
         handleOptions();
@@ -344,7 +320,7 @@
         document.getElementById('figure_preview_img').src = "{{ asset('assets/admin/img/img-prev.png') }}";
 
         // refresh Select2 UI (this also runs handleOptions via the change listener)
-        $('#question_type, #difficulty_level, #evaluation_type').trigger('change');
+        $('#question_type, #difficulty_level, #bloom_level, #evaluation_type').trigger('change');
     });
 
     // Populate modal for Edit
@@ -375,6 +351,7 @@
             $('#difficulty_level').val(data.difficulty_level).trigger('change');
             $('#evaluation_type').val(data.evaluation_type).trigger('change');
             $('#question_type').val(data.question_type).trigger('change');
+            $('#bloom_level').val(data.bloom_level).trigger('change');
 
             // Tick the radio whose text matches the saved answer
             $('input[name="correct_option"]').prop('checked', false);

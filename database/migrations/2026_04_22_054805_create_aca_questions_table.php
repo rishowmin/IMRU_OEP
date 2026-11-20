@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('question_type');
             $table->text('question_text');
             $table->string('difficulty_level')->default('medium')->comment('easy, medium, hard');
+            $table->string('bloom_level')->nullable()->comment('Remember, Understand, Apply, Analyze, Evaluate, Create');
             $table->unsignedDecimal('marks', 5, 2)->default(1.00);
             $table->string('evaluation_type')->default('automatic')->comment('automatic=objective, manual=subjective');
             $table->string('option_a')->nullable();

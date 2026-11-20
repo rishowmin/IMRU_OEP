@@ -103,7 +103,7 @@
                                     </div>
 
                                     {{-- Question Type --}}
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-4">
                                         <label for="question_type" class="form-label fw-bold mb-1"><small>Question Type</small> <small class="text-danger">*</small></label>
                                         <select class="form-select @error('question_type') is-invalid @elseif(old('question_type', $question->question_type ?? false)) is-valid @enderror" id="question_type" name="question_type">
                                             <option value="mcq_4" {{ old('question_type', $question->question_type ?? '') == 'mcq_4' ? 'selected' : '' }}>MCQ (4 Options)</option>
@@ -130,7 +130,7 @@
                                     </div>
 
                                     {{-- Difficulty Level --}}
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-4">
                                         <label for="difficulty_level" class="form-label fw-bold mb-1"><small>Difficulty Level</small> <small class="text-danger">*</small></label>
                                         <select class="form-select @error('difficulty_level') is-invalid @elseif(old('difficulty_level', $question->difficulty_level ?? false)) is-valid @enderror" id="difficulty_level" name="difficulty_level">
                                             <option value="easy" {{ old('difficulty_level', $question->difficulty_level ?? '') == 'easy' ? 'selected' : '' }}>Easy</option>
@@ -155,8 +155,27 @@
                                         </div>
                                     </div>
 
+                                    {{-- Bloom's Taxonomy Level --}}
+                                    <div class="col-sm-4">
+                                        <label for="bloom_level" class="form-label fw-bold mb-1"><small>Bloom's Taxonomy</small> <small class="text-danger">*</small></label>
+                                        <select class="form-select @error('bloom_level') is-invalid @elseif(old('bloom_level', $question->bloom_level ?? false)) is-valid @enderror" id="bloom_level" name="bloom_level" required>
+                                            <option value="remember" {{ old('bloom_level', $question->bloom_level ?? '') === 'remember' ? 'selected' : '' }}>Remember</option>
+                                            <option value="understand" {{ old('bloom_level', $question->bloom_level ?? '') === 'understand' ? 'selected' : '' }}>Understand</option>
+                                            <option value="apply" {{ old('bloom_level', $question->bloom_level ?? '') === 'apply' ? 'selected' : '' }}>Apply</option>
+                                            <option value="analyze" {{ old('bloom_level', $question->bloom_level ?? '') === 'analyze' ? 'selected' : '' }}>Analyze</option>
+                                            <option value="evaluate" {{ old('bloom_level', $question->bloom_level ?? '') === 'evaluate' ? 'selected' : '' }}>Evaluate</option>
+                                            <option value="create" {{ old('bloom_level', $question->bloom_level ?? '') === 'create' ? 'selected' : '' }}>Create</option>
+                                        </select>
+                                        @error('bloom_level')
+                                        <div class="invalid-feedback d-block">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
+                                    </div>
+
                                     {{-- Marks --}}
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-6">
                                         <label for="marks" class="form-label fw-bold mb-1"><small>Marks</small> <small class="text-danger">*</small></label>
                                         <input type="number" class="form-control @error('marks') is-invalid @elseif(old('marks', $question->marks ?? false)) is-valid @enderror" id="marks" name="marks" placeholder="Question Text" value="{{ old('marks', $question->marks ?? 1) }}">
 
@@ -178,7 +197,7 @@
                                     </div>
 
                                     {{-- Evaluation Type --}}
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-6">
                                         <label for="evaluation_type" class="form-label fw-bold mb-1"><small>Evaluation Type</small> <small class="text-danger">*</small></label>
                                         <select class="form-select @error('evaluation_type') is-invalid @elseif(old('evaluation_type', $question->evaluation_type ?? false)) is-valid @enderror" id="evaluation_type" name="evaluation_type">
                                             <option value="automatic" {{ old('evaluation_type', $question->evaluation_type ?? '') == 'automatic' ? 'selected' : '' }}>Automatic</option>
@@ -360,6 +379,7 @@
         $('#exam_id').select2({});
         $('#question_type').select2({}).on('change', handleOptions);
         $('#difficulty_level').select2({});
+        $('#bloom_level').select2({});
         $('#evaluation_type').select2({});
 
         handleOptions();
@@ -390,7 +410,7 @@
 
         $('button[type="reset"]').on('click', function () {
             setTimeout(function () {
-                $('#exam_id, #question_type, #difficulty_level, #evaluation_type').trigger('change');
+                $('#exam_id, #question_type, #difficulty_level, #bloom_level, #evaluation_type').trigger('change');
                 highlightCorrectOption();
             }, 0);
         });
